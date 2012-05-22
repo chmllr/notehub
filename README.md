@@ -1,6 +1,6 @@
 # NoteHub
 
-NoteHub is a free and anonymous hosting of markdown pages. It can be used for publishing of formated text. For instance, this  service might be interesting for people, who want to publish something, but don't want to start a blog.
+NoteHub is a free and anonymous hosting for markdown pages. It can be used for publishing of markdown-formatted text. For instance, this  service might be interesting to people, who want to publish something, but don't want to start a blog.
 
 ## Writing
 

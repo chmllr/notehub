@@ -5,5 +5,12 @@
 
 (defpage "/" []
          (common/layout
-           [:h1 "Welcome to NoteHub"]))
+           [:div#hero
+            [:h1 "NoteHub"]
+            [:h2.helvetica-neue "Free hosting for markdown pages."]
+            [:button.helvetica-neue "Create Page"]]
+           [:div#body
+            [:p.centerized.helvetica-neue 
+              (interpose (repeat 10 "&nbsp")
+                         ["About" "How to use" "Impressum"])]]))
 
