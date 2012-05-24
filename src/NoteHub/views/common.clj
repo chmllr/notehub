@@ -1,6 +1,6 @@
 (ns NoteHub.views.common
   (:use [noir.core :only [defpartial]]
-        [hiccup.page :only [include-css html5]]))
+        [hiccup.page :only [include-js html5]]))
 (use 'cssgen)
 
 (defn gen-comma-list [fonts] (apply str (interpose "," fonts)))
@@ -57,6 +57,7 @@
             (html5
               [:head
                [:title "NoteHub"]
+               (include-js "/js/main.js")
                [:link {:href "http://fonts.googleapis.com/css?family=Noticia+Text:400,700" 
                        :rel "stylesheet"
                        :type "text/css"}]
