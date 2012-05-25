@@ -14,5 +14,5 @@
 (defpage "/new" []
          (common/layout
            [:div.central-body.max-width
-            (text-area {:class "central-body max-width"} :article-write)]))
+            (text-area {:class "central-body max-width"} :write-textarea)]))
 

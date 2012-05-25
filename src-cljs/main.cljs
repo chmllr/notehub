@@ -1,3 +1,6 @@
-(ns NoteHub.main)
+(ns NoteHub.main
+  (:require [clojure.browser.dom :as dom]))
 
-(.log js/console "works !")
+(if-let [write-textarea (dom/get-element "write-textarea")]
+  (dom/append write-textarea "test"))
+
