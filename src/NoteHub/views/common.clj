@@ -18,16 +18,17 @@
                         "Arial"
                         "'Lucida Grande'"
                         "sans-serif"]))
-      (rule "button"
-            :cursor :hand
+      (rule ".button"
             :box-shadow [0 :2px :5px :#aaa]
-            :margin-top :1em
+            :text-decoration :none
             :font-size :1.5em
             :background :#0a2
             :color :white
             :border :none
             :border-radius :10px
-            :padding :10px)
+            :padding :10px
+            (rule "&:hover"
+                  :background :#0b2))
       (rule "html, body"
             :color :#333
             :margin 0
@@ -48,6 +49,13 @@
             :font-size :1.3em
             :border :none
             :height :600px)
+      (rule ".form-button"
+            :display :none
+            :cursor :pointer
+            :border [:1px :solid]
+            :background :white
+            :font-size :0.8em
+            :opacity :0.8)
       (rule ".central-body"
             :margin-top :5em
             :margin-bottom :5em
@@ -55,10 +63,10 @@
             :margin-right "auto")
       (rule "h1, h2, h3, h4" :font-family "'Noticia Text'")))
 
-(defpartial layout [& content]
+(defpartial layout [title & content]
             (html5
               [:head
-               [:title "NoteHub"]
+               [:title "NoteHub - " title]
                [:link {:href "http://fonts.googleapis.com/css?family=Noticia+Text:400,700" 
                        :rel "stylesheet"
                        :type "text/css"}]
