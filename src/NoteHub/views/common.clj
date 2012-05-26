@@ -11,13 +11,14 @@
     (css 
       (rule ".centerized"
           :text-align :center)
-      (rule ".helvetica-neue"
+      (def helvetica-neue
+        (mixin
           :font-weight 300
           :font-family (gen-comma-list ["'Helvetica Neue'"
                         "Helvetica"
                         "Arial"
                         "'Lucida Grande'"
-                        "sans-serif"]))
+                        "sans-serif"])))
       (rule ".button"
             :box-shadow [0 :2px :5px :#aaa]
             :text-decoration :none
@@ -27,8 +28,9 @@
             :border :none
             :border-radius :10px
             :padding :10px
+            helvetica-neue
             (rule "&:hover"
-                  :background :#0b2))
+                  :background :#2b3))
       (rule "html, body"
             :color :#333
             :margin 0
@@ -36,7 +38,9 @@
       (rule "#hero"
             :padding-top :5em
             :padding-bottom :5em
-            :text-align :center)
+            :text-align :center
+            (rule "h2"
+                  helvetica-neue))
       (rule ".article-font"
             :font-family :Georgia
             :font-size :1.3em)
@@ -49,7 +53,8 @@
             :font-size :1.3em
             :border :none
             :height :600px)
-      (rule ".form-button"
+      (rule "#form-button"
+            helvetica-neue
             :display :none
             :cursor :pointer
             :border [:1px :solid]

@@ -6,22 +6,16 @@
             [clojure.browser.event :as event]
             [goog.editor.focus :as focus]))
 
-(defn log [obj]
-  (.log js/console obj))
+(defn $ 
+  "The DOM-element selector."
+  [selector]
+    (dom/get-element selector))
 
-(defn $ [selector]
-  (let [type (first selector) name (apply str (rest selector))]
-    (cond (= \# type) (dom/get-element name)
-          (= \. type) (gdom/getElementByClass name))))
-
-(if-let [write-textarea ($ "#write-textarea")]
+(if-let [write-textarea ($ "write-textarea")]
   (focus/focusInputField write-textarea))
 
-(defn show-form-buttons []
-  (style/setStyle ($ ".form-button") "display" "block"))
-
-(event/listen ($ "#write-textarea")
+; Show the Preview button as soon as the user starts typing.
+(event/listen ($ "write-textarea")
               :keypress
               (fn [e]
-                (show-form-buttons)))
-
+                (style/setStyle ($ "form-button") "display" "block")))
