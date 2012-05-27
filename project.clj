@@ -3,7 +3,7 @@
             :dependencies [[org.clojure/clojure "1.4.0"]
                            [hiccup "1.0.0"]
                            [cssgen "0.2.6"]
-                           [markdown-clj "0.8"]
+                           [org.pegdown/pegdown "1.1.0"]
                            [noir "1.3.0-beta1"]]
             :plugins [[lein-cljsbuild "0.1.10"]]
             :cljsbuild {

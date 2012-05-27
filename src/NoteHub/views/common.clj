@@ -5,20 +5,20 @@
     [hiccup.page :only [include-js html5]]
     [hiccup.element :only [javascript-tag]]))
 
-(defn gen-comma-list [fonts] (apply str (interpose "," fonts)))
+(defn gen-comma-list [& fonts] (apply str (interpose "," fonts)))
+(def helvetica-neue
+  (mixin
+    :font-weight 300
+    :font-family (gen-comma-list "'Helvetica Neue'"
+                  "Helvetica"
+                  "Arial"
+                  "'Lucida Grande'"
+                  "sans-serif")))
 
 (def global-css 
     (css 
       (rule ".centerized"
           :text-align :center)
-      (def helvetica-neue
-        (mixin
-          :font-weight 300
-          :font-family (gen-comma-list ["'Helvetica Neue'"
-                        "Helvetica"
-                        "Arial"
-                        "'Lucida Grande'"
-                        "sans-serif"])))
       (rule ".button"
             :box-shadow [0 :2px :5px :#aaa]
             :text-decoration :none
@@ -50,6 +50,7 @@
       (rule "*:focus"
             :outline [:0px :none :transparent])
       (rule "textarea"
+            :width "900px"
             :font-family :Courier
             :font-size :1.3em
             :border :none
@@ -68,7 +69,11 @@
             :margin-bottom :5em
             :margin-left "auto"
             :margin-right "auto")
-      (rule "h1, h2, h3, h4" :font-family "'Noticia Text'")))
+      (rule "h1"
+            :font-size :2em)
+      (rule "h1, h2, h3, h4" 
+            :font-family (gen-comma-list
+                           "'Noticia Text'" "Georgia"))))
 
 (defpartial layout [title & content]
             (html5

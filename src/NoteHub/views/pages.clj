@@ -1,8 +1,8 @@
 (ns NoteHub.views.pages
   (:require [NoteHub.views.common :as common])
   (:use [noir.core :only [defpage]]
-        [hiccup.form]
-        [markdown :only [md-to-html-string]]))
+        [hiccup.form])
+  (:import [org.pegdown PegDownProcessor]))
 
 (defpage "/" {}
          (common/layout "Free Markdown Hosting"
@@ -25,4 +25,4 @@
 (defpage [:post "/preview-note"] {:keys [draft]}
          (common/layout "Preview of ..."
             [:article.central-body
-             (md-to-html-string draft)])) 
+             (.markdownToHtml (PegDownProcessor.) draft)]))
