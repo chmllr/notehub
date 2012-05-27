@@ -44,8 +44,9 @@
       (rule ".article-font"
             :font-family :Georgia
             :font-size :1.3em)
-      (rule ".max-width"
-            :width "900px")
+      (rule "article"
+            :font-family :Georgia
+            :font-size :1.2em)
       (rule "*:focus"
             :outline [:0px :none :transparent])
       (rule "textarea"
@@ -53,7 +54,7 @@
             :font-size :1.3em
             :border :none
             :height :600px)
-      (rule "#form-button"
+      (rule "#preview-button"
             helvetica-neue
             :display :none
             :cursor :pointer
@@ -62,6 +63,7 @@
             :font-size :0.8em
             :opacity :0.8)
       (rule ".central-body"
+            :width "900px"
             :margin-top :5em
             :margin-bottom :5em
             :margin-left "auto"

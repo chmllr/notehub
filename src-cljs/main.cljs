@@ -11,11 +11,11 @@
   [selector]
     (dom/get-element selector))
 
-(if-let [write-textarea ($ "write-textarea")]
-  (focus/focusInputField write-textarea))
+(if-let [draft ($ "draft")]
+  (focus/focusInputField draft))
 
 ; Show the Preview button as soon as the user starts typing.
-(event/listen ($ "write-textarea")
+(event/listen ($ "draft")
               :keypress
               (fn [e]
-                (style/setStyle ($ "form-button") "display" "block")))
+                (style/setStyle ($ "preview-button") "display" "block")))
