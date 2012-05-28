@@ -1,5 +1,5 @@
 (ns NoteHub.views.pages
-  (:require [NoteHub.views.common :as common] [digest :as digest])
+  (:require [NoteHub.views.common :as common])
   (:use
     [NoteHub.storage :rename {get s-get set s-set} :only [set get]]
     [noir.response :only [redirect]]
@@ -31,7 +31,10 @@
                         [:article#preview.central-body]))
 
 (defn get-storage-key [year month day title]
-  (str "note-" (digest/md5 (str year month day title))))
+  (apply str (interpose "-" ["note" year month day (hash [year month day title])])))
+
+(defremote md-to-html [draft]
+           (.markdownToHtml (PegDownProcessor.) draft))
 
 (defpage "/:year/:month/:day/:title" {:keys [year month day title]}
          (let [key (get-storage-key year month day title)
@@ -54,6 +57,3 @@
            (do
              (s-set key draft)
              (redirect (apply str (interpose "/" ["" year month day title]))))))
-
-(defremote md-to-html [draft]
-           (.markdownToHtml (PegDownProcessor.) draft))

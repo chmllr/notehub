@@ -85,8 +85,7 @@
             :border-bottom [:1px :dashed :gray]
             :margin-bottom :5em)
       (rule "h1, h2, h3, h4" 
-            :font-family (gen-comma-list
-                           "'Noticia Text'" "Georgia"))))
+            :font-family (gen-comma-list "'Noticia Text'" "Georgia"))))
 
 (defpartial layout [title & content]
             (html5

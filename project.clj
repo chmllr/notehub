@@ -6,7 +6,6 @@
                            [jayq "0.1.0-alpha2"]
                            [fetch "0.1.0-alpha2"]
                            [clj-redis "0.0.12"]
-                           [digest "1.4.0"]
                            [org.pegdown/pegdown "1.1.0"]
                            [noir "1.3.0-beta1"]]
             :plugins [[lein-cljsbuild "0.1.10"]]
