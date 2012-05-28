@@ -2,7 +2,7 @@
   (:require [NoteHub.views.common :as common] [digest :as digest])
   (:use
     [NoteHub.storage :rename {get s-get set s-set} :only [set get]]
-    [noir.response :only [content-type]]
+    [noir.response :only [redirect]]
     [clojure.string :rename {replace sreplace} :only [split replace lower-case]]
     [noir.core :only [defpage render]]
     [hiccup.form]
@@ -30,11 +30,17 @@
                         [:div#preview-start]
                         [:article#preview.central-body]))
 
+(defn get-storage-key [year month day title]
+  (str "note-" (digest/md5 (str year month day title))))
+
 (defpage "/:year/:month/:day/:title" {:keys [year month day title]}
-         (let [key (str "note-" (digest/md5 (str year month day title)))]
-           (common/layout "TEST"
+         (let [key (get-storage-key year month day title)
+               post (s-get key)
+               title (sreplace (-> post (split #"\n") first) #"[_\*#]" "")]
+           (common/layout title
              [:article.central-body
-              (md-to-html (s-get key))])))
+              ; TODO: deal with 404!
+              (md-to-html post)])))
 
 (defpage [:post "/post-note"] {:keys [draft]}
          (let [[year month day] (split (.format (java.text.SimpleDateFormat. "yyyy-MM-dd") (java.util.Date.)) #"-")
@@ -43,12 +49,11 @@
                trim (fn [s] (apply str (drop-while #(= \- %) s)))
                title-uncut (-> untrimmed-line trim reverse trim reverse)
                title (apply str (take max-title-length title-uncut))
-               key (str "note-" (digest/md5 (str year month day title)))]
+               ; TODO: deal with collisions!
+               key (get-storage-key year month day title)]
            (do
              (s-set key draft)
-             (render "/:year/:month/:day/:title" {:year year :month month :day day :title title}))))
-
-; Actions.
+             (redirect (apply str (interpose "/" ["" year month day title]))))))
 
 (defremote md-to-html [draft]
            (.markdownToHtml (PegDownProcessor.) draft))

@@ -6,6 +6,9 @@
     [hiccup.element :only [javascript-tag]]))
 
 (defn gen-comma-list [& fonts] (apply str (interpose "," fonts)))
+(def page-width
+  (mixin
+    :width :900px))
 (def helvetica-neue
   (mixin
     :font-weight 300
@@ -17,8 +20,6 @@
 
 (def global-css 
     (css 
-      (rule ".centerized"
-          :text-align :center)
       (rule ".landing-button"
             :box-shadow [0 :2px :5px :#aaa]
             :text-decoration :none
@@ -41,9 +42,6 @@
             :text-align :center
             (rule "h2"
                   helvetica-neue))
-      (rule ".article-font"
-            :font-family :Georgia
-            :font-size :1.3em)
       (rule "article"
             :font-family :Georgia
             :font-size :1.2em
@@ -58,10 +56,11 @@
       (rule "*:focus"
             :outline [:0px :none :transparent])
       (rule "textarea"
-            :width "900px"
+            page-width
             :font-family :Courier
             :font-size :1.2em
             :border :none
+            ; TODO: make this dynamic
             :height :600px
             :margin-bottom :2em)
       (rule ".hidden"
@@ -75,7 +74,7 @@
             :font-size :1em
             :background :white)
       (rule ".central-body"
-            :width "900px"
+            page-width
             :margin-top :5em
             :margin-bottom :10em
             :margin-left "auto"
