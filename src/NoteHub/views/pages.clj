@@ -1,6 +1,8 @@
 (ns NoteHub.views.pages
   (:require [NoteHub.views.common :as common])
-  (:use [noir.core :only [defpage]]
+  (:use
+        [clojure.string :rename {replace sreplace} :only [trim split replace]]
+        [noir.core :only [defpage]]
         [hiccup.form])
   (:import [org.pegdown PegDownProcessor]))
 
@@ -23,6 +25,7 @@
 ; Actions.
 
 (defpage [:post "/preview-note"] {:keys [draft]}
-         (common/layout "Preview of ..."
-            [:article.central-body
-             (.markdownToHtml (PegDownProcessor.) draft)]))
+         (let [get-title (comp trim #(sreplace % "#" "") first #(split % #"\n"))]
+           (common/layout (get-title draft)
+              [:article.central-body
+                (.markdownToHtml (PegDownProcessor.) draft)])))

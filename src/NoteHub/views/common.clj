@@ -46,7 +46,10 @@
             :font-size :1.3em)
       (rule "article"
             :font-family :Georgia
-            :font-size :1.2em)
+            :font-size :1.2em
+            (rule "& > h1:first-child"
+                  :text-align :center
+                  :margin :2em))
       (rule "*:focus"
             :outline [:0px :none :transparent])
       (rule "textarea"
