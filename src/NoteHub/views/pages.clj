@@ -1,31 +1,34 @@
 (ns NoteHub.views.pages
   (:require [NoteHub.views.common :as common])
   (:use
-        [clojure.string :rename {replace sreplace} :only [trim split replace]]
-        [noir.core :only [defpage]]
-        [hiccup.form])
+    [noir.response :only [content-type]]
+    [clojure.string :rename {replace sreplace} :only [trim split replace]]
+    [noir.core :only [defpage]]
+    [hiccup.form]
+    [noir.fetch.remotes])
   (:import [org.pegdown PegDownProcessor]))
 
 (defpage "/" {}
          (common/layout "Free Markdown Hosting"
-           [:div#hero
-            [:h1 "NoteHub"]
-            [:h2 "Free hosting for markdown pages."]
-            [:br]
-            [:br]
-            [:a.button {:href "/new"} "New Page"]]))
+                        [:div#hero
+                         [:h1 "NoteHub"]
+                         [:h2 "Free hosting for markdown pages."]
+                         [:br]
+                         [:br]
+                         [:a.landing-button {:href "/new"} "New Page"]]))
 
 (defpage "/new" {}
          (common/layout "New Markdown Note"
-           [:div.central-body
-            (form-to [:post "/preview-note"]
-              (text-area {:class "max-width"} :draft)
-              (submit-button {:id "preview-button"} "Preview"))]))
+                        [:div.central-body
+                         (form-to [:get "/preview-note"]
+                                  (text-area {:class "max-width"} :draft)
+                                  [:div#buttons.hidden
+                                   (submit-button {:style "float: left" :class "button"} "Publish")
+                                   [:button#preview-button.button {:type :button :style "float: right"} "Preview"]])]
+                        [:div#preview-start]
+                        [:article#preview.central-body]))
 
 ; Actions.
 
-(defpage [:post "/preview-note"] {:keys [draft]}
-         (let [get-title (comp trim #(sreplace % "#" "") first #(split % #"\n"))]
-           (common/layout (get-title draft)
-              [:article.central-body
-                (.markdownToHtml (PegDownProcessor.) draft)])))
+(defremote md-to-html [draft]
+           (.markdownToHtml (PegDownProcessor.) draft))

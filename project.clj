@@ -3,6 +3,8 @@
             :dependencies [[org.clojure/clojure "1.4.0"]
                            [hiccup "1.0.0"]
                            [cssgen "0.2.6"]
+                           [jayq "0.1.0-alpha2"]
+                           [fetch "0.1.0-alpha2"]
                            [org.pegdown/pegdown "1.1.0"]
                            [noir "1.3.0-beta1"]]
             :plugins [[lein-cljsbuild "0.1.10"]]
@@ -13,7 +15,8 @@
                 ; The standard ClojureScript compiler options:
                 ; (See the ClojureScript compiler documentation for details.)
                 :compiler {
-                  :output-to "resources/public/js/main.js"  ; default: main.js in current directory
+                  :output-dir "resources/public/cljs/"
+                  :output-to "resources/public/cljs/main.js"  ; default: main.js in current directory
                   :optimizations :whitespace
                   :pretty-print true}}]}
             :main NoteHub.server)

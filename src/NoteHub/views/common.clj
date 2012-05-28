@@ -19,7 +19,7 @@
     (css 
       (rule ".centerized"
           :text-align :center)
-      (rule ".button"
+      (rule ".landing-button"
             :box-shadow [0 :2px :5px :#aaa]
             :text-decoration :none
             :font-size :1.5em
@@ -30,7 +30,7 @@
             :padding :10px
             helvetica-neue
             (rule "&:hover"
-                  :background :#2b3))
+                  :background :#0b2))
       (rule "html, body"
             :color :#333
             :margin 0
@@ -50,30 +50,39 @@
             (rule "& > h1:first-child"
                   :text-align :center
                   :margin :2em))
+      (rule "pre"
+            :padding :1em
+            :border [:1px :dashed :gray]
+            :background :#efefef)
       (rule "*:focus"
             :outline [:0px :none :transparent])
       (rule "textarea"
             :width "900px"
             :font-family :Courier
-            :font-size :1.3em
+            :font-size :1.2em
             :border :none
-            :height :600px)
-      (rule "#preview-button"
+            :height :600px
+            :margin-bottom :2em)
+      (rule ".hidden"
+            :display :none)
+      (rule ".button"
             helvetica-neue
-            :display :none
             :cursor :pointer
             :border [:1px :solid]
-            :background :white
-            :font-size :0.8em
-            :opacity :0.8)
+            :opacity 0.7
+            :font-size :1em
+            :background :white)
       (rule ".central-body"
             :width "900px"
             :margin-top :5em
-            :margin-bottom :5em
+            :margin-bottom :10em
             :margin-left "auto"
             :margin-right "auto")
       (rule "h1"
             :font-size :2em)
+      (rule "#preview-start"
+            :border-bottom [:1px :dashed :gray]
+            :margin-bottom :10em)
       (rule "h1, h2, h3, h4" 
             :font-family (gen-comma-list
                            "'Noticia Text'" "Georgia"))))
@@ -82,6 +91,7 @@
             (html5
               [:head
                [:title "NoteHub - " title]
+               (include-js "https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js")
                [:link {:href "http://fonts.googleapis.com/css?family=Noticia+Text:400,700" 
                        :rel "stylesheet"
                        :type "text/css"}]
@@ -89,4 +99,4 @@
               [:body 
                 content
                 (javascript-tag "var CLOSURE_NO_DEPS = true;")
-                (include-js "/js/main.js")]))
+                (include-js "/cljs/main.js")]))

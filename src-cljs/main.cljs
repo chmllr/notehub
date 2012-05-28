@@ -1,21 +1,32 @@
 (ns NoteHub.main
-  (:require [clojure.browser.dom :as dom]
-            [goog.dom :as gdom]
-            [goog.style :as style]
-            [goog.dom.classes :as classes]
-            [clojure.browser.event :as event]
-            [goog.editor.focus :as focus]))
+  (:use [jayq.core :only [$ css inner val anim]])
+  (:require [fetch.remotes :as remotes]
+            [clojure.browser.dom :as dom]
+            [clojure.browser.event :as event])
+  (:require-macros [fetch.macros :as fm]))
 
-(defn $ 
-  "The DOM-element selector."
-  [selector]
-    (dom/get-element selector))
+; frequently used selectors
+(def $draft ($ :#draft))
+(def $preview ($ :#preview))
 
-(if-let [draft ($ "draft")]
-  (focus/focusInputField draft))
+(defn scroll-to 
+  "scrolls to the given selector"
+  [$id]
+  (anim ($ :body) {:scrollTop ((js->clj (.offset $id)) "top")} 500))
 
-; Show the Preview button as soon as the user starts typing.
-(event/listen ($ "draft")
-              :keypress
-              (fn [e]
-                (style/setStyle ($ "preview-button") "display" "block")))
+; set focus to the draft textarea (if there is one)
+(.focus $draft)
+
+; show the preview & publish buttons as soon as the user starts typing.
+(.keypress $draft
+           (fn [e]
+             (css ($ :#buttons) {:display :block})))
+
+; on a preview button click, transform markdown to html, put it 
+; to the preview layer and scroll to it
+(.click ($ :#preview-button)
+        (fn [e]
+          (do
+            (fm/remote (md-to-html (val $draft)) [result] 
+                       (inner $preview result)
+                       (scroll-to $preview)))))
