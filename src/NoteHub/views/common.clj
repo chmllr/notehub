@@ -51,8 +51,9 @@
                   :text-align :center
                   :margin :2em))
       (rule "pre"
+            :border-radius :3px
             :padding :1em
-            :border [:1px :dashed :gray]
+            :border [:1px :dotted :gray]
             :background :#efefef)
       (rule "*:focus"
             :outline [:0px :none :transparent])
@@ -66,10 +67,11 @@
       (rule ".hidden"
             :display :none)
       (rule ".button"
+            :border-radius :3px
             helvetica-neue
             :cursor :pointer
             :border [:1px :solid]
-            :opacity 0.7
+            :opacity 0.8
             :font-size :1em
             :background :white)
       (rule ".central-body"
@@ -82,7 +84,7 @@
             :font-size :2em)
       (rule "#preview-start"
             :border-bottom [:1px :dashed :gray]
-            :margin-bottom :10em)
+            :margin-bottom :5em)
       (rule "h1, h2, h3, h4" 
             :font-family (gen-comma-list
                            "'Noticia Text'" "Georgia"))))

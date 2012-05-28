@@ -29,4 +29,4 @@
           (do
             (fm/remote (md-to-html (val $draft)) [result] 
                        (inner $preview result)
-                       (scroll-to $preview)))))
+                       (scroll-to ($ :#preview-start))))))
