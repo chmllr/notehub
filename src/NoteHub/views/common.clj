@@ -8,7 +8,7 @@
 (defn gen-comma-list [& fonts] (apply str (interpose "," fonts)))
 (def page-width
   (mixin
-    :width :900px))
+    :width :800px))
 (def helvetica-neue
   (mixin
     :font-weight 300
@@ -17,6 +17,13 @@
                   "Arial"
                   "'Lucida Grande'"
                   "sans-serif")))
+(def central-element
+  (mixin
+      page-width
+      :margin-top :5em
+      :margin-bottom :10em
+      :margin-left "auto"
+      :margin-right "auto"))
 
 (def global-css 
     (css 
@@ -43,6 +50,7 @@
             (rule "h2"
                   helvetica-neue))
       (rule "article"
+            central-element
             :font-family :Georgia
             :font-size :1.2em
             (rule "& > h1:first-child"
@@ -61,7 +69,7 @@
             :font-size :1.2em
             :border :none
             ; TODO: make this dynamic
-            :height :600px
+            :height :500px
             :margin-bottom :2em)
       (rule ".hidden"
             :display :none)
@@ -73,15 +81,11 @@
             :opacity 0.8
             :font-size :1em
             :background :white)
-      (rule ".central-body"
-            page-width
-            :margin-top :5em
-            :margin-bottom :10em
-            :margin-left "auto"
-            :margin-right "auto")
+      (rule ".central-element"
+            central-element)
       (rule "h1"
             :font-size :2em)
-      (rule "#preview-start"
+      (rule "#preview-start-line"
             :border-bottom [:1px :dashed :gray]
             :margin-bottom :5em)
       (rule "h1, h2, h3, h4" 
@@ -90,7 +94,7 @@
 (defpartial layout [title & content]
             (html5
               [:head
-               [:title "NoteHub - " title]
+               [:title "NoteHub &mdash; " title]
                (include-js "https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js")
                [:link {:href "http://fonts.googleapis.com/css?family=Noticia+Text:400,700" 
                        :rel "stylesheet"

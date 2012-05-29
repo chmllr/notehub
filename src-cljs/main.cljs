@@ -1,6 +1,7 @@
 (ns NoteHub.main
-  (:use [jayq.core :only [$ css inner val anim]])
+  (:use [jayq.core :only [$ css inner val anim show]])
   (:require [fetch.remotes :as remotes]
+            [goog.dom :as gdom]
             [clojure.browser.dom :as dom]
             [clojure.browser.event :as event])
   (:require-macros [fetch.macros :as fm]))
@@ -8,6 +9,7 @@
 ; frequently used selectors
 (def $draft ($ :#draft))
 (def $preview ($ :#preview))
+(def $preview-start-line ($ :#preview-start-line))
 
 (defn scroll-to 
   "scrolls to the given selector"
@@ -28,5 +30,6 @@
         (fn [e]
           (do
             (fm/remote (md-to-html (val $draft)) [result] 
+                       (show $preview-start-line)
                        (inner $preview result)
-                       (scroll-to ($ :#preview-start))))))
+                       (scroll-to $preview-start-line)))))

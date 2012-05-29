@@ -1,11 +1,15 @@
 (ns NoteHub.storage
-  (:refer-clojure :exclude (set get))
   (:require [clj-redis.client :as redis]))
 
 (def db (redis/init))
 
-(defn set [k v]
-  (redis/set db k v))
+(def note "note")
 
-(defn get [k]
-  (redis/get db k))
+(defn- build-key [[year month day] key]
+  (print-str year month day key))
+
+(defn set-note [date key v]
+  (redis/hset db note (build-key date key) v))
+
+(defn get-note [date key]
+  (redis/hget db note (build-key date key)))
