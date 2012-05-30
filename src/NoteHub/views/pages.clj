@@ -9,7 +9,9 @@
     [noir.core :only [defpage render]]
     [noir.statuses]
     [noir.fetch.remotes])
-  (:import [org.pegdown PegDownProcessor]))
+  (:import 
+    [java.util Calendar]
+    [org.pegdown PegDownProcessor]))
 
 ; Fix a maximal title length used in the link
 (def max-title-length 80)
@@ -52,8 +54,7 @@
 ; Note URL
 (defpage "/:year/:month/:day/:title" {:keys [year month day title]}
          (let [date [year month day]
-               key (hash (conj date title))
-               post (get-note date key)
+               post (get-note date title)
                title (-?> post (split #"\n") first (sreplace #"[_\*#]" ""))]
            (if post
              (common/layout title
@@ -63,18 +64,15 @@
 
 ; New Note Posting
 (defpage [:post "/post-note"] {:keys [draft]}
-         (let [[year month day] (split 
-                                  (.format 
-                                    (java.text.SimpleDateFormat. "yyyy-MM-dd") 
-                                    (java.util.Date.)) #"-")
+         (let [[year month day] (map #(.get (Calendar/getInstance) %) [Calendar/YEAR Calendar/MONTH Calendar/DAY_OF_MONTH])
                untrimmed-line (filter #(or (= \- %) (Character/isLetterOrDigit %)) 
                                       (-> draft (split #"\n") first (sreplace " " "-") lower-case))
                trim (fn [s] (apply str (drop-while #(= \- %) s)))
                title-uncut (-> untrimmed-line trim reverse trim reverse)
-               title (apply str (take max-title-length title-uncut))
-               ; TODO: deal with collisions!
+               proposed-title (apply str (take max-title-length title-uncut))
                date [year month day] 
-               key (hash (conj date title))]
+               title (first (drop-while #(note-exists? date %) (cons proposed-title
+                                                                     (map #(str proposed-title "-" (+ 2 %)) (range)))))]
            (do
-             (set-note date key draft)
+             (set-note date title draft)
              (redirect (apply str (interpose "/" ["" year month day title]))))))
