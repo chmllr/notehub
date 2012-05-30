@@ -64,15 +64,17 @@
 
 ; New Note Posting
 (defpage [:post "/post-note"] {:keys [draft]}
-         (let [[year month day] (map #(.get (Calendar/getInstance) %) [Calendar/YEAR Calendar/MONTH Calendar/DAY_OF_MONTH])
+         (let [[year month day] (map #(+ (second %) (.get (Calendar/getInstance) (first %))) 
+                                     {Calendar/YEAR 0, Calendar/MONTH 1, Calendar/DAY_OF_MONTH 0})
                untrimmed-line (filter #(or (= \- %) (Character/isLetterOrDigit %)) 
                                       (-> draft (split #"\n") first (sreplace " " "-") lower-case))
                trim (fn [s] (apply str (drop-while #(= \- %) s)))
                title-uncut (-> untrimmed-line trim reverse trim reverse)
                proposed-title (apply str (take max-title-length title-uncut))
                date [year month day] 
-               title (first (drop-while #(note-exists? date %) (cons proposed-title
-                                                                     (map #(str proposed-title "-" (+ 2 %)) (range)))))]
+               title (first (drop-while #(note-exists? date %)
+                                        (cons proposed-title
+                                              (map #(str proposed-title "-" (+ 2 %)) (range)))))]
            (do
              (set-note date title draft)
              (redirect (apply str (interpose "/" ["" year month day title]))))))
