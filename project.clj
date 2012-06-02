@@ -15,6 +15,7 @@
                 :source-path "src-cljs"
                 ; The standard ClojureScript compiler options:
                 ; (See the ClojureScript compiler documentation for details.)
+                :crossovers [NoteHub.crossover]
                 :compiler {
                   :output-dir "resources/public/cljs/"
                   :output-to "resources/public/cljs/main.js"  ; default: main.js in current directory

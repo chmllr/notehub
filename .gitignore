@@ -6,3 +6,4 @@ pom.xml
 /classes/
 .lein-*
 resources/public/js/*
+.crossover-cljs

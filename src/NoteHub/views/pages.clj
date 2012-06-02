@@ -1,12 +1,15 @@
 (ns NoteHub.views.pages
   (:require [NoteHub.views.common :as common])
+  (:require [NoteHub.crossover.lib :as nh])
   (:use
     [NoteHub.storage]
     [clojure.string :rename {replace sreplace} :only [split replace lower-case]]
     [clojure.core.incubator :only [-?>]]
     [hiccup.form]
+    [noir.session :only [flash-put! flash-get]]
     [noir.response :only [redirect]]
     [noir.core :only [defpage render]]
+    [noir.util.crypt :only [encrypt]]
     [noir.statuses]
     [noir.fetch.remotes])
   (:import 
@@ -20,12 +23,15 @@
 (defremote md-to-html [draft]
            (.markdownToHtml (PegDownProcessor.) draft))
 
-; Template for the 404 error
-(set-page! 404
-           (let [message "Page Not Found."]
+; Template for the error sites
+(defn page-setter [code message]
+  (set-page! code
              (common/layout message
                             [:article
                              [:h1 message]])))
+
+(page-setter 404 "Nothing Found.")
+(page-setter 400 "Bad request.")
 
 ; Routes
 ; ======
@@ -44,9 +50,12 @@
          (common/layout "New Markdown Note"
                         [:div.central-element
                          (form-to [:post "/post-note"]
-                                  (text-area {:class "max-width"} :draft)
+                                  (hidden-field :session-key (let [k (encrypt (str (rand-int Integer/MAX_VALUE)))]
+                                                              (do (flash-put! k true) (print-str k))))
+                                  (hidden-field {:id :session-value} :session-value)
+                                  (text-area {:class :max-width} :draft)
                                   [:div#buttons.hidden
-                                   (submit-button {:style "float: left" :class "button"} "Publish")
+                                   (submit-button {:style "float: left" :class :button :id :publish-button} "Publish")
                                    [:button#preview-button.button {:type :button :style "float: right"} "Preview"]])]
                         [:div#preview-start-line.hidden]
                         [:article#preview]))
@@ -60,10 +69,10 @@
              (common/layout title
                             [:article
                              (md-to-html post)])
-             (get-page 400))))
+             (get-page 404))))
 
 ; New Note Posting
-(defpage [:post "/post-note"] {:keys [draft]}
+(defpage [:post "/post-note"] {:keys [draft session-key session-value]}
          (let [[year month day] (map #(+ (second %) (.get (Calendar/getInstance) (first %))) 
                                      {Calendar/YEAR 0, Calendar/MONTH 1, Calendar/DAY_OF_MONTH 0})
                untrimmed-line (filter #(or (= \- %) (Character/isLetterOrDigit %)) 
@@ -75,6 +84,18 @@
                title (first (drop-while #(note-exists? date %)
                                         (cons proposed-title
                                               (map #(str proposed-title "-" (+ 2 %)) (range)))))]
-           (do
-             (set-note date title draft)
-             (redirect (apply str (interpose "/" ["" year month day title]))))))
+           ; check whether the new note can be added
+           (let [valid-session (flash-get session-key) ; it was posted from a newly generated form
+                 valid-draft (not (empty? draft)) ; the note is non-empty
+                 valid-hash (= (Short/parseShort session-value) ; the hash code is correct 
+                    (nh/hash #(.codePointAt % 0) (str draft session-key)))]
+            (do
+              (println "session:" valid-session "draft:" valid-draft "hash:" 
+                       (Short/parseShort session-value)
+                       (nh/hash #(.codePointAt % 0) (str draft session-key)))
+            (if (and valid-session valid-draft valid-hash)
+             (do
+               (set-note date title draft)
+               ; TODO: the redirect is broken if title contains UTF chars
+               (redirect (apply str (interpose "/" ["" year month day title]))))
+             (get-page 400))))))

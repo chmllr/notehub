@@ -2,6 +2,7 @@
   (:use [jayq.core :only [$ css inner val anim show]])
   (:require [fetch.remotes :as remotes]
             [goog.dom :as gdom]
+            [NoteHub.crossover.lib :as nh]
             [clojure.browser.dom :as dom]
             [clojure.browser.event :as event])
   (:require-macros [fetch.macros :as fm]))
@@ -33,3 +34,8 @@
                        (show $preview-start-line)
                        (inner $preview result)
                        (scroll-to $preview-start-line)))))
+
+(.click ($ :#publish-button)
+        (fn [e]
+          (val ($ :#session-value) 
+               (nh/hash #(.charCodeAt % 0) (str (val $draft) (val ($ :#session-key)))))))
