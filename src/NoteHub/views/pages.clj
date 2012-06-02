@@ -20,8 +20,19 @@
 (def max-title-length 80)
 
 ; Markdown -> HTML mapper
-(defremote md-to-html [draft]
-           (.markdownToHtml (PegDownProcessor.) draft))
+(defn md-to-html [md-text]
+  (.markdownToHtml (PegDownProcessor.) md-text))
+
+(defn get-flash-key []
+  (let [k (encrypt (str (rand-int Integer/MAX_VALUE)))]
+    (do (flash-put! k true)
+      (print-str k))))
+
+; This function answers to a corresponding AJAX request
+(defremote get-preview-md [session-key md]
+           (when (flash-get session-key)
+             {:session-key (get-flash-key)
+              :preview (md-to-html md)}))
 
 ; Template for the error sites
 (defn page-setter [code message]
@@ -50,8 +61,7 @@
          (common/layout "New Markdown Note"
                         [:div.central-element
                          (form-to [:post "/post-note"]
-                                  (hidden-field :session-key (let [k (encrypt (str (rand-int Integer/MAX_VALUE)))]
-                                                              (do (flash-put! k true) (print-str k))))
+                                  (hidden-field :session-key (get-flash-key))
                                   (hidden-field {:id :session-value} :session-value)
                                   (text-area {:class :max-width} :draft)
                                   [:div#buttons.hidden
@@ -88,14 +98,15 @@
            (let [valid-session (flash-get session-key) ; it was posted from a newly generated form
                  valid-draft (not (empty? draft)) ; the note is non-empty
                  valid-hash (= (Short/parseShort session-value) ; the hash code is correct 
-                    (nh/hash #(.codePointAt % 0) (str draft session-key)))]
-            (do
-              (println "session:" valid-session "draft:" valid-draft "hash:" 
-                       (Short/parseShort session-value)
-                       (nh/hash #(.codePointAt % 0) (str draft session-key)))
-            (if (and valid-session valid-draft valid-hash)
+                               (nh/hash #(.codePointAt % 0) (str draft session-key)))]
              (do
-               (set-note date title draft)
-               ; TODO: the redirect is broken if title contains UTF chars
-               (redirect (apply str (interpose "/" ["" year month day title]))))
-             (get-page 400))))))
+               ; TODO: delete this if tests are written
+               (println "session:" valid-session "draft:" valid-draft "hash:" 
+                        (Short/parseShort session-value)
+                        (nh/hash #(.codePointAt % 0) (str draft session-key)))
+               (if (and valid-session valid-draft valid-hash)
+                 (do
+                   (set-note date title draft)
+                   ; TODO: the redirect is broken if title contains UTF chars
+                   (redirect (apply str (interpose "/" ["" year month day title]))))
+                 (get-page 400))))))

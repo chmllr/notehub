@@ -10,6 +10,7 @@
 ; frequently used selectors
 (def $draft ($ :#draft))
 (def $preview ($ :#preview))
+(def $session-key ($ :#session-key))
 (def $preview-start-line ($ :#preview-start-line))
 
 (defn scroll-to 
@@ -30,12 +31,13 @@
 (.click ($ :#preview-button)
         (fn [e]
           (do
-            (fm/remote (md-to-html (val $draft)) [result] 
+            (fm/remote (get-preview-md (val $session-key) (val $draft)) [{:keys [preview session-key]}] 
                        (show $preview-start-line)
-                       (inner $preview result)
+                       (inner $preview preview)
+                       (val $session-key session-key)
                        (scroll-to $preview-start-line)))))
 
 (.click ($ :#publish-button)
         (fn [e]
           (val ($ :#session-value) 
-               (nh/hash #(.charCodeAt % 0) (str (val $draft) (val ($ :#session-key)))))))
+               (nh/hash #(.charCodeAt % 0) (str (val $draft) (val $session-key))))))

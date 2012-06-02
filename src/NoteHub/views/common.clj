@@ -89,14 +89,16 @@
             :border-bottom [:1px :dashed :gray]
             :margin-bottom :5em)
       (rule "h1, h2, h3, h4" 
-            :font-family (gen-comma-list "'Noticia Text'" "Georgia"))))
+            :font-family (gen-comma-list "'Noticia Text'" "'PT Serif'"))))
 
 (defpartial layout [title & content]
             (html5
               [:head
                [:title "NoteHub &mdash; " title]
                (include-js "https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js")
-               [:link {:href "http://fonts.googleapis.com/css?family=Noticia+Text:400,700" 
+               [:link {:href (str "http://fonts.googleapis.com/css?family="
+                                  "PT+Serif:700|Noticia+Text:700"
+                                  "&subset=latin,cyrillic" )
                        :rel "stylesheet"
                        :type "text/css"}]
                [:style {:type "text/css"} global-css]]
