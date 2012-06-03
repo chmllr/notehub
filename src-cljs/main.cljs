@@ -2,7 +2,7 @@
   (:use [jayq.core :only [$ css inner val anim show]])
   (:require [fetch.remotes :as remotes]
             [goog.dom :as gdom]
-            [NoteHub.crossover.lib :as nh]
+            [NoteHub.crossover.lib :as lib]
             [clojure.browser.dom :as dom]
             [clojure.browser.event :as event])
   (:require-macros [fetch.macros :as fm]))
@@ -40,4 +40,4 @@
 (.click ($ :#publish-button)
         (fn [e]
           (val ($ :#session-value) 
-               (nh/hash #(.charCodeAt % 0) (str (val $draft) (val $session-key))))))
+               (lib/hash #(.charCodeAt % 0) (str (val $draft) (val $session-key))))))

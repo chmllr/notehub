@@ -1,6 +1,6 @@
 (ns NoteHub.views.pages
   (:require [NoteHub.views.common :as common])
-  (:require [NoteHub.crossover.lib :as nh])
+  (:require [NoteHub.crossover.lib :as lib])
   (:use
     [NoteHub.storage]
     [clojure.string :rename {replace sreplace} :only [split replace lower-case]]
@@ -98,12 +98,12 @@
            (let [valid-session (flash-get session-key) ; it was posted from a newly generated form
                  valid-draft (not (empty? draft)) ; the note is non-empty
                  valid-hash (= (Short/parseShort session-value) ; the hash code is correct 
-                               (nh/hash #(.codePointAt % 0) (str draft session-key)))]
+                               (lib/hash #(.codePointAt % 0) (str draft session-key)))]
              (do
                ; TODO: delete this if tests are written
                (println "session:" valid-session "draft:" valid-draft "hash:" 
                         (Short/parseShort session-value)
-                        (nh/hash #(.codePointAt % 0) (str draft session-key)))
+                        (lib/hash #(.codePointAt % 0) (str draft session-key)))
                (if (and valid-session valid-draft valid-hash)
                  (do
                    (set-note date title draft)
