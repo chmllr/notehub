@@ -7,7 +7,7 @@
     [clojure.core.incubator :only [-?>]]
     [hiccup.form]
     [noir.session :only [flash-put! flash-get]]
-    [noir.response :only [redirect]]
+    [noir.response :only [redirect status]]
     [noir.core :only [defpage render]]
     [noir.util.crypt :only [encrypt]]
     [noir.statuses]
@@ -79,34 +79,31 @@
              (common/layout title
                             [:article
                              (md-to-html post)])
-             (get-page 404))))
+             (status 404 ""))))
 
 ; New Note Posting
 (defpage [:post "/post-note"] {:keys [draft session-key session-value]}
-         (let [[year month day] (map #(+ (second %) (.get (Calendar/getInstance) (first %))) 
-                                     {Calendar/YEAR 0, Calendar/MONTH 1, Calendar/DAY_OF_MONTH 0})
-               untrimmed-line (filter #(or (= \- %) (Character/isLetterOrDigit %)) 
-                                      (-> draft (split #"\n") first (sreplace " " "-") lower-case))
-               trim (fn [s] (apply str (drop-while #(= \- %) s)))
-               title-uncut (-> untrimmed-line trim reverse trim reverse)
-               proposed-title (apply str (take max-title-length title-uncut))
-               date [year month day] 
-               title (first (drop-while #(note-exists? date %)
-                                        (cons proposed-title
-                                              (map #(str proposed-title "-" (+ 2 %)) (range)))))]
+         (let [valid-session (flash-get session-key) ; it was posted from a newly generated form
+               valid-draft (not (empty? draft)) ; the note is non-empty
+               valid-hash (try
+                            (= (Short/parseShort session-value) ; the hash code is correct 
+                               (lib/hash #(.codePointAt % 0) (str draft session-key)))
+                            (catch Exception e nil))]
            ; check whether the new note can be added
-           (let [valid-session (flash-get session-key) ; it was posted from a newly generated form
-                 valid-draft (not (empty? draft)) ; the note is non-empty
-                 valid-hash (= (Short/parseShort session-value) ; the hash code is correct 
-                               (lib/hash #(.codePointAt % 0) (str draft session-key)))]
-             (do
-               ; TODO: delete this if tests are written
-               (println "session:" valid-session "draft:" valid-draft "hash:" 
-                        (Short/parseShort session-value)
-                        (lib/hash #(.codePointAt % 0) (str draft session-key)))
-               (if (and valid-session valid-draft valid-hash)
-                 (do
-                   (set-note date title draft)
-                   ; TODO: the redirect is broken if title contains UTF chars
-                   (redirect (apply str (interpose "/" ["" year month day title]))))
-                 (get-page 400))))))
+           (if (and valid-session valid-draft valid-hash)
+             (let [[year month day] (map #(+ (second %) (.get (Calendar/getInstance) (first %))) 
+                                         {Calendar/YEAR 0, Calendar/MONTH 1, Calendar/DAY_OF_MONTH 0})
+                   untrimmed-line (filter #(or (= \- %) (Character/isLetterOrDigit %)) 
+                                          (-> draft (split #"\n") first (sreplace " " "-") lower-case))
+                   trim (fn [s] (apply str (drop-while #(= \- %) s)))
+                   title-uncut (-> untrimmed-line trim reverse trim reverse)
+                   proposed-title (apply str (take max-title-length title-uncut))
+                   date [year month day] 
+                   title (first (drop-while #(note-exists? date %)
+                                            (cons proposed-title
+                                                  (map #(str proposed-title "-" (+ 2 %)) (range)))))]
+               (do
+                 (set-note date title draft)
+                 ; TODO: the redirect is broken if title contains UTF chars
+                 (redirect (apply str (interpose "/" ["" year month day title])))))
+             (status 400 ""))))

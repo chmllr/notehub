@@ -1,4 +1,4 @@
-(ns NoteHub.test.all
+(ns NoteHub.test.storage
   (:use [NoteHub.storage] [clojure.test]))
 
 (def date [2012 06 03])
