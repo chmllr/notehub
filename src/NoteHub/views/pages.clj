@@ -58,7 +58,7 @@
 
 ; New Note Page
 (defpage "/new" {}
-         (common/layout "New Markdown Note"
+         (common/layout {:js true} "New Markdown Note"
                         [:div.central-element
                          (form-to [:post "/post-note"]
                                   (hidden-field :session-key (get-flash-key))
