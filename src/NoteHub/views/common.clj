@@ -1,6 +1,7 @@
 (ns NoteHub.views.common
   (:use
     [cssgen]
+    [cssgen.types]
     [noir.core :only [defpartial]]
     [hiccup.page :only [include-js html5]]
     [hiccup.element :only [javascript-tag]]))
@@ -25,7 +26,22 @@
     :margin-left "auto"
     :margin-right "auto"))
 
-(def global-css 
+(defn color [theme tone]
+  (get-in {:dark-theme {:background :#fff
+                        :foreground :#333
+                        :background-halftone :#efefef
+                        :foreground-halftone :#888 }
+           :bright-theme {:background :#fff
+                          :foreground :#333
+                          :background-halftone :#efefef
+                          :foreground-halftone :#888 }} [theme tone]))
+
+(defn global-css [arg]
+  (let [theme (if-not arg :bright-theme)
+        background (mixin (color theme :background))
+        foreground (color theme :foreground)
+        background-halftone (color theme :background-halftone)
+        foreground-halftone (color theme :foreground-halftone)]
   (css 
     (rule ".landing-button"
           :box-shadow [0 :2px :5px :#aaa]
@@ -40,7 +56,8 @@
           (rule "&:hover"
                 :background :#0b2))
     (rule "html, body"
-          :color :#333
+          :background background
+          :color foreground
           :margin 0
           :padding 0)
     (rule "#hero"
@@ -59,8 +76,8 @@
     (rule "pre"
           :border-radius :3px
           :padding :1em
-          :border [:1px :dotted :gray]
-          :background :#efefef)
+          :border [:1px :dotted foreground-halftone]
+          :background background-halftone)
     (rule "*:focus"
           :outline [:0px :none :transparent])
     (rule "textarea"
@@ -77,19 +94,19 @@
           :border-radius :3px
           helvetica-neue
           :cursor :pointer
-          :border [:1px :solid]
+          :border [:1px :solid foreground]
           :opacity 0.8
           :font-size :1em
-          :background :white)
+          :background background)
     (rule ".central-element"
           central-element)
     (rule "h1"
           :font-size :2em)
     (rule "#preview-start-line"
-          :border-bottom [:1px :dashed :gray]
+          :border-bottom [:1px :dashed foreground-halftone]
           :margin-bottom :5em)
     (rule "h1, h2, h3, h4" 
-          :font-family (gen-comma-list "'Noticia Text'" "'PT Serif'"))))
+          :font-family (gen-comma-list "'Noticia Text'" "'PT Serif'")))))
 
 (defpartial generate-layout 
             [params title & content]
@@ -101,7 +118,7 @@
                                   "&subset=latin,cyrillic" )
                        :rel "stylesheet"
                        :type "text/css"}]
-               [:style {:type "text/css"} global-css]]
+               [:style {:type "text/css"} (global-css (params :theme))]]
               (if (params :js)
                 [:body content
                  (javascript-tag "var CLOSURE_NO_DEPS = true;")

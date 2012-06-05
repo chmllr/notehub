@@ -73,16 +73,15 @@
                         [:div#preview-start-line.hidden]
                         [:article#preview]))
 
-; Note URL
-(defpage "/:year/:month/:day/:title" {:keys [year month day title]}
-         (let [date [year month day]
-               post (get-note date title)
+(defn get-article-page [theme [[year month day] :as date] title]
+         (let [post (get-note date title)
                title (-?> post (split #"\n") first (sreplace #"[_\*#]" ""))]
            (if post
-             (common/layout title
-                            [:article
-                             (md-to-html post)])
+             (common/layout {:theme theme} title [:article (md-to-html post)])
              (status 404 ""))))
+
+(defpage "/:year/:month/:day/:title" {:keys [year month day title]}
+         (get-article-page :default-theme [year month day] title))
 
 ; New Note Posting
 (defpage [:post "/post-note"] {:keys [draft session-key session-value]}
