@@ -63,10 +63,13 @@
                          (form-to [:post "/post-note"]
                                   (hidden-field :session-key (get-flash-key))
                                   (hidden-field {:id :session-value} :session-value)
-                                  (text-area {:class :max-width} :draft)
+                                  (text-area {:class :max-width} :draft "Loading...")
                                   [:div#buttons.hidden
-                                   (submit-button {:style "float: left" :class :button :id :publish-button} "Publish")
-                                   [:button#preview-button.button {:type :button :style "float: right"} "Preview"]])]
+                                   (submit-button {:style "float: left"
+                                                   :class :button 
+                                                   :id :publish-button} "Publish")
+                                   [:button#preview-button.button {:type :button 
+                                                                   :style "float: right"} "Preview"]])]
                         [:div#preview-start-line.hidden]
                         [:article#preview]))
 

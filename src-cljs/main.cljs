@@ -19,7 +19,10 @@
   (anim ($ :body) {:scrollTop ((js->clj (.offset $id)) "top")} 500))
 
 ; set focus to the draft textarea (if there is one)
-(.focus $draft)
+(when $draft
+  (do
+    (val $draft "")
+    (.focus $draft)))
 
 ; show the preview & publish buttons as soon as the user starts typing.
 (.keypress $draft
