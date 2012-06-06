@@ -73,18 +73,22 @@
                         [:div#preview-start-line.hidden]
                         [:article#preview]))
 
-(defn get-article-page [theme [[year month day] :as date] title]
-         (let [post (get-note date title)
-               title (-?> post (split #"\n") first (sreplace #"[_\*#]" ""))]
-           (if post
-             (common/layout {:theme theme} title [:article (md-to-html post)])
-             (status 404 ""))))
+(defn wrap [theme md-text]
+  (let [title (-?> md-text (split #"\n") first (sreplace #"[_\*#]" ""))]
+  (common/layout {:theme theme} title [:article (md-to-html md-text)])))
+
+(defn get-md [[[year month day] :as date] title]
+         (let [post (get-note date title)]
+           (if post post (status 404 ""))))
 
 (defpage "/:year/:month/:day/:title/theme/:theme" {:keys [year month day title theme]}
-         (get-article-page theme [year month day] title))
+         (wrap theme (get-md [year month day] title)))
 
 (defpage "/:year/:month/:day/:title" {:keys [year month day title]}
-         (get-article-page :default [year month day] title))
+         (wrap :default (get-md [year month day] title)))
+
+(defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
+         (get-md [year month day] title))
 
 ; New Note Posting
 (defpage [:post "/post-note"] {:keys [draft session-key session-value]}
