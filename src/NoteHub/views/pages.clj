@@ -80,8 +80,11 @@
              (common/layout {:theme theme} title [:article (md-to-html post)])
              (status 404 ""))))
 
+(defpage "/:year/:month/:day/:title/theme/:theme" {:keys [year month day title theme]}
+         (get-article-page theme [year month day] title))
+
 (defpage "/:year/:month/:day/:title" {:keys [year month day title]}
-         (get-article-page :default-theme [year month day] title))
+         (get-article-page :default [year month day] title))
 
 ; New Note Posting
 (defpage [:post "/post-note"] {:keys [draft session-key session-value]}
