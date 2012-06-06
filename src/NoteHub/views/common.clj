@@ -10,12 +10,17 @@
             (html5
               [:head
                [:title "NoteHub &mdash; " title]
-               [:link {:href (str "http://fonts.googleapis.com/css?family="
-                                  "PT+Serif:700|Noticia+Text:700"
-                                  "&subset=latin,cyrillic" )
+               [:link {:href 
+                       (clojure.string/replace
+                         (str "http://fonts.googleapis.com/css?family="
+                              (apply str
+                                     (interpose "|" (concat ["PT+Serif:700" "Noticia+Text:700"]
+                                                            (vals (select-keys params 
+                                                                    [:header-font :text-font])))))
+                              "&subset=latin,cyrillic") " " "+")
                        :rel "stylesheet"
                        :type "text/css"}]
-               [:style {:type "text/css"} (global-css (params :theme))]]
+               [:style {:type "text/css"} (global-css params)]]
               (if (params :js)
                 [:body content
                  (javascript-tag "var CLOSURE_NO_DEPS = true;")

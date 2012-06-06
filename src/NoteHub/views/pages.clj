@@ -79,11 +79,10 @@
         (common/layout params title [:article (md-to-html md-text)]))
       (status 404 (get-page 404))))
 
-(defpage "/:year/:month/:day/:title/theme/:theme" {:keys [year month day title theme]}
-         (wrap {:theme theme} (get-note [year month day] title)))
-
-(defpage "/:year/:month/:day/:title" {:keys [year month day title]}
-         (wrap {:theme :default} (get-note [year month day] title)))
+(defpage "/:year/:month/:day/:title" {:keys [year month day title theme header-font text-font] :as params}
+         (wrap 
+           (select-keys params [:theme :header-font :text-font])
+           (get-note [year month day] title)))
 
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
          (let [md-text (get-note [year month day] title)]

@@ -2,7 +2,11 @@
   (:use [cssgen]
         [cssgen.types]))
 
-(defn gen-comma-list [& fonts] (apply str (interpose "," fonts)))
+(defn gen-fontlist [& fonts] 
+  (apply str 
+         (interpose "," 
+                    (map #(str "'" % "'") 
+                         (filter identity fonts)))))
 
 (def page-width
   (mixin
@@ -10,10 +14,10 @@
 (def helvetica-neue
   (mixin
     :font-weight 300
-    :font-family (gen-comma-list "'Helvetica Neue'"
+    :font-family (gen-fontlist "Helvetica Neue"
                                  "Helvetica"
                                  "Arial"
-                                 "'Lucida Grande'"
+                                 "Lucida Grande"
                                  "sans-serif")))
 (def central-element
   (mixin
@@ -33,8 +37,11 @@
                           :background-halftone :#efefef
                           :foreground-halftone :#888 }} [theme tone]))
 
-(defn global-css [arg]
-  (let [theme (if arg (keyword arg) :default)
+(defn global-css [params]
+  (let [theme (params :theme)
+        theme (if theme (keyword theme) :default)
+        header-fonts (gen-fontlist (params :header-font) "Noticia Text" "PT Serif")
+        text-fonts (gen-fontlist (params :text-font) "Georgia")
         background (color theme :background)
         foreground (color theme :foreground)
         background-halftone (color theme :background-halftone)
@@ -66,7 +73,7 @@
     (rule "article"
           central-element
           :line-height (% 140)
-          :font-family :Georgia
+          :font-family text-fonts
           :font-size :1.2em
           (rule "& > h1:first-child"
                 :text-align :center
@@ -104,4 +111,4 @@
           :border-bottom [:1px :dashed foreground-halftone]
           :margin-bottom :5em)
     (rule "h1, h2, h3, h4" 
-          :font-family (gen-comma-list "'Noticia Text'" "'PT Serif'")))))
+          :font-family header-fonts))))
