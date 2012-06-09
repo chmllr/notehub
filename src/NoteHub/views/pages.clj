@@ -88,6 +88,21 @@
          (let [md-text (get-note [year month day] title)]
            (if md-text md-text (get-page 404))))
 
+(defpage "/:year/:month/:day/:title/stat" {:keys [year month day title]}
+         (let [views (get-views [year month day] title)]
+           (if views 
+             (common/layout "Statistics"
+                            [:article 
+                             [:table {:style "width: 100%"}
+                              [:tr
+                               [:td "Published"]
+                                [:td (interpose "-" [year month day])]]
+                              [:tr
+                               [:td "Article views"]
+                                [:td views]]
+                              ]])
+             (get-page 404))))
+
 ; New Note Posting
 (defpage [:post "/post-note"] {:keys [draft session-key session-value]}
          (let [valid-session (flash-get session-key) ; it was posted from a newly generated form

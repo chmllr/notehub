@@ -40,7 +40,7 @@
 (defn global-css [params]
   (let [theme (params :theme)
         theme (if theme (keyword theme) :default)
-        header-fonts (gen-fontlist (params :header-font) "Noticia Text" "PT Serif")
+        header-fonts (gen-fontlist (params :header-font) "Noticia Text" "PT Serif" "Georgia")
         text-fonts (gen-fontlist (params :text-font) "Georgia")
         background (color theme :background)
         foreground (color theme :foreground)
