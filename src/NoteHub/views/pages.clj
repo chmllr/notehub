@@ -86,22 +86,21 @@
 
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
          (let [md-text (get-note [year month day] title)]
-           (if md-text md-text (get-page 404))))
+           (if md-text md-text (status 404 (get-page 404)))))
 
 (defpage "/:year/:month/:day/:title/stat" {:keys [year month day title]}
          (let [views (get-views [year month day] title)]
            (if views 
              (common/layout "Statistics"
-                            [:article 
+                            [:article.helvetica-neue
                              [:table {:style "width: 100%"}
                               [:tr
                                [:td "Published"]
-                                [:td (interpose "-" [year month day])]]
+                               [:td (interpose "-" [year month day])]]
                               [:tr
                                [:td "Article views"]
-                                [:td views]]
-                              ]])
-             (get-page 404))))
+                               [:td views]]]])
+             (status 404 (get-page 404)))))
 
 ; New Note Posting
 (defpage [:post "/post-note"] {:keys [draft session-key session-value]}

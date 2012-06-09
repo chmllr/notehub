@@ -34,16 +34,19 @@
                   (has-body (send-request (url 2012 6 3 "some-title" "export")) test-note)))
 
 (deftest requests
-         (testing "HTTP Statuses"
+         (testing "HTTP Status"
                   (testing "of a wrong access"
-                    (has-status (send-request "/wrong-page") 404))
-                    (has-status (send-request (url 2012 6 3 "lol")) 404)
-                    (has-status (send-request (url 2012 6 4 "wrong-title")) 404)
+                           (has-status (send-request "/wrong-page") 404)
+                           (has-status (send-request (url 2012 6 3 "lol" "stat")) 404)
+                           (has-status (send-request (url 2012 6 3 "lol" "export")) 404)
+                           (has-status (send-request (url 2012 6 3 "lol")) 404)
+                           (has-status (send-request (url 2012 6 4 "wrong-title")) 404))
                   (testing "of corrupt note-post"
-                    (has-status (send-request [:post "/post-note"]) 400))
+                           (has-status (send-request [:post "/post-note"]) 400))
                   (testing "valid accesses"
-                    (has-status (send-request "/new") 200)
-                    (has-status (send-request (url 2012 6 3 "some-title")) 200)
-                    (has-status (send-request (url 2012 6 3 "some-title" "export")) 200)
-                    (has-status (send-request (url 2012 6 3 "some-title" "theme" "dark")) 200)
-                    (has-status (send-request "/") 200))))
+                           (has-status (send-request "/new") 200)
+                           (has-status (send-request (url 2012 6 3 "some-title")) 200)
+                           (has-status (send-request (url 2012 6 3 "some-title" "export")) 200)
+                           (has-status (send-request (url 2012 6 3 "some-title" "stat")) 200)
+                           (has-status (send-request (url 2012 6 3 "some-title")) 200)
+                           (has-status (send-request "/") 200))))

@@ -16,7 +16,7 @@
                               (apply str
                                      (interpose "|" (concat ["PT+Serif:700" "Noticia+Text:700"]
                                                             (vals (select-keys params 
-                                                                    [:header-font :text-font])))))
+                                                                               [:header-font :text-font])))))
                               "&subset=latin,cyrillic") " " "+")
                        :rel "stylesheet"
                        :type "text/css"}]
