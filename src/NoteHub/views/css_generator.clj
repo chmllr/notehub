@@ -1,16 +1,18 @@
 (ns NoteHub.views.css-generator
   (:use [cssgen]
+        [NoteHub.settings]
         [cssgen.types]))
 
-(defn gen-fontlist [& fonts] 
+(defn- gen-fontlist [& fonts] 
   (apply str 
          (interpose "," 
                     (map #(str "'" % "'") 
                          (filter identity fonts)))))
 
+; CSS Mixins
 (def page-width
   (mixin
-    :width :800px))
+    :width (get-setting :page-width :800px keyword)))
 
 (def helvetica-neue
   (mixin
@@ -20,6 +22,7 @@
                                "Arial"
                                "Lucida Grande"
                                "sans-serif")))
+
 (def central-element
   (mixin
     page-width
@@ -28,7 +31,8 @@
     :margin-left "auto"
     :margin-right "auto"))
 
-(defn color [theme tone]
+; Resolves the theme name & tone parameter to a concrete color
+(defn- color [theme tone]
   (get-in {:dark {:background :#333
                   :foreground :#ccc
                   :background-halftone :#444
@@ -38,7 +42,9 @@
                      :background-halftone :#efefef
                      :foreground-halftone :#888 }} [theme tone]))
 
-(defn global-css [params]
+(defn global-css 
+  "Generates the entire CSS rules of the app"
+  [params]
   (let [theme (params :theme)
         theme (if theme (keyword theme) :default)
         header-fonts (gen-fontlist (params :header-font) "Noticia Text" "PT Serif" "Georgia")

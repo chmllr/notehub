@@ -1,9 +1,11 @@
 (ns NoteHub.crossover.lib
   (:refer-clojure :exclude [hash]))
 
-; very simple hash function %)
-; (doesn't work for UTF-16!)
-(defn hash [f s]
+(defn hash 
+  "A simple hash-function, which computes a hash from the text field 
+  content and given session number. It is intended to be used as a spam
+  protection / captcha alternative. (Probably doesn't work for URF-16)"
+  [f s]
   (let [short-mod #(mod % 32767)
         char-codes (map f
                         (filter #(not (contains? #{"\n" "\r"} %)) (map str s)))]

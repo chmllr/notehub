@@ -5,6 +5,7 @@
     [hiccup.page :only [include-js html5]]
     [hiccup.element :only [javascript-tag]]))
 
+; Creates the main html layout
 (defpartial generate-layout 
             [params title & content]
             (html5
@@ -28,8 +29,9 @@
                  (include-js "/cljs/main.js")]
                 [:body content])))
 
-(defn layout [& args]
+(defn layout
+  "Generates the main html layout"
+  [& args]
   (if (map? (first args))
     (apply generate-layout args)
     (apply generate-layout {} args)))
-

@@ -3,6 +3,7 @@
   (:require [NoteHub.crossover.lib :as lib])
   (:use
     [NoteHub.storage]
+    [NoteHub.settings]
     [clojure.string :rename {replace sreplace} :only [split replace lower-case]]
     [clojure.core.incubator :only [-?>]]
     [hiccup.form]
@@ -16,23 +17,22 @@
     [java.util Calendar]
     [org.pegdown PegDownProcessor]))
 
-; Fix a maximal title length used in the link
-(def max-title-length 80)
-
 ; Markdown -> HTML mapper
 (defn md-to-html [md-text]
   (.markdownToHtml (PegDownProcessor.) md-text))
 
-(defn get-flash-key []
+; Creates a random session number
+(defn- get-flash-key []
   (let [k (encrypt (str (rand-int Integer/MAX_VALUE)))]
     (do (flash-put! k true)
       (print-str k))))
 
-; This function answers to a corresponding AJAX request
-(defremote get-preview-md [session-key md]
-           (when (flash-get session-key)
-             {:session-key (get-flash-key)
-              :preview (md-to-html md)}))
+; Converts given markdwon to html and wraps with layout
+(defn- wrap [params md-text]
+  (if md-text 
+    (let [title (-?> md-text (split #"\n") first (sreplace #"[_\*#]" ""))]
+      (common/layout params title [:article (md-to-html md-text)]))
+    (status 404 (get-page 404))))
 
 ; Template for the error sites
 (defn page-setter [code message]
@@ -41,12 +41,20 @@
                             [:article
                              [:h1 message]])))
 
+; Sets a message for each corresponding HTTP status
 (page-setter 404 "Nothing Found.")
 (page-setter 400 "Bad request.")
 (page-setter 500 "OMG, Server Exploded.")
 
 ; Routes
 ; ======
+
+; This function answers to a AJAX request: it gets a sesion key and markdown text.
+; IT return html version of the provided markdown and a new session key
+(defremote get-preview-md [session-key md]
+           (when (flash-get session-key)
+             {:session-key (get-flash-key)
+              :preview (md-to-html md)}))
 
 ; Landing Page
 (defpage "/" {}
@@ -74,21 +82,18 @@
                         [:div#preview-start-line.hidden]
                         [:article#preview]))
 
-(defn wrap [params md-text]
-    (if md-text 
-      (let [title (-?> md-text (split #"\n") first (sreplace #"[_\*#]" ""))]
-        (common/layout params title [:article (md-to-html md-text)]))
-      (status 404 (get-page 404))))
-
+; Display the note
 (defpage "/:year/:month/:day/:title" {:keys [year month day title theme header-font text-font] :as params}
          (wrap 
            (select-keys params [:theme :header-font :text-font])
            (get-note [year month day] title)))
 
+; Provides Markdown of the specified note
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
          (let [md-text (get-note [year month day] title)]
            (if md-text md-text (status 404 (get-page 404)))))
 
+; Provides the number of views of the specified note
 (defpage "/:year/:month/:day/:title/stat" {:keys [year month day title]}
          (let [views (get-views [year month day] title)]
            (if views 
@@ -119,7 +124,8 @@
                                           (-> draft (split #"\n") first (sreplace " " "-") lower-case))
                    trim (fn [s] (apply str (drop-while #(= \- %) s)))
                    title-uncut (-> untrimmed-line trim reverse trim reverse)
-                   proposed-title (apply str (take max-title-length title-uncut))
+                   proposed-title (apply str (take (get-setting :max-title-length 80 #(Integer/parseInt %)) 
+                                                   title-uncut))
                    date [year month day] 
                    title (first (drop-while #(note-exists? date %)
                                             (cons proposed-title
