@@ -43,6 +43,7 @@
 
 (page-setter 404 "Nothing Found.")
 (page-setter 400 "Bad request.")
+(page-setter 500 "OMG, Server Exploded.")
 
 ; Routes
 ; ======

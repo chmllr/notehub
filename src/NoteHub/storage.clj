@@ -1,7 +1,11 @@
 (ns NoteHub.storage
+  (:use [NoteHub.config])
   (:require [clj-redis.client :as redis]))
 
-(def db (redis/init))
+(def db 
+  (redis/init
+    (when noir.options/dev-mode? 
+      {:url (config-map :db-url)})))
 
 (def note "note")
 
