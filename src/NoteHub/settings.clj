@@ -12,7 +12,13 @@
         lines (cs/split file-content #"\n")
         pairs (map #(map cs/trim %) (map #(cs/split % #"=") lines))
         config-map (apply hash-map (mapcat #(list (keyword (first %)) (second %)) pairs))
-        value (config-map key)]
+        value (config-map key)
+        ; Through this hack we can read security-critical settings from (previously 
+        ; set) shell variables without commiting their content to CVS
+        value (if-not value 
+                (System/getenv 
+                  (cs/upper-case
+                    (cs/replace (name key) #"-" ""))))]
     (if value
       (if (fn? converter) (converter value) value)
       default)))
