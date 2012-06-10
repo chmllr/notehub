@@ -8,7 +8,8 @@
     [clojure.string :rename {replace sreplace} :only [split replace lower-case]]
     [clojure.core.incubator :only [-?>]]
     [hiccup.form]
-    [hiccup.page]
+    [hiccup.core]
+    [hiccup.util :only [escape-html]]
     [noir.session :only [flash-put! flash-get]]
     [noir.response :only [redirect status]]
     [noir.core :only [defpage render]]
@@ -69,7 +70,7 @@
                  [:table.central-element.helvetica-neue
                   [:tr
                    (for [e [:column-why :column-how :column-geeks]]
-                     (html5  
+                     (html  
                        [:td.one-third-column
                         [:h2 (get-message e)] (md-to-html (get-message (keyword (str (name e) "-long"))))]))]]
                  [:div.centered.helvetica-neue (md-to-html (get-message :created-by))]))
@@ -119,7 +120,7 @@
 ; New Note Posting
 (defpage [:post "/post-note"] {:keys [draft session-key session-value]}
          (let [valid-session (flash-get session-key) ; it was posted from a newly generated form
-               valid-draft (not (empty? draft)) ; the note is non-empty
+               valid-draft (not (ccs/blank? draft)) ; the note has a meaningful content
                valid-hash (try
                             (= (Short/parseShort session-value) ; the hash code is correct 
                                (lib/hash #(.codePointAt % 0) (str draft session-key)))
@@ -128,6 +129,8 @@
            (if (and valid-session valid-draft valid-hash)
              (let [[year month day] (map #(+ (second %) (.get (Calendar/getInstance) (first %))) 
                                          {Calendar/YEAR 0, Calendar/MONTH 1, Calendar/DAY_OF_MONTH 0})
+                   ; This is the _only_ point where user's content enters the web app, so we escape the content.
+                   draft (escape-html draft)
                    untrimmed-line (filter #(or (= \- %) (Character/isLetterOrDigit %)) 
                                           (-> draft ccs/split-lines first (sreplace " " "-") lower-case))
                    trim (fn [s] (apply str (drop-while #(= \- %) s)))
