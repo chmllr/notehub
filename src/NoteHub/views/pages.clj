@@ -8,6 +8,7 @@
     [clojure.string :rename {replace sreplace} :only [split replace lower-case]]
     [clojure.core.incubator :only [-?>]]
     [hiccup.form]
+    [hiccup.page]
     [noir.session :only [flash-put! flash-get]]
     [noir.response :only [redirect status]]
     [noir.core :only [defpage render]]
@@ -28,19 +29,23 @@
     (do (flash-put! k true)
       (print-str k))))
 
-; Converts given markdwon to html and wraps with layout
-(defn- wrap [params md-text]
-  (if md-text 
-    (let [title (-?> md-text (split #"\n") first (sreplace #"[_\*#]" ""))]
-      (layout params title [:article (md-to-html md-text)]))
-    (status 404 (get-page 404))))
-
 ; Sets a custom message for each corresponding HTTP status
 (doseq [code [400 404 500]]
   (set-page! code
              (let [message (get-message (keyword (str "status-" code)))]
                (layout message
                        [:article [:h1 message]]))))
+
+; shortcut for rendering an HTTP status
+(defn- response [code]
+  (status code (get-page code)))
+
+; Converts given markdwon to html and wraps with layout
+(defn- wrap [params md-text]
+  (if md-text 
+    (let [title (-?> md-text (split #"\n") first (sreplace #"[_\*#]" ""))]
+      (layout params title [:article (md-to-html md-text)]))
+    (status 404 (get-page 404))))
 
 ; Routes
 ; ======
@@ -63,12 +68,10 @@
                  [:div.dashed-line]
                  [:table.central-element.helvetica-neue
                   [:tr
-                   [:td.one-third-column
-                    [:h2 (get-message :column-why)] (md-to-html (get-message :column-why-long))]
-                   [:td.one-third-column
-                    [:h2 (get-message :column-how)] (md-to-html (get-message :column-how-long))]
-                   [:td.one-third-column
-                    [:h2 (get-message :column-geeks)] (md-to-html (get-message :column-geeks-long))]]]
+                   (for [e [:column-why :column-how :column-geeks]]
+                     (html5  
+                       [:td.one-third-column
+                        [:h2 (get-message e)] (md-to-html (get-message (keyword (str (name e) "-long"))))]))]]
                  [:div.centered.helvetica-neue (md-to-html (get-message :created-by))]))
 
 ; New Note Page
@@ -97,22 +100,21 @@
 ; Provides Markdown of the specified note
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
          (let [md-text (get-note [year month day] title)]
-           (if md-text md-text (status 404 (get-page 404)))))
+           (if md-text md-text (response 404))))
 
 ; Provides the number of views of the specified note
 (defpage "/:year/:month/:day/:title/stat" {:keys [year month day title]}
          (let [views (get-views [year month day] title)]
            (if views 
              (layout (get-message :statistics)
-                     [:article.helvetica-neue
-                      [:table {:style "width: 100%"}
+                      [:table.helvetica-neue.central-element
                        [:tr
                         [:td (get-message :published)]
                         [:td (interpose "-" [year month day])]]
                        [:tr
                         [:td (get-message :article-views)]
-                        [:td views]]]])
-             (status 404 (get-page 404)))))
+                        [:td views]]])
+             (response 404))))
 
 ; New Note Posting
 (defpage [:post "/post-note"] {:keys [draft session-key session-value]}
@@ -140,4 +142,4 @@
                  (set-note date title draft)
                  ; TODO: the redirect is broken if title contains UTF chars
                  (redirect (apply str (interpose "/" ["" year month day title])))))
-             (status 400 ""))))
+             (response 400))))
