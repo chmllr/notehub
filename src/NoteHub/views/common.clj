@@ -1,5 +1,6 @@
 (ns NoteHub.views.common
   (:use
+    [NoteHub.settings :only [get-message]]
     [NoteHub.views.css-generator]
     [noir.core :only [defpartial]]
     [hiccup.page :only [include-js html5]]
@@ -10,7 +11,7 @@
             [params title & content]
             (html5
               [:head
-               [:title "NoteHub &mdash; " title]
+               [:title (print-str (get-message :name) "&mdash;" title)]
                [:link {:href 
                        (clojure.string/replace
                          (str "http://fonts.googleapis.com/css?family="

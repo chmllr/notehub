@@ -54,12 +54,19 @@
         background-halftone (color theme :background-halftone)
         foreground-halftone (color theme :foreground-halftone)]
     (css 
+      (rule "a"
+            :color :#097
+            :text-decoration :none
+            :border-bottom [:1px :dotted]
+            (rule "&:hover"
+                  :color :#0a8)
+            (rule "&:visited"
+                  :color :#054))
       (rule ".landing-button"
             :box-shadow [0 :2px :5px :#aaa]
             :text-decoration :none
             :font-size :1.5em
             :background :#0a2
-            :color :white
             :border :none
             :border-radius :10px
             :padding :10px
@@ -77,6 +84,7 @@
       (rule "td"
             :padding :0.5em)
       (rule ".one-third-column"
+            :line-height (% 120)
             :text-align :justify
             :vertical-align :top
             ; Replace this by arithmetic with css-lengths as soon as they fix the bug
@@ -94,16 +102,19 @@
                   :margin :2em))
       (rule "article"
             central-element
-            :line-height (% 140)
             :font-family text-fonts
             :text-align :justify
             :font-size :1.2em
+            (rule "p"
+              :line-height (% 140))
             (rule "& > h1:first-child"
                   :text-align :center
                   :margin :2em))
+      (rule ".centered"
+            :text-align :center)
       (rule "pre"
             :border-radius :3px
-            :padding :1em
+            :padding :0.5em
             :border [:1px :dotted foreground-halftone]
             :background background-halftone)
       (rule "*:focus"
@@ -129,7 +140,7 @@
             central-element)
       (rule "h1"
             :font-size :2em)
-      (rule "#preview-start-line"
+      (rule ".dashed-line"
             :border-bottom [:1px :dashed foreground-halftone]
             :margin-bottom :5em)
       (rule "h1, h2, h3, h4" 

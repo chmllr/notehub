@@ -13,7 +13,6 @@
 (def note "note")
 (def views "views")
 
-
 ; Concatenates all fields to a string
 (defn- build-key [[year month day] title]
   (print-str year month day title))

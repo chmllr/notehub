@@ -1,0 +1,26 @@
+title = Free and Hassle-free Markdown Hosting.
+name = NoteHub
+new-page = New Page
+
+column-why = Why?
+column-why-long = Not every person, who occasionally wants to express some thoughts, needs a blog. Blogs are __tedious__ for writers and for readers. Most people are not interested in thoughts of other random people. Moreover, nowadays everything rotates around social networks and not individual blogs. It makes much more sense to publish something somewhere and to share the link with the audience on the community or social network of your choice, than to maintain a blog trying to keep your readers interested. __NoteHub__ should be the place, where you can publish your thoughts without hassle.
+
+column-how = How to Use?
+column-how-long = First [create](/new) a new page using the [Markdown](http://daringfireball.net/projects/markdown/) syntax. Now, besides just sharing the link, you can view some rudimentary statistics by appending `/stats` to the note url: <pre>notehub.org/.../title/stats</pre> If you want to export a note in the original Markdown format, append `/export`: <pre>notehub.org/.../title/export</pre> You also can invert the color scheme by appending `?theme=dark` to the note url: <pre>notehub.org/.../title?theme=dark</pre>
+
+column-geeks = For Geeks!
+column-geeks-long = NoteHub was an one-app-one-language experiment and is implemented entirely in [Clojure](http://clojure.org) and ClojureScript. Its [source code](https://github.com/chmllr/NoteHub) can be found on GitHub. Look at the code to find some undocumented NoteHub features (or bugs) and &mdash; feel free to contribute! (If you are interested in more detailed code overview, read [this note](http://notehub.org).) NoteHub's design is intentionally kept extremelly simple and minimalistic, and should stay like this.  NoteHub's persistence layer bases on the key-value store [redis](http://redis.io). Currently, NoteHub is hosted for free on [Heroku](http://heroku.com). Send your feedback and comments directly to [@chmllr](http://twitter.com/chmllr) or [open an issue](https://github.com/chmllr/NoteHub/issues) on GitHub.
+
+status-404 = Nothing found.
+status-400 = Bad Request.
+status-500 = OMG, Server Exploded.
+
+created-by = Created by [@chmllr](http://twitter.com/chmllr)
+
+loading = Loading...
+preview = Preview
+publish = Publish
+published = Published
+article-views = Article Views
+statistics = Statistics
+new-note = New Markdown Note
