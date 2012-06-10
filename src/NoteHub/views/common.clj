@@ -3,6 +3,7 @@
     [NoteHub.settings :only [get-message]]
     [NoteHub.views.css-generator]
     [noir.core :only [defpartial]]
+    [noir.options :only [dev-mode?]]
     [hiccup.page :only [include-js html5]]
     [hiccup.element :only [javascript-tag]]))
 
@@ -22,7 +23,8 @@
                               "&subset=latin,cyrillic") " " "+")
                        :rel "stylesheet"
                        :type "text/css"}]
-               [:style {:type "text/css"} (global-css params)]]
+               [:style {:type "text/css"} (global-css params)]
+               (if-not dev-mode? (include-js "/js/google-analytics.js"))]
               (if (params :js)
                 [:body content
                  (javascript-tag "var CLOSURE_NO_DEPS = true;")
