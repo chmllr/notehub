@@ -12,7 +12,7 @@
 ; CSS Mixins
 (def page-width
   (mixin
-    :width (get-setting :page-width :800px keyword)))
+    :width (px (get-setting :page-width #(Integer/parseInt %) 800))))
 
 (def helvetica-neue
   (mixin
@@ -71,18 +71,32 @@
             :color foreground
             :margin 0
             :padding 0)
+      (rule "table,tr,td"
+            :margin 0
+            :border :none)
+      (rule "td"
+            :padding :0.5em)
+      (rule ".one-third-column"
+            :text-align :justify
+            :vertical-align :top
+            ; Replace this by arithmetic with css-lengths as soon as they fix the bug
+            :width (px (quot (get-setting :page-width #(Integer/parseInt %) 800) 3)))
       (rule ".helvetica-neue"
             helvetica-neue)
       (rule "#hero"
             :padding-top :5em
             :padding-bottom :5em
             :text-align :center
+            (rule "h1"
+                  :font-size :2.5em)
             (rule "h2"
-                  helvetica-neue))
+                  helvetica-neue
+                  :margin :2em))
       (rule "article"
             central-element
             :line-height (% 140)
             :font-family text-fonts
+            :text-align :justify
             :font-size :1.2em
             (rule "& > h1:first-child"
                   :text-align :center
@@ -97,9 +111,8 @@
       (rule "textarea"
             page-width
             :font-family :Courier
-            :font-size :1.2em
+            :font-size :1em
             :border :none
-            ; TODO: make this dynamic
             :height :500px
             :margin-bottom :2em)
       (rule ".hidden"

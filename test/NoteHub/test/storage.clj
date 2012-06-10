@@ -10,7 +10,12 @@
                   (is (= (do
                            (set-note date test-title test-note)
                            (get-note date test-title))
-                         test-note)))
+                         test-note))
+                  (is (= "1" (get-views date test-title)))
+                  (is (= (do
+                           (get-note date test-title)
+                           (get-views date test-title))
+                         "2")))
          (testing "of the note access"
                   (is (not= (get-note date test-title) "any text")))
          (testing "of note existence"

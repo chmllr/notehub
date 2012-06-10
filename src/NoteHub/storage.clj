@@ -21,8 +21,7 @@
 (defn set-note
   "Creates a note with the given title and text in the given date namespace"
   [date title text]
-  (let [key (build-key date title)]
-    (redis/hset db note key text)))
+  (redis/hset db note (build-key date title) text))
 
 (defn get-note
   "Gets the note from the given date namespaces for the specified title"
