@@ -3,9 +3,8 @@
   (:refer-clojure :exclude [replace reverse])
   (:use [clojure.string]))
 
-; Loads and parses the settings file; returns a key-value map.
-; Assumes, that all string of the setings file are in format:
-; key = value
+; Loads and parses any file with each line consisting a key and 
+; a value separated by a "=", and returns a corresponding key-value map.
 (defn- get-pairs-map [file]
   (let [file-content (slurp file)
         pairs (map #(map trim (split % #"=" 2)) 
@@ -13,9 +12,11 @@
     (apply hash-map 
            (mapcat #(list (keyword (first %)) (second %)) pairs))))
 
+; Loads the setting file to a map
 (def settings-map
   (get-pairs-map "settings"))
 
+; Loads the messages file to a map
 (def messages-map
   (get-pairs-map "messages"))
 
@@ -27,7 +28,8 @@
   "Takes a settings key, a converter function and a default value, and returns a corresponding 
   setting value. The default value is returned back when no setting value was found.
   The converter function can be provided to convert the setting from string to a needed type.
-  Every key should be a keyword, e.g. (get-setting :page-width)."
+  This function is not applied to the specified default value!
+  Every specified key should be a keyword, e.g. (get-setting :page-width)."
   [key & more]
   (let [converter (first more)
         default (second more)

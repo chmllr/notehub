@@ -1,6 +1,7 @@
 (ns NoteHub.test.views.pages
   (:use [NoteHub.views.pages]
         [noir.util.test]
+        [NoteHub.views.common :only [url]]
         [NoteHub.storage]
         [clojure.test]))
 
@@ -14,9 +15,6 @@
   (delete-note date test-title))
 
 (use-fixtures :each create-testnote-fixture)
-
-(defn url [& args]
-  (apply str (interpose "/" (cons "" args))))
 
 (is (= (url 2010 05 06 "test-title" "export") "/2010/5/6/test-title/export"))
 

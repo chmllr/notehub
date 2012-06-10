@@ -32,7 +32,7 @@
         (redis/hincrby db views key 1)
         text))))
 
-(defn get-views 
+(defn get-note-views 
   "Returns the number of views for the specified date and note title"
   [date title]
   (redis/hget db views (build-key date title)))
