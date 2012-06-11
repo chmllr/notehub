@@ -32,15 +32,21 @@
     :margin-right "auto"))
 
 ; Resolves the theme name & tone parameter to a concrete color
-(defn- color [theme tone]
+(defn- color [& keys]
   (get-in {:dark {:background :#333
                   :foreground :#ccc
                   :background-halftone :#444
-                  :foreground-halftone :#bbb }
+                  :foreground-halftone :#bbb
+                  :link-color {:fresh :#6b8
+                               :visited :#496
+                               :hover :#7c9 }}
            :default {:background :#fff
                      :foreground :#333
                      :background-halftone :#efefef
-                     :foreground-halftone :#888 }} [theme tone]))
+                     :foreground-halftone :#888
+                     :link-color {:fresh :#097
+                                 :visited :#054
+                                 :hover :#0a8 }}} keys))
 
 (defn global-css 
   "Generates the entire CSS rules of the app"
@@ -52,16 +58,19 @@
         background (color theme :background)
         foreground (color theme :foreground)
         background-halftone (color theme :background-halftone)
-        foreground-halftone (color theme :foreground-halftone)]
+        foreground-halftone (color theme :foreground-halftone)
+        link-fresh (color theme :link-color :fresh)
+        link-visited (color theme :link-color :visited)
+        link-hover (color theme :link-color :hover)]
     (css 
       (rule "a"
-            :color :#097
+            :color link-fresh
             :text-decoration :none
             :border-bottom [:1px :dotted]
             (rule "&:hover"
-                  :color :#0a8)
+                  :color link-hover)
             (rule "&:visited"
-                  :color :#054))
+                  :color link-visited))
       (rule ".landing-button"
             :box-shadow [0 :2px :5px :#aaa]
             :text-decoration :none

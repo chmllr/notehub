@@ -1,28 +1,28 @@
-# NoteHub
+# NoteHub Readme
 
-NoteHub is a free and anonymous hosting for markdown pages. It can be used for publishing of markdown-formatted text. For instance, this  service might be interesting to people, who want to publish something, but don't want to start a blog.
+[NoteHub](http://notehub.org) is a free and hassle-free anonymous hosting for markdown pages. It can be used for publishing of markdown-formatted text.
 
 ## Writing
 
-Once a user started to write, he gets a special draft URL like:
-
-    http://notehub.org/draft/4j32j4g23v23v4vnb234mn23jh6b76686
-
-His changes will be auto-saved every minute, manualy or at a registered page exit. When the same link will be opened again and the page wasn't published yet, the author will be recognized using cookies, or he should enter three non-trivial words from the document, to unlock the draft. The security aspect here is non-critical, since every page will eventually be published on NoteHub anyway. So there is no reason to assume, that a draft contains critical information.
+A new note can be entered and previewed at [notehub.org/new](http://notehub.org/new).
 
 ## Publishing
 
-Once a page is published, it gets accessible under and URL like:
+Once a page is published, it gets accessible through an URL of the format:
 
     http://notehub.org/%YEAR/%MONTH/%DAY/%TITLE
 
 Hence, every date represents a name space.
 
-## Features
+## Exporting & Statistics
 
- * Preview (could be used from Vim or any other MD-editor):
-    http://notehub.org/preview?t="..."
- * View Control over url, e.g. `http://notehub.org/2012/03/23/My-Thoughts/background/dark` would display the note on a dark background.
- * Short urls available by:
-    http://notehub.org/2012/03/23/foobar/...any-options.../shorturl -> http://notehub.org/asd3rf
- * Every page downloadable without any dependencies except of fonts and images (can be improved ?)
+By appending of `/stat` everyone can see a rudimentary statistics (currently, the number of note views only).
+By appending of `/export` the original markdown content will be displayed in plain text format.
+
+## Displaying
+
+There are some experimental features, which allow to change via the note URL the design of the note page.
+E.g., by appending of `&theme=dark` to the URL, the design colors will be inverted.
+Currently it is also possible to change the header and the article text by appending of the Google Webfont names like this:
+
+    notehub.org/.../title?header-font=Anton&text-font=Cagliostro

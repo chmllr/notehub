@@ -6,7 +6,7 @@
 ; Initialize the data base 
 (def db 
   (redis/init
-    (when dev-mode? 
+    (when (dev-mode?)
       {:url (get-setting :db-url)})))
 
 ; DB hierarchy levels

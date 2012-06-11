@@ -40,7 +40,7 @@
                  ; generating the global CSS
                  [:style {:type "text/css"} (global-css params)]
                  ; google analytics code should appear in prod mode only
-                 (if-not dev-mode? (include-js "/js/google-analytics.js"))]
+                 (if-not (dev-mode?) (include-js "/js/google-analytics.js"))]
                 [:body content
                  ; we only need JS during a new note creation, so don't render it otherwise
                  (when (params :js)
