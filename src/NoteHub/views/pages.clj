@@ -8,6 +8,7 @@
     [clojure.string :rename {replace sreplace} :only [split replace lower-case]]
     [clojure.core.incubator :only [-?>]]
     [hiccup.form]
+    [ring.util.codec :only [url-encode]]
     [hiccup.core]
     [hiccup.util :only [escape-html]]
     [noir.session :only [flash-put! flash-get]]
@@ -52,7 +53,7 @@
 ; Routes
 ; ======
 
-; This function answers to an AJAX request: it gets a sesion key and a markdown text.
+; This function answers to an AJAX request: it gets a session key and a markdown text.
 ; It returns the html code of the provided markdown and a new session key.
 (defremote get-preview-md [session-key md]
            (when (flash-get session-key)
@@ -151,6 +152,5 @@
                                                   (map #(str proposed-title "-" (+ 2 %)) (range)))))]
                (do
                  (set-note date title draft)
-                 ; TODO: the redirect is broken if title contains UTF chars
-                 (redirect (url year month day title))))
+                 (redirect (url year month day (url-encode title)))))
              (response 400))))

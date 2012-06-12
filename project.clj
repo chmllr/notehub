@@ -3,6 +3,7 @@
             :dependencies [[org.clojure/clojure "1.4.0"]
                            [org.clojure/clojure-contrib "1.2.0"]
                            [hiccup "1.0.0"]
+                           [ring/ring-core "1.1.0"]
                            [cssgen "0.2.6"]
                            [jayq "0.1.0-alpha2"]
                            [fetch "0.1.0-alpha2"]
@@ -10,17 +11,15 @@
                            [org.pegdown/pegdown "1.1.0"]
                            [noir "1.3.0-beta1"]]
             :plugins [[lein-cljsbuild "0.1.10"]]
-            :cljsbuild {
-              :builds [{
-                ; The path to the top-level ClojureScript source directory:
-                :source-path "src-cljs"
-                ; The standard ClojureScript compiler options:
-                ; (See the ClojureScript compiler documentation for details.)
-                :crossovers [NoteHub.crossover]
-                :compiler {
-                  :output-dir "resources/public/cljs/"
-                  :output-to "resources/public/cljs/main.js"  ; default: main.js in current directory
-                  :optimizations :whitespace
-                  :pretty-print true}}]}
+            :jvm-opts ["-Dfile.encoding=utf-8"]
+            :cljsbuild
+            {:crossovers [NoteHub.crossover],
+             :builds
+             [{:source-path "src-cljs",
+               :compiler
+               {:output-dir "resources/public/cljs/",
+                :output-to "resources/public/cljs/main.js",
+                :optimizations :whitespace,
+                :pretty-print true}}]}
             :main NoteHub.server)
 
