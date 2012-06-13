@@ -12,6 +12,7 @@
                            [noir "1.3.0-beta1"]]
             :plugins [[lein-cljsbuild "0.1.10"]]
             :hooks [leiningen.cljsbuild]
+            :aot [NoteHub.views.* NoteHub.crossover.*]
             :jvm-opts ["-Dfile.encoding=utf-8"]
             :cljsbuild
             {:crossovers [NoteHub.crossover],
