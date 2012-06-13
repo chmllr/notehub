@@ -137,8 +137,6 @@
              ; if not, append "-n", where "n" is the next free number
              (let [[year month day] (map #(+ (second %) (.get (Calendar/getInstance) (first %))) 
                                          {Calendar/YEAR 0, Calendar/MONTH 1, Calendar/DAY_OF_MONTH 0})
-                   ; This is the _only_ point where user's content enters the web app, so we escape the content.
-                   draft (escape-html draft)
                    untrimmed-line (filter #(or (= \- %) (Character/isLetterOrDigit %)) 
                                           (-> draft ccs/split-lines first (sreplace " " "-") lower-case))
                    trim (fn [s] (apply str (drop-while #(= \- %) s)))
