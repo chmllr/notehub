@@ -11,6 +11,7 @@
                            [org.pegdown/pegdown "1.1.0"]
                            [noir "1.3.0-beta1"]]
             :plugins [[lein-cljsbuild "0.1.10"]]
+            :hooks [leiningen.cljsbuild]
             :jvm-opts ["-Dfile.encoding=utf-8"]
             :cljsbuild
             {:crossovers [NoteHub.crossover],
