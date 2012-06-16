@@ -3,8 +3,7 @@
   (:require [goog.dom :as gdom]
             [NoteHub.crossover.lib :as lib]
             [clojure.browser.dom :as dom]
-            [clojure.browser.event :as event])
-  (:require-macros [fetch.macros :as fm]))
+            [clojure.browser.event :as event]))
 
 ; frequently used selectors
 (def $draft ($ :#draft))
