@@ -77,11 +77,12 @@
                  [:table.central-element.helvetica-neue
                   [:tr
                    ; dynamically generates three column, retrieving corresponding messages
-                   (for [e [:column-why :column-how :column-geeks]]
-                     (html  
-                       [:td.one-third-column
-                        [:h2 (get-message e)]
-                        (md-to-html (get-message (keyword (str (name e) "-long"))))]))]]
+                   (map
+                     #(html  
+                        [:td.one-third-column
+                         [:h2 (get-message %)]
+                         (md-to-html (get-message (keyword (str (name %) "-long"))))])
+                     [:column-why :column-how :column-geeks])]]
                  [:div.centered.helvetica-neue (md-to-html (get-message :created-by))]))
 
 ; New Note Page
