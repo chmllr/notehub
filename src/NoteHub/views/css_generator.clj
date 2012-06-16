@@ -1,6 +1,8 @@
-(use 'cssgen.use)
-(css-ns NoteHub.views.css-generator
-  (:use [NoteHub.settings]))
+(ns NoteHub.views.css-generator
+  (:use 
+    [cssgen]
+    [cssgen.types :only [px %]]
+    [NoteHub.settings]))
 
 (defn- gen-fontlist [& fonts] 
   (apply str 
