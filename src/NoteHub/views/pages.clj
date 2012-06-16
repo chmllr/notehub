@@ -15,8 +15,8 @@
     [noir.response :only [redirect status]]
     [noir.core :only [defpage render]]
     [noir.util.crypt :only [encrypt]]
-    [noir.statuses]
-    [noir.fetch.remotes])
+    [cheshire.core]
+    [noir.statuses])
   (:import 
     [java.util Calendar]
     [org.pegdown PegDownProcessor]))
@@ -59,10 +59,11 @@
 
 ; This function answers to an AJAX request: it gets a session key and a markdown text.
 ; It returns the html code of the provided markdown and a new session key.
-(defremote get-preview-md [session-key md]
-           (when (flash-get session-key)
+(defpage [:post "/preview"] {:keys [session-key draft]}
+         (when (flash-get session-key)
+           (generate-string
              {:session-key (get-flash-key)
-              :preview (md-to-html md)}))
+              :preview (md-to-html draft)})))
 
 ; Landing Page
 (defpage "/" {}

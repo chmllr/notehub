@@ -1,7 +1,6 @@
 (ns NoteHub.main
-  (:use [jayq.core :only [$ css inner val anim show]])
-  (:require [fetch.remotes :as remotes]
-            [goog.dom :as gdom]
+  (:use [jayq.core :only [$ xhr css inner val anim show]])
+  (:require [goog.dom :as gdom]
             [NoteHub.crossover.lib :as lib]
             [clojure.browser.dom :as dom]
             [clojure.browser.event :as event])
@@ -33,11 +32,16 @@
 ; to the preview layer and scroll to it
 (.click ($ :#preview-button)
         (fn [e]
-            (fm/remote (get-preview-md (val $session-key) (val $draft)) [{:keys [preview session-key]}] 
-                       (show $preview-start-line)
-                       (inner $preview preview)
-                       (val $session-key session-key)
-                       (scroll-to $preview-start-line))))
+          (xhr [:post "/preview"]
+               {:session-key (val $session-key) 
+                :draft (val $draft)}
+               (fn [json-map]
+                 (let [m (js->clj (JSON/parse json-map))]
+                   (do
+                     (inner $preview (m "preview"))
+                     (val $session-key (m "session-key"))
+                     (show $preview-start-line)
+                     (scroll-to $preview-start-line)))))))
 
 (.click ($ :#publish-button)
         (fn [e]

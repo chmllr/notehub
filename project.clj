@@ -6,7 +6,7 @@
                            [ring/ring-core "1.1.0"]
                            [cssgen "0.2.6"]
                            [jayq "0.1.0-alpha2"]
-                           [fetch "0.1.0-alpha2"]
+                           [cheshire "4.0.0"]
                            [clj-redis "0.0.12"]
                            [org.pegdown/pegdown "1.1.0"]
                            [noir "1.3.0-beta1"]]
