@@ -33,12 +33,11 @@
 ; to the preview layer and scroll to it
 (.click ($ :#preview-button)
         (fn [e]
-          (do
             (fm/remote (get-preview-md (val $session-key) (val $draft)) [{:keys [preview session-key]}] 
                        (show $preview-start-line)
                        (inner $preview preview)
                        (val $session-key session-key)
-                       (scroll-to $preview-start-line)))))
+                       (scroll-to $preview-start-line))))
 
 (.click ($ :#publish-button)
         (fn [e]

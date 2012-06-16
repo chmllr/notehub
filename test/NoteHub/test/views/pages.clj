@@ -25,8 +25,8 @@
 
 (deftest helper-functions
          (testing "Markdown generation"
-                  (is (= "<h1><em>hello</em> <strong>world</strong></h1><p>test <code>code</code></p>"
-                         (md-to-html "#_hello_ __world__\ntest `code`")))))
+                  (is (= "<h1><em>hellö</em> <strong>world</strong></h1><p>test <code>code</code></p>"
+                         (md-to-html "#_hellö_ __world__\ntest `code`")))))
 (deftest export-test
          (testing "Markdown export"
                   (has-body (send-request (url 2012 6 3 "some-title" "export")) test-note)))

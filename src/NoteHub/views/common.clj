@@ -22,6 +22,7 @@
               (html5
                 [:head
                  [:title (print-str (get-message :name) "&mdash;" title)]
+                 [:meta {:charset "UTF-8"}]
                  ; generating a link to google's webfonts
                  [:link {:href 
                          (clojure.string/replace

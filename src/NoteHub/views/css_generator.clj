@@ -1,7 +1,6 @@
-(ns NoteHub.views.css-generator
-  (:use [cssgen]
-        [NoteHub.settings]
-        [cssgen.types]))
+(use 'cssgen.use)
+(css-ns NoteHub.views.css-generator
+  (:use [NoteHub.settings]))
 
 (defn- gen-fontlist [& fonts] 
   (apply str 
@@ -11,8 +10,7 @@
 
 ; CSS Mixins
 (def page-width
-  (mixin
-    :width (px (get-setting :page-width #(Integer/parseInt %) 800))))
+  (px (get-setting :page-width #(Integer/parseInt %) 800)))
 
 (def helvetica-neue
   (mixin
@@ -25,7 +23,7 @@
 
 (def central-element
   (mixin
-    page-width
+    :width page-width
     :margin-top :5em
     :margin-bottom :10em
     :margin-left "auto"
@@ -37,16 +35,16 @@
                   :foreground :#ccc
                   :background-halftone :#444
                   :foreground-halftone :#bbb
-                  :link-color {:fresh :#6b8
-                               :visited :#496
-                               :hover :#7c9 }}
+                  :link {:fresh :#6b8
+                         :visited :#496
+                         :hover :#7c9 }}
            :default {:background :#fff
                      :foreground :#333
                      :background-halftone :#efefef
                      :foreground-halftone :#888
-                     :link-color {:fresh :#097
-                                 :visited :#054
-                                 :hover :#0a8 }}} keys))
+                     :link {:fresh :#097
+                            :visited :#054
+                            :hover :#0a8 }}} keys))
 
 (defn global-css 
   "Generates the entire CSS rules of the app"
@@ -59,9 +57,9 @@
         foreground (color theme :foreground)
         background-halftone (color theme :background-halftone)
         foreground-halftone (color theme :foreground-halftone)
-        link-fresh (color theme :link-color :fresh)
-        link-visited (color theme :link-color :visited)
-        link-hover (color theme :link-color :hover)]
+        link-fresh (color theme :link :fresh)
+        link-visited (color theme :link :visited)
+        link-hover (color theme :link :hover)]
     (css 
       (rule "a"
             :color link-fresh
@@ -97,7 +95,7 @@
             :text-align :justify
             :vertical-align :top
             ; Replace this by arithmetic with css-lengths as soon as they fix the bug
-            :width (px (quot (get-setting :page-width #(Integer/parseInt %) 800) 3)))
+            :width (/ page-width 3.0))
       (rule ".helvetica-neue"
             helvetica-neue)
       (rule "#hero"
@@ -115,7 +113,7 @@
             :text-align :justify
             :font-size :1.2em
             (rule "p"
-              :line-height (% 140))
+                  :line-height (% 140))
             (rule "& > h1:first-child"
                   :text-align :center
                   :margin :2em))
@@ -129,7 +127,7 @@
       (rule "*:focus"
             :outline [:0px :none :transparent])
       (rule "textarea"
-            page-width
+            :width page-width
             :font-family :Courier
             :font-size :1em
             :border :none

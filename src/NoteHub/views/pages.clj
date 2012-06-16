@@ -21,9 +21,13 @@
     [java.util Calendar]
     [org.pegdown PegDownProcessor]))
 
+; Create a new Object of the MD-processor
+(def md-processor
+  (PegDownProcessor.))
+
 ; Markdown -> HTML mapper
 (defn md-to-html [md-text]
-  (.markdownToHtml (PegDownProcessor.) md-text))
+  (.markdownToHtml md-processor md-text))
 
 ; Creates a random session token
 (defn- get-flash-key []
@@ -75,7 +79,8 @@
                    (for [e [:column-why :column-how :column-geeks]]
                      (html  
                        [:td.one-third-column
-                        [:h2 (get-message e)] (md-to-html (get-message (keyword (str (name e) "-long"))))]))]]
+                        [:h2 (get-message e)]
+                        (md-to-html (get-message (keyword (str (name e) "-long"))))]))]]
                  [:div.centered.helvetica-neue (md-to-html (get-message :created-by))]))
 
 ; New Note Page
