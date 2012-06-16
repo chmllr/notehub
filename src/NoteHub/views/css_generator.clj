@@ -10,7 +10,7 @@
 
 ; CSS Mixins
 (def page-width
-  (px (get-setting :page-width #(Integer/parseInt %) 800)))
+  (get-setting :page-width #(Integer/parseInt %) 800))
 
 (def helvetica-neue
   (mixin
@@ -23,7 +23,7 @@
 
 (def central-element
   (mixin
-    :width page-width
+    :width (px page-width)
     :margin-top :5em
     :margin-bottom :10em
     :margin-left "auto"
@@ -95,7 +95,7 @@
             :text-align :justify
             :vertical-align :top
             ; Replace this by arithmetic with css-lengths as soon as they fix the bug
-            :width (/ page-width 3.0))
+            :width (px (quot page-width 3)))
       (rule ".helvetica-neue"
             helvetica-neue)
       (rule "#hero"
@@ -127,7 +127,7 @@
       (rule "*:focus"
             :outline [:0px :none :transparent])
       (rule "textarea"
-            :width page-width
+            :width (px page-width)
             :font-family :Courier
             :font-size :1em
             :border :none
