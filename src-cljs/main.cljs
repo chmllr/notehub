@@ -32,13 +32,11 @@
 (.click ($ :#preview-button)
         (fn [e]
           (xhr [:post "/preview"]
-               {:session-key (val $session-key) 
-                :draft (val $draft)}
+               {:draft (val $draft)}
                (fn [json-map]
                  (let [m (js->clj (JSON/parse json-map))]
                    (do
                      (inner $preview (m "preview"))
-                     (val $session-key (m "session-key"))
                      (show $preview-start-line)
                      (scroll-to $preview-start-line)))))))
 

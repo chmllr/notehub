@@ -11,10 +11,8 @@
     [ring.util.codec :only [url-encode]]
     [hiccup.core]
     [hiccup.util :only [escape-html]]
-    [noir.session :only [flash-put! flash-get]]
     [noir.response :only [redirect status]]
     [noir.core :only [defpage render]]
-    [noir.util.crypt :only [encrypt]]
     [cheshire.core]
     [noir.statuses])
   (:import 
@@ -28,12 +26,6 @@
 ; Markdown -> HTML mapper
 (defn md-to-html [md-text]
   (.markdownToHtml md-processor md-text))
-
-; Creates a random session token
-(defn- get-flash-key []
-  (let [k (encrypt (str (rand-int Integer/MAX_VALUE)))]
-    (do (flash-put! k true)
-      (print-str k))))
 
 ; Sets a custom message for each needed HTTP status.
 ; The message to be assigned is extracted with a dynamically generated key
@@ -54,16 +46,20 @@
       (layout params title [:article (md-to-html md-text)]))
     (status 404 (get-page 404))))
 
+(defn get-date
+  "Returns today's date"
+  []
+  (map #(+ (second %) (.get (Calendar/getInstance) (first %))) 
+       {Calendar/YEAR 0, Calendar/MONTH 1, Calendar/DAY_OF_MONTH 0}))
+
 ; Routes
 ; ======
 
 ; This function answers to an AJAX request: it gets a session key and a markdown text.
 ; It returns the html code of the provided markdown and a new session key.
 (defpage [:post "/preview"] {:keys [session-key draft]}
-         (when (flash-get session-key)
-           (generate-string
-             {:session-key (get-flash-key)
-              :preview (md-to-html draft)})))
+         (generate-string
+           {:preview (md-to-html draft)}))
 
 ; Landing Page
 (defpage "/" {}
@@ -90,7 +86,7 @@
          (layout {:js true} (get-message :new-note)
                  [:div.central-element
                   (form-to [:post "/post-note"]
-                           (hidden-field :session-key (get-flash-key))
+                           (hidden-field :session-key (create-session))
                            (hidden-field {:id :session-value} :session-value)
                            (text-area {:class :max-width} :draft (get-message :loading))
                            [:div#buttons.hidden
@@ -118,19 +114,19 @@
          (let [views (get-note-views [year month day] title)]
            (if views 
              (layout (get-message :statistics)
-                      [:table.helvetica-neue.central-element
-                       [:tr
-                        [:td (get-message :published)]
-                        [:td (interpose "-" [year month day])]]
-                       [:tr
-                        [:td (get-message :article-views)]
-                        [:td views]]])
+                     [:table.helvetica-neue.central-element
+                      [:tr
+                       [:td (get-message :published)]
+                       [:td (interpose "-" [year month day])]]
+                      [:tr
+                       [:td (get-message :article-views)]
+                       [:td views]]])
              (response 404))))
 
 ; New Note Posting — the most "complex" function in the entire app ;)
 (defpage [:post "/post-note"] {:keys [draft session-key session-value]}
          ; first we collect all info needed to evaluate the validity of the note creation request
-         (let [valid-session (flash-get session-key) ; was the note posted from a newly generated form?
+         (let [valid-session (invalidate-session session-key) ; was the note posted from a newly generated form?
                valid-draft (not (ccs/blank? draft)) ; has the note a meaningful content?
                ; is the hash code correct?
                valid-hash (try
@@ -142,8 +138,7 @@
              ; if yes, we compute the current date, extract a title string from the text,
              ; which will be a part of the url and look whether this title is free today;
              ; if not, append "-n", where "n" is the next free number
-             (let [[year month day] (map #(+ (second %) (.get (Calendar/getInstance) (first %))) 
-                                         {Calendar/YEAR 0, Calendar/MONTH 1, Calendar/DAY_OF_MONTH 0})
+             (let [[year month day] (get-date)
                    untrimmed-line (filter #(or (= \- %) (Character/isLetterOrDigit %)) 
                                           (-> draft ccs/split-lines first (sreplace " " "-") lower-case))
                    trim (fn [s] (apply str (drop-while #(= \- %) s)))

@@ -1,13 +1,15 @@
 (ns NoteHub.test.views.pages
+  (:require [NoteHub.crossover.lib :as lib])
   (:use [NoteHub.views.pages]
         [noir.util.test]
+        [clojure.contrib.string :only [substring?]]
         [NoteHub.views.common :only [url]]
         [NoteHub.storage]
         [clojure.test]))
 
 (def date [2012 6 3])
 (def test-title "some-title")
-(def test-note "# This is a test note.\nHello _world_.")
+(def test-note "# This is a test note.\nHello _world_. Motörhead, тест.")
 
 (defn create-testnote-fixture [f]
   (set-note date test-title test-note)
@@ -29,22 +31,43 @@
                          (md-to-html "#_hellö_ __world__\ntest `code`")))))
 (deftest export-test
          (testing "Markdown export"
-                  (has-body (send-request (url 2012 6 3 "some-title" "export")) test-note)))
+                  (is (has-body (send-request (url 2012 6 3 "some-title" "export")) test-note))))
+
+(deftest note-creation
+         (let [session-key (create-session)
+               date (get-date)
+               ; TODO: replace note generation by a function from pages.clj
+               title "this-is-a-test-note"
+               [year month day] date]
+           (testing "Note creation"
+                    (is (has-status 
+                          (send-request 
+                            [:post "/post-note"]
+                            {:session-key session-key
+                             :draft test-note
+                             :session-value (str (lib/hash #(.codePointAt % 0) 
+                                                           (str test-note session-key)))}) 302))
+                    (is (note-exists? date title))
+                    (is (substring? "Hello <em>world</em>"
+                                    ((send-request (url year month day title)) :body)))
+                    (is (do 
+                          (delete-note date title)
+                          (not (note-exists? date title)))))))
 
 (deftest requests
          (testing "HTTP Status"
                   (testing "of a wrong access"
-                           (has-status (send-request "/wrong-page") 404)
-                           (has-status (send-request (url 2012 6 3 "lol" "stat")) 404)
-                           (has-status (send-request (url 2012 6 3 "lol" "export")) 404)
-                           (has-status (send-request (url 2012 6 3 "lol")) 404)
-                           (has-status (send-request (url 2012 6 4 "wrong-title")) 404))
+                           (is (has-status (send-request "/wrong-page") 404))
+                           (is (has-status (send-request (url 2012 6 3 "lol" "stat")) 404))
+                           (is (has-status (send-request (url 2012 6 3 "lol" "export")) 404))
+                           (is (has-status (send-request (url 2012 6 3 "lol")) 404))
+                           (is (has-status (send-request (url 2012 6 4 "wrong-title")) 404)))
                   (testing "of corrupt note-post"
-                           (has-status (send-request [:post "/post-note"]) 400))
+                           (is (has-status (send-request [:post "/post-note"]) 400)))
                   (testing "valid accesses"
-                           (has-status (send-request "/new") 200)
-                           (has-status (send-request (url 2012 6 3 "some-title")) 200)
-                           (has-status (send-request (url 2012 6 3 "some-title" "export")) 200)
-                           (has-status (send-request (url 2012 6 3 "some-title" "stat")) 200)
-                           (has-status (send-request (url 2012 6 3 "some-title")) 200)
-                           (has-status (send-request "/") 200))))
+                           (is (has-status (send-request "/new") 200))
+                           (is (has-status (send-request (url 2012 6 3 "some-title")) 200))
+                           (is (has-status (send-request (url 2012 6 3 "some-title" "export")) 200))
+                           (is (has-status (send-request (url 2012 6 3 "some-title" "stat")) 200))
+                           (is (has-status (send-request (url 2012 6 3 "some-title")) 200))
+                           (is (has-status (send-request "/") 200)))))

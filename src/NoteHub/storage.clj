@@ -1,5 +1,6 @@
 (ns NoteHub.storage
   (:use [NoteHub.settings]
+        [noir.util.crypt :only [encrypt]]
         [noir.options :only [dev-mode?]])
   (:require [clj-redis.client :as redis]))
 
@@ -12,10 +13,25 @@
 ; DB hierarchy levels
 (def note "note")
 (def views "views")
+(def sessions "sessions")
 
 ; Concatenates all fields to a string
 (defn- build-key [[year month day] title]
   (print-str year month day title))
+
+(defn create-session
+  "Creates a random session token"
+  []
+  (let [token (encrypt (str (rand-int Integer/MAX_VALUE)))]
+    (do (redis/sadd db sessions token) token)))
+
+(defn invalidate-session
+  "Invalidates given session"
+  [token]
+  ; Jedis is buggy & returns an NPE for token == nil
+  (when token
+    (let [was-valid (redis/sismember db sessions token)]
+      (do (redis/srem db sessions token) was-valid))))
 
 (defn set-note
   "Creates a note with the given title and text in the given date namespace"
