@@ -36,7 +36,7 @@
         value (settings-map key)
         ; Through this hack we can read security-critical settings from (previously 
         ; set) shell variables without commiting their content to CVS
-        value (if-not value 
+        value (if value value
                 (System/getenv 
                   (upper-case
                     (replace (name key) #"-" ""))))]
