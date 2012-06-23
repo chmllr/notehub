@@ -82,11 +82,27 @@
             helvetica-neue
             (rule "&:hover"
                   :background :#0b2))
+      (rule "#panel"
+            helvetica-neue
+            :position :fixed
+            :width (% 100)
+            :border-top [:1px :solid foreground-halftone]
+            :background background-halftone
+            :padding :0.2em
+            :bottom :0px
+            :font-size :0.4em
+            :text-align :center
+            (rule "a"
+                  :border :none))
       (rule "html, body"
             :background background
             :color foreground
             :margin 0
             :padding 0)
+      (rule "#stats"
+            (rule "tr"
+                  (rule "& > td:first-child"
+                        :text-align :right)))
       (rule "table,tr,td"
             :margin 0
             :border :none)

@@ -12,7 +12,16 @@
 (defn url
   "Creates a local url from the given substrings"
   [& args]
-  (apply str (interpose "/" (cons "" args))))
+  (let [params (last args)
+        params (if (map? params)
+                 (apply str
+                        (interpose "&" 
+                                   (map #(let [[k v] %] (str k "=" v))
+                                        (map #(map name %) params)))))
+        args (if params (butlast args) args)
+        params (if params (str "?" params) "")
+        [leading-slash args] (if (= :local (first args)) ["" (rest args)] ["/" args])]
+    (str (apply str leading-slash (interpose "/" args)) (apply str params))))
 
 ; Creates the main html layout
 (defpartial generate-layout 

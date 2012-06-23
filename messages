@@ -23,4 +23,7 @@ publish = Publish
 published = Published
 article-views = Article Views
 statistics = Statistics
+stats = statistics
+export = export
+short-url = short url
 new-note = New Markdown Note

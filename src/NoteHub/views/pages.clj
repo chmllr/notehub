@@ -10,8 +10,8 @@
     [hiccup.form]
     [ring.util.codec :only [url-encode]]
     [hiccup.core]
-    [hiccup.util :only [escape-html]]
-    [noir.response :only [redirect status]]
+    [hiccup.element]
+    [noir.response :only [redirect status content-type]]
     [noir.core :only [defpage render]]
     [cheshire.core]
     [noir.statuses])
@@ -40,11 +40,17 @@
   (status code (get-page code)))
 
 ; Converts given markdown to html and wraps with the main layout
-(defn- wrap [params md-text]
+(defn- wrap [title params md-text]
   (if md-text 
-    (let [title (-?> md-text (split #"\n") first (sreplace #"[_\*#]" ""))]
-      (layout params title [:article (md-to-html md-text)]))
-    (status 404 (get-page 404))))
+    (layout params title 
+            [:article (md-to-html md-text)]
+            (let [links (map #(link-to (url :local (str title "/" (name %)) params) (get-message %)) 
+                             [:stats :export :short-url])
+                  space (apply str (repeat 4 "&nbsp;"))
+                  separator (str space "&middot;" space)
+                  links (interpose separator links)]
+              [:div#panel (map identity links)]))
+  (status 404 (get-page 404))))
 
 (defn get-date
   "Returns today's date"
@@ -101,20 +107,21 @@
 ; Displays the note
 (defpage "/:year/:month/:day/:title" {:keys [year month day title theme header-font text-font] :as params}
          (wrap 
+           title
            (select-keys params [:theme :header-font :text-font])
            (get-note [year month day] title)))
 
 ; Provides Markdown of the specified note
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
          (let [md-text (get-note [year month day] title)]
-           (if md-text md-text (response 404))))
+           (if md-text (content-type "text/plain; charset=utf-8" md-text) (response 404))))
 
 ; Provides the number of views of the specified note
-(defpage "/:year/:month/:day/:title/stat" {:keys [year month day title]}
+(defpage "/:year/:month/:day/:title/stats" {:keys [year month day title]}
          (let [views (get-note-views [year month day] title)]
            (if views 
              (layout (get-message :statistics)
-                     [:table.helvetica-neue.central-element
+                     [:table#stats.helvetica-neue.central-element
                       [:tr
                        [:td (get-message :published)]
                        [:td (interpose "-" [year month day])]]
