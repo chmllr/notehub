@@ -15,8 +15,10 @@
 (deftest storage
          (testing "Storage"
                   (testing "of short-url mechanism"
-                           (let [url (create-short-url metadata)]
+                           (let [url (create-short-url metadata)
+                                 url2 (create-short-url metadata)]
                              (is (short-url-exists? url))
+                             (is (= url url2))
                              (is (= metadata (resolve-url url)))
                              (is (not (do 
                                         (delete-short-url url)
