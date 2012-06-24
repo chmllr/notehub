@@ -1,6 +1,7 @@
 (ns NoteHub.views.pages
   (:require [NoteHub.crossover.lib :as lib]
-            [clojure.contrib.string :as ccs])
+            [clojure.contrib.string :as ccs]
+            [hiccup.util :as util])
   (:use
     [NoteHub.storage]
     [NoteHub.settings]
@@ -40,17 +41,21 @@
   (status code (get-page code)))
 
 ; Converts given markdown to html and wraps with the main layout
-(defn- wrap [title params md-text]
+(defn- wrap [short-url params md-text]
   (if md-text 
-    (layout params title 
+    (layout params (params :title)
             [:article (md-to-html md-text)]
-            (let [links (map #(link-to (url :local (str title "/" (name %)) params) (get-message %)) 
+            (let [links (map #(link-to 
+                                (if (= :short-url %)
+                                  (url short-url)
+                                  (str (params :title) "/" (name %)))
+                                (get-message %))
                              [:stats :export :short-url])
                   space (apply str (repeat 4 "&nbsp;"))
                   separator (str space "&middot;" space)
                   links (interpose separator links)]
               [:div#panel (map identity links)]))
-  (status 404 (get-page 404))))
+    (response 404)))
 
 (defn get-date
   "Returns today's date"
@@ -76,15 +81,9 @@
                   [:br]
                   [:a.landing-button {:href "/new" :style "color: white"} (get-message :new-page)]]
                  [:div.dashed-line]
-                 [:table.central-element.helvetica-neue
-                  [:tr
-                   ; dynamically generates three column, retrieving corresponding messages
-                   (map
-                     #(html  
-                        [:td.one-third-column
-                         [:h2 (get-message %)]
-                         (md-to-html (get-message (keyword (str (name %) "-long"))))])
-                     [:column-why :column-how :column-geeks])]]
+                 ; dynamically generates three column, retrieving corresponding messages
+                 [:article.helvetica-neue {:style "font-size: 1em"} 
+                  (md-to-html (slurp "README.md"))]
                  [:div.centered.helvetica-neue (md-to-html (get-message :created-by))]))
 
 ; New Note Page
@@ -106,15 +105,18 @@
 
 ; Displays the note
 (defpage "/:year/:month/:day/:title" {:keys [year month day title theme header-font text-font] :as params}
-         (wrap 
-           title
-           (select-keys params [:theme :header-font :text-font])
-           (get-note [year month day] title)))
+  (wrap 
+    (create-short-url params)
+    (select-keys params [:title :theme :header-font :text-font])
+    (get-note [year month day] title)))
 
 ; Provides Markdown of the specified note
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
          (let [md-text (get-note [year month day] title)]
            (if md-text (content-type "text/plain; charset=utf-8" md-text) (response 404))))
+
+(defpage "/:year/:month/:day/:title/short-url" params
+         (layout (get-message :short-url) (url (create-short-url params))))
 
 ; Provides the number of views of the specified note
 (defpage "/:year/:month/:day/:title/stats" {:keys [year month day title]}
@@ -161,3 +163,15 @@
                  (set-note date title draft)
                  (redirect (url year month day (url-encode title)))))
              (response 400))))
+
+; Resolving of a short url
+(defpage "/:short-url" {:keys [short-url]}
+         (let [params (resolve-url short-url)]
+           (if params
+             (let [{:keys [year month day title]} params
+                   rest-params (dissoc params :year :month :day :title)
+                   core-url (url year month day title)
+                   long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
+               (redirect long-url))
+             (response 404))))
+

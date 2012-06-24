@@ -4,9 +4,23 @@
 (def date [2012 06 03])
 (def test-title "Some title.")
 (def test-note "This is a test note.")
+(def metadata {:year 2012,
+               :month 6,
+               :day 23,
+               :title test-title,
+               :theme "dark",
+               :header-font "Anton"})
+
 
 (deftest storage
          (testing "Storage"
+                  (testing "of short-url mechanism"
+                           (let [url (create-short-url metadata)]
+                             (is (short-url-exists? url))
+                             (is (= metadata (resolve-url url)))
+                             (is (not (do 
+                                        (delete-short-url url)
+                                        (short-url-exists? url))))))
                   (testing "of correct note creation"
                            (is (= (do
                                     (set-note date test-title test-note)

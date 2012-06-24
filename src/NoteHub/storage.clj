@@ -12,6 +12,7 @@
 
 ; DB hierarchy levels
 (def note "note")
+(def short-url "short-url")
 (def views "views")
 (def sessions "sessions")
 
@@ -65,3 +66,46 @@
     (do
       (redis/hdel db views key)
       (redis/hdel db note key))))
+
+(defn short-url-exists?
+  "Checks whether the provided short url is taken (for testing only)"
+  [url]
+  (redis/hexists db short-url url))
+
+(defn resolve-url
+  "Resolves short url by providing all metadata of the request"
+  [url]
+  (let [value (redis/hget db short-url url)]
+    (when value 
+      (read-string value))))
+
+(defn delete-short-url
+  "Deletes a short url (for testing only)"
+  [key]
+  (let [value (redis/hget db short-url key)]
+    (do
+      (redis/hdel db short-url key)
+      (redis/hdel db short-url value))))
+
+(defn create-short-url
+  "Creates a short url for the given request metadata or extracts
+  one if it was already created"
+  [metadata]
+  (let [request (str (into (sorted-map) metadata))]
+    (if (short-url-exists? request)
+      (redis/hget db short-url request)
+      (let [hash-stream (partition 5 (repeatedly #(rand-int 36)))
+            hash-to-string (fn [hash]
+                             (apply str 
+                                    ; map first 10 numbers to digits
+                                    ; and the rest to chars
+                                    (map #(char (+ (if (< 9 %) 87 48) %)) hash)))
+            url (first 
+                  (remove short-url-exists?
+                          (map hash-to-string hash-stream)))]
+        (do 
+          ; we create two mappings: request params -> short url and back,
+          ; s.t. we can later easily check whether a short url already exists
+          (redis/hset db short-url url request)
+          (redis/hset db short-url request url)
+          url)))))

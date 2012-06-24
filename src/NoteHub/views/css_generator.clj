@@ -90,7 +90,7 @@
             :background background-halftone
             :padding :0.2em
             :bottom :0px
-            :font-size :0.4em
+            :font-size :0.7em
             :text-align :center
             (rule "a"
                   :border :none))

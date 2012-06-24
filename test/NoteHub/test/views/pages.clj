@@ -20,14 +20,6 @@
 
 (is (= (url 2010 05 06 "test-title" "export") "/2010/5/6/test-title/export"))
 
-(is (= (url 2010 05 06 "test-title" "export" {"theme" "dark"}) "/2010/5/6/test-title/export?theme=dark"))
-
-(is (= (url 2010 05 06 "test-title" "export" {:theme "dark"}) "/2010/5/6/test-title/export?theme=dark"))
-
-(is (= (url 2010 05 06 "test-title" "export" {:theme :dark}) "/2010/5/6/test-title/export?theme=dark"))
-
-(is (= (url :local 2010 05 06 "test-title" "export" {:theme :dark}) "2010/5/6/test-title/export?theme=dark"))
-
 (deftest testing-fixture
          (testing "Was a not created?"
                   (is (= (get-note date test-title) test-note))
@@ -73,9 +65,8 @@
                   (testing "of corrupt note-post"
                            (is (has-status (send-request [:post "/post-note"]) 400)))
                   (testing "valid accesses"
-                           (is (has-status (send-request "/new") 200))
-                           (is (has-status (send-request (url 2012 6 3 "some-title")) 200))
-                           (is (has-status (send-request (url 2012 6 3 "some-title" "export")) 200))
-                           (is (has-status (send-request (url 2012 6 3 "some-title" "stat")) 200))
-                           (is (has-status (send-request (url 2012 6 3 "some-title")) 200))
-                           (is (has-status (send-request "/") 200)))))
+                           ;(is (has-status (send-request "/new") 200) "accessing /new")
+                           (is (has-status (send-request (url 2012 6 3 "some-title")) 200) "accessing test note")
+                           (is (has-status (send-request (url 2012 6 3 "some-title" "export")) 200) "accessing test note's export")
+                           (is (has-status (send-request (url 2012 6 3 "some-title" "stats")) 200) "accessing test note's stats")
+                           (is (has-status (send-request "/") 200) "accessing landing page"))))
