@@ -13,7 +13,7 @@
     [hiccup.core]
     [hiccup.element]
     [noir.response :only [redirect status content-type]]
-    [noir.core :only [defpage render]]
+    [noir.core :only [defpage pre-route]]
     [cheshire.core]
     [noir.statuses])
   (:import 
@@ -87,7 +87,7 @@
                  [:div.centered.helvetica-neue (md-to-html (get-message :created-by))]))
 
 ; New Note Page
-(defpage "/new" {}
+(pre-route "/new" {}
          (layout {:js true} (get-message :new-note)
                  [:div.central-element
                   (form-to [:post "/post-note"]
@@ -114,9 +114,6 @@
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
          (let [md-text (get-note [year month day] title)]
            (if md-text (content-type "text/plain; charset=utf-8" md-text) (response 404))))
-
-(defpage "/:year/:month/:day/:title/short-url" params
-         (layout (get-message :short-url) (url (create-short-url params))))
 
 ; Provides the number of views of the specified note
 (defpage "/:year/:month/:day/:title/stats" {:keys [year month day title]}

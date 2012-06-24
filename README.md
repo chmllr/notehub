@@ -33,11 +33,11 @@ and for the text itself:
 
     notehub.org/.../title?header-font=FONT-NAME&text-font=FONT-NAME2
 
-See an example of the font formatting ([here](http://notehub.org/2012/6/16/how-notehub-is-built?header-font=Berkshire+Swash&text-font=Swanky+and+Moo+Moo)).
+See an example of the font formatting [here](http://notehub.org/2012/6/16/how-notehub-is-built?header-font=Berkshire+Swash&text-font=Swanky+and+Moo+Moo).
 
 After you've specified this in the url, you can copy the corresponding short url of the article and share it.
 
-## Exporting & Statistics
+## Export & Statistics
 
 By appending of `/stat` to any note url, everyone can see a rudimentary statistics (currently, the number of note views only).
 By appending of `/export`, the original markdown content will be displayed in plain text format.
