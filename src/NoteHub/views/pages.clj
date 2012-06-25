@@ -96,9 +96,9 @@
                            (text-area {:class :max-width} :draft (get-message :loading))
                            [:div#buttons.hidden
                             (submit-button {:style "float: left"
-                                            :class :button 
+                                            :class "button ui-border"
                                             :id :publish-button} (get-message :publish))
-                            [:button#preview-button.button {:type :button 
+                            [:button#preview-button.button.ui-border {:type :button 
                                                             :style "float: right"} (get-message :preview)]])]
                  [:div#preview-start-line.dashed-line.hidden]
                  [:article#preview]))

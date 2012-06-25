@@ -16,11 +16,17 @@
   [$id]
   (anim ($ :body) {:scrollTop ((js->clj (.offset $id)) "top")} 500))
 
+; try to detect iOS
+(def ios-detected (.match (.-userAgent js/navigator) "(iPad|iPod|iPhone)"))
+
 ; set focus to the draft textarea (if there is one)
 (when $draft
   (do
     (val $draft "")
-    (.focus $draft)))
+    ; foces setting is impossible in iOS, so we border the field instead
+    (if ios-detected
+      (.addClass $draft "ui-border")
+      (.focus $draft))))
 
 ; show the preview & publish buttons as soon as the user starts typing.
 (.keypress $draft
@@ -40,6 +46,8 @@
                      (show $preview-start-line)
                      (scroll-to $preview-start-line)))))))
 
+; when the publish button is clicked, compute the hash of the entered text and
+; provided session key and assign to the field session-value
 (.click ($ :#publish-button)
         (fn [e]
           (val ($ :#session-value) 

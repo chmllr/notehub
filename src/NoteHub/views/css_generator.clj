@@ -71,6 +71,9 @@
                   :color link-hover)
             (rule "&:visited"
                   :color link-visited))
+      (rule ".ui-border"
+            :border-radius :3px
+            :border [:1px :solid foreground])
       (rule ".landing-button"
             :box-shadow [0 :2px :5px :#aaa]
             :text-decoration :none
@@ -146,6 +149,7 @@
             :outline [:0px :none :transparent])
       (rule "textarea"
             :width (px page-width)
+            :border-radius :5px
             :font-family :Courier
             :font-size :1em
             :border :none
@@ -154,10 +158,9 @@
       (rule ".hidden"
             :display :none)
       (rule ".button"
-            :border-radius :3px
+            :-webkit-appearance :none
             helvetica-neue
             :cursor :pointer
-            :border [:1px :solid foreground]
             :opacity 0.8
             :font-size :1em
             :background background)
