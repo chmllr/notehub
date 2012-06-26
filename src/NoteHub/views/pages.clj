@@ -13,7 +13,7 @@
     [hiccup.core]
     [hiccup.element]
     [noir.response :only [redirect status content-type]]
-    [noir.core :only [defpage pre-route]]
+    [noir.core :only [defpage]]
     [cheshire.core]
     [noir.statuses])
   (:import 
@@ -42,7 +42,7 @@
 
 ; Converts given markdown to html and wraps with the main layout
 (defn- wrap [short-url params md-text]
-  (if md-text 
+  (when md-text 
     (layout params (params :title)
             [:article (md-to-html md-text)]
             (let [links (map #(link-to 
@@ -54,8 +54,7 @@
                   space (apply str (repeat 4 "&nbsp;"))
                   separator (str space "&middot;" space)
                   links (interpose separator links)]
-              [:div#panel (map identity links)]))
-    (response 404)))
+              [:div#panel (map identity links)]))))
 
 (defn get-date
   "Returns today's date"
@@ -87,7 +86,7 @@
                  [:div.centered.helvetica-neue (md-to-html (get-message :created-by))]))
 
 ; New Note Page
-(pre-route "/new" {}
+(defpage "/new" {}
          (layout {:js true} (get-message :new-note)
                  [:div.central-element
                   (form-to [:post "/post-note"]
@@ -112,22 +111,20 @@
 
 ; Provides Markdown of the specified note
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
-         (let [md-text (get-note [year month day] title)]
-           (if md-text (content-type "text/plain; charset=utf-8" md-text) (response 404))))
+         (when-let [md-text (get-note [year month day] title)]
+           (content-type "text/plain; charset=utf-8" md-text)))
 
 ; Provides the number of views of the specified note
 (defpage "/:year/:month/:day/:title/stats" {:keys [year month day title]}
-         (let [views (get-note-views [year month day] title)]
-           (if views 
-             (layout (get-message :statistics)
-                     [:table#stats.helvetica-neue.central-element
-                      [:tr
-                       [:td (get-message :published)]
-                       [:td (interpose "-" [year month day])]]
-                      [:tr
-                       [:td (get-message :article-views)]
-                       [:td views]]])
-             (response 404))))
+         (when-let [views (get-note-views [year month day] title)]
+           (layout (get-message :statistics)
+                   [:table#stats.helvetica-neue.central-element
+                    [:tr
+                     [:td (get-message :published)]
+                     [:td (interpose "-" [year month day])]]
+                    [:tr
+                     [:td (get-message :article-views)]
+                     [:td views]]])))
 
 ; New Note Posting — the most "complex" function in the entire app ;)
 (defpage [:post "/post-note"] {:keys [draft session-key session-value]}
@@ -163,12 +160,11 @@
 
 ; Resolving of a short url
 (defpage "/:short-url" {:keys [short-url]}
-         (let [params (resolve-url short-url)]
-           (if params
-             (let [{:keys [year month day title]} params
-                   rest-params (dissoc params :year :month :day :title)
-                   core-url (url year month day title)
-                   long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
-               (redirect long-url))
-             (response 404))))
+         (when-let [params (resolve-url short-url)]
+           (let [{:keys [year month day title]} params
+                 rest-params (dissoc params :year :month :day :title)
+                 core-url (url year month day title)
+                 long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
+             (redirect long-url))))
+             
 

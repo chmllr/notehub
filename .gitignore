@@ -1,6 +1,6 @@
 PrivateMakefile
 dump.rdb
-resources/
+resources/public/cljs
 pom.xml
 *jar
 /lib/
