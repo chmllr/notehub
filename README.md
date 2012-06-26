@@ -39,5 +39,5 @@ After you've specified this in the url, you can copy the corresponding short url
 
 ## Export & Statistics
 
-By appending of `/stat` to any note url, everyone can see a rudimentary statistics (currently, the number of note views only).
+By appending of `/stats` to any note url, everyone can see a rudimentary statistics (currently, the number of note views only).
 By appending of `/export`, the original markdown content will be displayed in plain text format.
