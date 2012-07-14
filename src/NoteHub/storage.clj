@@ -2,7 +2,8 @@
   (:use [NoteHub.settings]
         [noir.util.crypt :only [encrypt]]
         [noir.options :only [dev-mode?]])
-  (:require [clj-redis.client :as redis]))
+  (:require [clj-redis.client :as redis]
+            [clojure.contrib.string :as ccs]))
 
 ; Initialize the data base 
 (def db 
@@ -12,12 +13,15 @@
 
 ; DB hierarchy levels
 (def note "note")
-(def short-url "short-url")
 (def views "views")
+(def password "password")
 (def sessions "sessions")
+(def short-url "short-url")
 
 ; Concatenates all fields to a string
-(defn- build-key [[year month day] title]
+(defn build-key 
+  "Returns a storage-key for the given note coordinates"
+  [[year month day] title]
   (print-str year month day title))
 
 (defn create-session
@@ -34,10 +38,21 @@
     (let [was-valid (redis/sismember db sessions token)]
       (do (redis/srem db sessions token) was-valid))))
 
+(defn update-note
+  "Updates a note with the given store key if the specified password is correct"
+  [key text passwd]
+  (when (= passwd (redis/hget db password key))
+    (redis/hset db note key text)))
+
 (defn set-note
   "Creates a note with the given title and text in the given date namespace"
-  [date title text]
-  (redis/hset db note (build-key date title) text))
+  ([date title text] (set-note date title text nil))
+  ([date title text passwd]
+   (let [key (build-key date title)]
+     (do
+       (redis/hset db note key text)
+       (when (not (ccs/blank? passwd))
+         (redis/hset db password key passwd))))))
 
 (defn get-note
   "Gets the note from the given date namespaces for the specified title"
@@ -63,9 +78,9 @@
   "Deletes the note with the specified coordinates"
   [date title]
   (let [key (build-key date title)]
-    (do
-      (redis/hdel db views key)
-      (redis/hdel db note key))))
+    (doseq [kw [password views note]]
+      ; TODO: delete short url by looking for the title
+      (redis/hdel db kw key))))
 
 (defn short-url-exists?
   "Checks whether the provided short url is taken (for testing only)"

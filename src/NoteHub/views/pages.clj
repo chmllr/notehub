@@ -9,11 +9,10 @@
     [clojure.string :rename {replace sreplace} :only [split replace lower-case]]
     [clojure.core.incubator :only [-?>]]
     [hiccup.form]
-    [ring.util.codec :only [url-encode]]
     [hiccup.core]
     [hiccup.element]
     [noir.response :only [redirect status content-type]]
-    [noir.core :only [defpage]]
+    [noir.core :only [defpage defpartial]]
     [cheshire.core]
     [noir.statuses])
   (:import 
@@ -30,7 +29,7 @@
 
 ; Sets a custom message for each needed HTTP status.
 ; The message to be assigned is extracted with a dynamically generated key
-(doseq [code [400 404 500]]
+(doseq [code [400 403 404 500]]
   (set-page! code
              (let [message (get-message (keyword (str "status-" code)))]
                (layout message
@@ -44,13 +43,13 @@
 (defn- wrap [short-url params md-text]
   (when md-text 
     (layout params (params :title)
-            [:article (md-to-html md-text)]
+            [:article.bottom-space (md-to-html md-text)]
             (let [links (map #(link-to 
                                 (if (= :short-url %)
                                   (url short-url)
                                   (str (params :title) "/" (name %)))
                                 (get-message %))
-                             [:stats :export :short-url])
+                             [:stats :edit :export :short-url])
                   space (apply str (repeat 4 "&nbsp;"))
                   separator (str space "&middot;" space)
                   links (interpose separator links)]
@@ -79,25 +78,42 @@
                   [:h2 (get-message :title)]
                   [:br]
                   [:a.landing-button {:href "/new" :style "color: white"} (get-message :new-page)]]
-                 [:div.dashed-line]
+                 [:div#dashed-line]
                  ; dynamically generates three column, retrieving corresponding messages
-                 [:article.helvetica-neue {:style "font-size: 1em"} 
+                 [:article.helvetica-neue.bottom-space {:style "font-size: 1em"} 
                   (md-to-html (slurp "README.md"))]
                  [:div.centered.helvetica-neue (md-to-html (get-message :created-by))]))
 
+; input form for the markdown text with a preview area
+(defpartial input-form [form-url command fields content passwd-msg]
+            (let [css-class (when (= :publish command) :hidden)]
+              (layout {:js true} (get-message :new-note)
+                      [:article#preview " "]
+                      [:div#dashed-line {:class css-class}]
+                      [:div.central-element.helvetica-neue {:style "margin-bottom: 3em"}
+                       (form-to [:post form-url]
+                                (hidden-field :action command)
+                                (hidden-field :password)
+                                fields
+                                (text-area {:class :max-width} :draft content)
+                                [:fieldset#input-elems {:class css-class}
+                                 (get-message passwd-msg)
+                                 (text-field {:class "ui-elem"} :plain-password)
+                                 (submit-button {:class "button ui-elem"
+                                                 :id :publish-button} (get-message command))])])))
+
+; Update Note Page
+(defpage "/:year/:month/:day/:title/edit" {:keys [year month day title]}
+         (input-form "/update-note" :update 
+                     (html (hidden-field :key (build-key [year month day] title)))
+                     (get-note [year month day] title) :enter-passwd))
+
 ; New Note Page
 (defpage "/new" {}
-         (layout {:js true} (get-message :new-note)
-                 [:article#preview "&nbsp;"]
-                 [:div#preview-start-line.dashed-line.hidden]
-                 [:div.central-element {:style "margin-bottom: 3em"}
-                  (form-to [:post "/post-note"]
-                           (hidden-field :session-key (create-session))
-                           (hidden-field {:id :session-value} :session-value)
-                           (text-area {:class :max-width} :draft (get-message :loading))
-                           [:fieldset#input-elems.hidden
-                            (submit-button {:class "button ui-border"
-                                            :id :publish-button} (get-message :publish))])]))
+         (input-form "/post-note" :publish
+                     (html (hidden-field :session-key (create-session))
+                           (hidden-field {:id :session-value} :session-value))
+                     (get-message :loading) :set-passwd))
 
 ; Displays the note
 (defpage "/:year/:month/:day/:title" {:keys [year month day title theme header-font text-font] :as params}
@@ -123,8 +139,14 @@
                      [:td (get-message :article-views)]
                      [:td views]]])))
 
+; Updates a note
+(defpage [:post "/update-note"] {:keys [key draft password]}
+         (if (update-note key draft password)
+           (redirect (apply url (split key #" ")))
+           (response 403)))
+
 ; New Note Posting — the most "complex" function in the entire app ;)
-(defpage [:post "/post-note"] {:keys [draft session-key session-value]}
+(defpage [:post "/post-note"] {:keys [draft password session-key session-value]}
          ; first we collect all info needed to evaluate the validity of the note creation request
          (let [valid-session (invalidate-session session-key) ; was the note posted from a newly generated form?
                valid-draft (not (ccs/blank? draft)) ; has the note a meaningful content?
@@ -151,8 +173,8 @@
                                             (cons proposed-title
                                                   (map #(str proposed-title "-" (+ 2 %)) (range)))))]
                (do
-                 (set-note date title draft)
-                 (redirect (url year month day (url-encode title)))))
+                 (set-note date title draft password)
+                 (redirect (url year month day title))))
              (response 400))))
 
 ; Resolving of a short url

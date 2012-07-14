@@ -33,6 +33,19 @@
                                     (get-note date test-title)
                                     (get-note-views date test-title))
                                   "2")))
+                  (testing "of note update"
+                           (is (= (do
+                                    (set-note date test-title test-note "12345qwert")
+                                    (get-note date test-title))
+                                  test-note))
+                           (is (= (do
+                                    (update-note (build-key date test-title) "update" "12345qwert")
+                                    (get-note date test-title))
+                                  "update"))
+                           (is (= (do
+                                    (update-note (build-key date test-title) "not authorized" "44444")
+                                    (get-note date test-title))
+                                  "update")))
                   (testing "of the note access"
                            (is (not= (get-note date test-title) "any text")))
                   (testing "session management"

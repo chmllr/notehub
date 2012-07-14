@@ -29,6 +29,10 @@
     :margin-left "auto"
     :margin-right "auto"))
 
+(defn thin-border [foreground]
+  (mixin :border-radius :3px
+         :border [:1px :solid foreground]))
+
 ; Resolves the theme name & tone parameter to a concrete color
 (defn- color [& keys]
   (get-in {:dark {:background :#333
@@ -70,8 +74,15 @@
             (rule "&:visited"
                   :color link-visited))
       (rule ".ui-border"
-            :border-radius :3px
-            :border [:1px :solid foreground])
+            (thin-border foreground))
+      (rule ".button"
+            :cursor :pointer)
+      (rule ".ui-elem"
+            helvetica-neue
+            (thin-border foreground)
+            :opacity 0.8
+            :font-size :1em
+            :background background)
       (rule ".landing-button"
             :box-shadow [0 :2px :5px :#aaa]
             :text-decoration :none
@@ -139,6 +150,8 @@
                   :margin :2em))
       (rule ".centered"
             :text-align :center)
+      (rule ".bottom-space"
+            :margin-bottom :7em)
       (rule "pre"
             :border-radius :3px
             :padding :0.5em
@@ -155,20 +168,13 @@
             :height :500px)
       (rule ".hidden"
             :display :none)
-      (rule ".button"
-            :-webkit-appearance :none
-            helvetica-neue
-            :cursor :pointer
-            :opacity 0.8
-            :font-size :1em
-            :background background)
       (rule ".central-element"
             central-element)
       (rule "fieldset"
             :border :none)
       (rule "h1"
             :font-size :2em)
-      (rule ".dashed-line"
+      (rule "#dashed-line"
             :border-bottom [:1px :dashed foreground-halftone]
             :margin-top :3em
             :margin-bottom :3em)

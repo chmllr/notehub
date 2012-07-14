@@ -4,18 +4,22 @@ new-page = New Page
 
 status-404 = Nothing found.
 status-400 = Bad Request.
+status-403 = Wrong Password.
 status-500 = OMG, Server Exploded.
 
 created-by = Created by [@chmllr](http://twitter.com/chmllr)
 
 loading = Loading...
-use-password = User password for editing:
+set-passwd = Set password for editing:
+enter-passwd = Password:
 preview = Preview
 publish = Publish
+update = Save
 published = Published
 article-views = Article Views
 statistics = Statistics
 stats = statistics
 export = export
+edit = edit
 short-url = short url
 new-note = New Markdown Note

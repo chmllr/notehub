@@ -1,6 +1,6 @@
 ## About
 
-[NoteHub](http://notehub.org) is a free and hassle-free anonymous hosting for markdown pages. It can be used for publishing of markdown-formatted text.
+[NoteHub](http://notehub.org) is a free and hassle-free anonymous hosting for markdown pages. It can be used for publishing of markdown-formatted texts.
 
 NoteHub was an one-app-one-language [experiment](http://notehub.org/2012/6/16/how-notehub-is-built) and is implemented entirely in [Clojure](http://clojure.org) (ClojureScript).
 The [source code](https://github.com/chmllr/NoteHub) can be found on GitHub.
@@ -37,7 +37,10 @@ See an example of the font formatting [here](http://notehub.org/2012/6/16/how-no
 
 After you've specified this in the url, you can copy the corresponding short url of the article and share it.
 
-## Export & Statistics
+## After Publishing
 
+During the note publishing a password can be set.
+This password unlocks the note for an editing.
+The edit mode can be entered by appending of `/edit`to the note url.
 By appending of `/stats` to any note url, everyone can see a rudimentary statistics (currently, the number of note views only).
 By appending of `/export`, the original markdown content will be displayed in plain text format.

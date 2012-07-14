@@ -36,7 +36,6 @@
 (deftest note-creation
          (let [session-key (create-session)
                date (get-date)
-               ; TODO: replace note generation by a function from pages.clj
                title "this-is-a-test-note"
                [year month day] date]
            (testing "Note creation"
@@ -49,6 +48,43 @@
                                                            (str test-note session-key)))}) 302))
                     (is (note-exists? date title))
                     (is (substring? "Hello <em>world</em>"
+                                    ((send-request (url year month day title)) :body)))
+                    (is (do 
+                          (delete-note date title)
+                          (not (note-exists? date title)))))))
+
+(deftest note-update
+         (let [session-key (create-session)
+               date (get-date)
+               title "test-note"
+               [year month day] date]
+           (testing "Note update"
+                    (is (has-status 
+                          (send-request 
+                            [:post "/post-note"]
+                            {:session-key session-key
+                             :draft "test note"
+                             :password "qwerty"
+                             :session-value (str (lib/hash #(.codePointAt % 0) 
+                                                           (str "test note" session-key)))}) 302))
+                    (is (note-exists? date title))
+                    (is (substring? "test note"
+                                    ((send-request (url year month day title)) :body)))
+                    (is (has-status 
+                          (send-request 
+                            [:post "/update-note"]
+                            {:key (build-key [year month day] title)
+                             :draft "WRONG pass"
+                             :password "qwerty1" }) 403))
+                    (is (substring? "test note"
+                                    ((send-request (url year month day title)) :body)))
+                    (is (has-status 
+                          (send-request 
+                            [:post "/update-note"]
+                            {:key (build-key [year month day] title)
+                             :draft "UPDATED CONTENT"
+                             :password "qwerty" }) 302))
+                    (is (substring? "UPDATED CONTENT"
                                     ((send-request (url year month day title)) :body)))
                     (is (do 
                           (delete-note date title)

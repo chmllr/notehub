@@ -5,6 +5,7 @@
     [noir.core :only [defpartial]]
     [noir.options :only [dev-mode?]]
     [hiccup.util :only [escape-html]]
+    [ring.util.codec :only [url-encode]]
     [hiccup.core]
     [hiccup.page :only [include-js html5]]
     [hiccup.element :only [javascript-tag]]))
@@ -12,7 +13,7 @@
 (defn url
   "Creates a local url from the given substrings"
   [& args]
-  (apply str (interpose "/" (cons "" args))))
+  (apply str (interpose "/" (cons "" (map url-encode args)))))
 
 ; Creates the main html layout
 (defpartial generate-layout 
