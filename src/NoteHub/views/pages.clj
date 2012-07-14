@@ -88,19 +88,16 @@
 ; New Note Page
 (defpage "/new" {}
          (layout {:js true} (get-message :new-note)
-                 [:div.central-element
+                 [:article#preview "&nbsp;"]
+                 [:div#preview-start-line.dashed-line.hidden]
+                 [:div.central-element {:style "margin-bottom: 3em"}
                   (form-to [:post "/post-note"]
                            (hidden-field :session-key (create-session))
                            (hidden-field {:id :session-value} :session-value)
                            (text-area {:class :max-width} :draft (get-message :loading))
-                           [:div#buttons.hidden
-                            (submit-button {:style "float: left"
-                                            :class "button ui-border"
-                                            :id :publish-button} (get-message :publish))
-                            [:button#preview-button.button.ui-border {:type :button 
-                                                            :style "float: right"} (get-message :preview)]])]
-                 [:div#preview-start-line.dashed-line.hidden]
-                 [:article#preview]))
+                           [:fieldset#input-elems.hidden
+                            (submit-button {:class "button ui-border"
+                                            :id :publish-button} (get-message :publish))])]))
 
 ; Displays the note
 (defpage "/:year/:month/:day/:title" {:keys [year month day title theme header-font text-font] :as params}

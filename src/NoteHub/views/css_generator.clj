@@ -26,8 +26,6 @@
 (def central-element
   (mixin
     :width (px page-width)
-    :margin-top :5em
-    :margin-bottom :10em
     :margin-left "auto"
     :margin-right "auto"))
 
@@ -130,6 +128,7 @@
                   :margin :2em))
       (rule "article"
             central-element
+            :margin-top :5em
             :font-family text-fonts
             :text-align :justify
             :font-size :1.2em
@@ -153,8 +152,7 @@
             :font-family :Courier
             :font-size :1em
             :border :none
-            :height :500px
-            :margin-bottom :2em)
+            :height :500px)
       (rule ".hidden"
             :display :none)
       (rule ".button"
@@ -166,10 +164,13 @@
             :background background)
       (rule ".central-element"
             central-element)
+      (rule "fieldset"
+            :border :none)
       (rule "h1"
             :font-size :2em)
       (rule ".dashed-line"
             :border-bottom [:1px :dashed foreground-halftone]
-            :margin-bottom :5em)
+            :margin-top :3em
+            :margin-bottom :3em)
       (rule "h1, h2, h3, h4" 
             :font-family header-fonts))))

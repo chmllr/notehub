@@ -7,13 +7,12 @@
 ; frequently used selectors
 (def $draft ($ :#draft))
 (def $preview ($ :#preview))
-(def $session-key ($ :#session-key))
+(def $input-elems ($ :#input-elems))
 (def $preview-start-line ($ :#preview-start-line))
 
-(defn scroll-to 
-  "scrolls to the given selector"
-  [$id]
-  (anim ($ :body) {:scrollTop ((js->clj (.offset $id)) "top")} 500))
+; Markdown Converter & Sanitizer instantiation
+
+(def md-converter (Markdown/getSanitizingConverter))
 
 ; try to detect iOS
 (def ios-detected (.match (.-userAgent js/navigator) "(iPad|iPod|iPhone)"))
@@ -28,26 +27,17 @@
       (.focus $draft))))
 
 ; show the preview & publish buttons as soon as the user starts typing.
-(.keypress $draft
+(.keyup $draft
            (fn [e]
-             (css ($ :#buttons) {:display :block})))
-
-; on a preview button click, transform markdown to html, put it 
-; to the preview layer and scroll to it
-(.click ($ :#preview-button)
-        (fn [e]
-          (xhr [:post "/preview"]
-               {:draft (val $draft)}
-               (fn [json-map]
-                 (let [m (js->clj (JSON/parse json-map))]
-                   (do
-                     (inner $preview (m "preview"))
-                     (show $preview-start-line)
-                     (scroll-to $preview-start-line)))))))
+             (do
+               (show $preview-start-line)
+               (show $input-elems)
+               (inner $preview
+                      (.makeHtml md-converter (val $draft))))))
 
 ; when the publish button is clicked, compute the hash of the entered text and
 ; provided session key and assign to the field session-value
 (.click ($ :#publish-button)
         (fn [e]
           (val ($ :#session-value) 
-               (lib/hash #(.charCodeAt % 0) (str (val $draft) (val $session-key))))))
+               (lib/hash #(.charCodeAt % 0) (str (val $draft) (val ($ :#session-key)))))))
