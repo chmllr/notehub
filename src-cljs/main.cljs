@@ -2,8 +2,7 @@
   (:use [jayq.core :only [$ xhr css inner val anim show]])
   (:require [goog.dom :as gdom]
             [NoteHub.crossover.lib :as lib]
-            [clojure.browser.dom :as dom]
-            [clojure.browser.event :as event]))
+            [clojure.browser.dom :as dom]))
 
 ; frequently used selectors
 (def $draft ($ :#draft))
