@@ -50,7 +50,6 @@
                      (javascript-tag "var CLOSURE_NO_DEPS = true;")
                      (include-js "https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js")
                      (include-js "/js/pagedown/Markdown.Converter.js")
-                     (include-js "/js/pagedown/Markdown.Sanitizer.js")
                      (include-js "/cljs/main.js")))])))
 
 (defn layout

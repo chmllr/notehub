@@ -16,7 +16,7 @@
 (def $dashed-line ($ :#dashed-line))
 
 ; Markdown Converter & Sanitizer instantiation
-(def md-converter (Markdown/getSanitizingConverter))
+(def md-converter (Markdown.Converter.))
 
 ; instantiate & reset a MD5 hash digester
 (def md5 (goog.crypt.Md5.))
