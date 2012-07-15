@@ -73,6 +73,8 @@
                   :color link-hover)
             (rule "&:visited"
                   :color link-visited))
+      (rule "#draft"
+            :margin-bottom :3em)
       (rule ".ui-border"
             (thin-border foreground))
       (rule ".button"

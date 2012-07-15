@@ -91,7 +91,7 @@
                       [:article#preview " "]
                       [:div#dashed-line {:class css-class}]
                       [:div.central-element.helvetica-neue {:style "margin-bottom: 3em"}
-                       (form-to [:post form-url]
+                       (form-to {:autocomplete :off} [:post form-url]
                                 (hidden-field :action command)
                                 (hidden-field :password)
                                 fields
