@@ -82,6 +82,7 @@
       (rule ".ui-elem"
             helvetica-neue
             (thin-border foreground)
+            :padding :0.3em
             :opacity 0.8
             :font-size :1em
             :background background)

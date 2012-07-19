@@ -10,8 +10,8 @@ status-500 = OMG, Server Exploded.
 created-by = Created by [@chmllr](http://twitter.com/chmllr)
 
 loading = Loading...
-set-passwd = Set password for editing:
-enter-passwd = Password:
+set-passwd = Password for editing
+enter-passwd = Password
 preview = Preview
 publish = Publish
 update = Save

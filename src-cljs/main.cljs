@@ -26,8 +26,8 @@
 (def ios-detected (.match (.-userAgent js/navigator) "(iPad|iPod|iPhone)"))
 
 (defn update-preview
-  []
   "Updates the preview"
+  []
   (do
     (show $dashed-line)
     (show $input-elems)

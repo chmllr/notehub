@@ -97,8 +97,8 @@
                                 fields
                                 (text-area {:class :max-width} :draft content)
                                 [:fieldset#input-elems {:class css-class}
-                                 (get-message passwd-msg)
-                                 (text-field {:class "ui-elem"} :plain-password)
+                                 (text-field {:class "ui-elem" :placeholder (get-message passwd-msg)} 
+                                             :plain-password)
                                  (submit-button {:class "button ui-elem"
                                                  :id :publish-button} (get-message command))])])))
 
