@@ -6,7 +6,7 @@ NoteHub was an one-app-one-language [experiment](http://notehub.org/2012/6/16/ho
 The [source code](https://github.com/chmllr/NoteHub) can be found on GitHub.
 NoteHub's persistence layer is based on the key-value store [redis](http://redis.io).
 Currently, NoteHub is hosted for free on [Heroku](http://heroku.com).
-Send your feedback and comments directly to [@chmllr](http://twitter.com/chmllr) or open an [issue](https://github.com/chmllr/NoteHub/issues) on GitHub.
+Send your feedback and comments directly to [@gravitydenier](http://twitter.com/gravitydenier) or open an [issue](https://github.com/gravitydenier/NoteHub/issues) on GitHub.
 
 ## Why?
 Not every person, who occasionally wants to express some thoughts, needs a blog.
