@@ -42,6 +42,13 @@
                   :link {:fresh :#6b8
                          :visited :#496
                          :hover :#7c9 }}
+           :solarized {:background :#073642
+                       :foreground :#93a1a1
+                       :background-halftone :#002b36
+                       :foreground-halftone :#eee8d5
+                       :link {:fresh :#cb4b16
+                              :visited :#b58900
+                              :hover :#dc322f }}
            :default {:background :#fff
                      :foreground :#333
                      :background-halftone :#efefef
