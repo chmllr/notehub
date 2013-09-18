@@ -7,3 +7,4 @@ pom.xml
 /classes/
 .lein-*
 .crossover-cljs
+target/

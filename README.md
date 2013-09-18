@@ -1,3 +1,7 @@
+## News
+
+ - September 2013: Solarized color theme [added](https://github.com/chmllr/NoteHub/pull/4) (thanks Brandon!) ([Demo](http://notehub.org/2012/6/16/how-notehub-is-built?theme=solarized))
+
 ## About
 
 [NoteHub](http://notehub.org) is a free and hassle-free anonymous hosting for markdown pages. It can be used for publishing of markdown-formatted texts.
