@@ -41,7 +41,6 @@
       (def timer
         (js/setTimeout
           #(do
-             (.log js/console delay)
              (show $dashed-line)
              (show $input-elems)
              (inner $preview
