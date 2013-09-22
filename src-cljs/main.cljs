@@ -36,13 +36,16 @@
   []
   (do
     (js/clearTimeout timer)
-    (def timer
-      (js/setTimeout
-        #(do
-           (show $dashed-line)
-           (show $input-elems)
-           (inner $preview
-                  (.makeHtml md-converter (val $draft)))) timerDelay))))
+    (let [content (val $draft)
+          delay (Math/min timerDelay (* timerDelay (/ (count content) 400)))]
+      (def timer
+        (js/setTimeout
+          #(do
+             (.log js/console delay)
+             (show $dashed-line)
+             (show $input-elems)
+             (inner $preview
+                    (.makeHtml md-converter content))) delay)))))
 
 ; set focus to the draft textarea (if there is one)
 (when $action
