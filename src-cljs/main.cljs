@@ -25,14 +25,24 @@
 ; try to detect iOS
 (def ios-detected (.match (.-userAgent js/navigator) "(iPad|iPod|iPhone)"))
 
+(def timer nil)
+
+(def timerDelay
+  ; TODO: also test for Android
+  (if ios-detected 800 400))
+
 (defn update-preview
   "Updates the preview"
   []
   (do
-    (show $dashed-line)
-    (show $input-elems)
-    (inner $preview
-           (.makeHtml md-converter (val $draft)))))
+    (js/clearTimeout timer)
+    (def timer
+      (js/setTimeout
+        #(do
+           (show $dashed-line)
+           (show $input-elems)
+           (inner $preview
+                  (.makeHtml md-converter (val $draft)))) timerDelay))))
 
 ; set focus to the draft textarea (if there is one)
 (when $action
