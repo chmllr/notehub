@@ -108,6 +108,7 @@
             helvetica-neue
             :position :fixed
             :width (% 100)
+            :border-top [:1px :dotted foreground-halftone]
             :background background-halftone
             :padding :0.2em
             :bottom :0px
