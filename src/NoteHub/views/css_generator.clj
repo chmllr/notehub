@@ -49,6 +49,12 @@
                        :link {:fresh :#cb4b16
                               :visited :#b58900
                               :hover :#dc322f }}
+           :hacker {:background :#000000
+                    :foreground :#00FF00
+                    :background-halftone :#010101
+                    :link {:fresh :#00FF00
+                           :visited :00CC00
+                           :hover :#25FF25}}
            :default {:background :#fff
                      :foreground :#333
                      :background-halftone :#efefef
