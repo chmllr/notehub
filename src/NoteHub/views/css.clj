@@ -185,5 +185,5 @@
             :border-bottom [:1px :dashed foreground-halftone]
             :margin-top :3em
             :margin-bottom :3em)
-      (rule "h1, h2, h3, h4" 
+      (rule "h1, h2, h3, h4, h5, h6" 
             :font-family header-fonts))))

@@ -6,14 +6,13 @@
     [NoteHub.settings]
     [NoteHub.views.common]
     [clojure.string :rename {replace sreplace}
-      :only [split replace blank? split-lines lower-case]]
+      :only [escape split replace blank? split-lines lower-case]]
     [clojure.core.incubator :only [-?>]]
     [hiccup.form]
     [hiccup.core]
     [hiccup.element]
     [noir.response :only [redirect status content-type]]
     [noir.core :only [defpage defpartial]]
-    [cheshire.core]
     [noir.statuses])
   (:import 
     [java.util Calendar]
@@ -67,8 +66,7 @@
 ; This function answers to an AJAX request: it gets a session key and a markdown text.
 ; It returns the html code of the provided markdown and a new session key.
 (defpage [:post "/preview"] {:keys [session-key draft]}
-         (generate-string
-           {:preview (md-to-html draft)}))
+  (str "{ preview: " (escape (md-to-html draft) {\" "\\\""}) "}"))
 
 ; Landing Page
 (defpage "/" {}
