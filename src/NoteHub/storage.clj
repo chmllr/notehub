@@ -1,9 +1,9 @@
 (ns NoteHub.storage
   (:use [NoteHub.settings]
+        [clojure.string :only (blank?)]
         [noir.util.crypt :only [encrypt]]
         [noir.options :only [dev-mode?]])
-  (:require [clj-redis.client :as redis]
-            [clojure.contrib.string :as ccs]))
+  (:require [clj-redis.client :as redis]))
 
 ; Initialize the data base 
 (def db 
@@ -51,7 +51,7 @@
    (let [key (build-key date title)]
      (do
        (redis/hset db note key text)
-       (when (not (ccs/blank? passwd))
+       (when (not (blank? passwd))
          (redis/hset db password key passwd))))))
 
 (defn get-note

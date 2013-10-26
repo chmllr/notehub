@@ -1,12 +1,12 @@
 (ns NoteHub.views.pages
   (:require [NoteHub.crossover.lib :as lib]
-            [clojure.contrib.string :as ccs]
             [hiccup.util :as util])
   (:use
     [NoteHub.storage]
     [NoteHub.settings]
     [NoteHub.views.common]
-    [clojure.string :rename {replace sreplace} :only [split replace lower-case]]
+    [clojure.string :rename {replace sreplace}
+      :only [split replace blank? split-lines lower-case]]
     [clojure.core.incubator :only [-?>]]
     [hiccup.form]
     [hiccup.core]
@@ -149,7 +149,7 @@
 (defpage [:post "/post-note"] {:keys [draft password session-key session-value]}
          ; first we collect all info needed to evaluate the validity of the note creation request
          (let [valid-session (invalidate-session session-key) ; was the note posted from a newly generated form?
-               valid-draft (not (ccs/blank? draft)) ; has the note a meaningful content?
+               valid-draft (not (blank? draft)) ; has the note a meaningful content?
                ; is the hash code correct?
                valid-hash (try
                             (= (Short/parseShort session-value) 
@@ -162,7 +162,7 @@
              ; if not, append "-n", where "n" is the next free number
              (let [[year month day] (get-date)
                    untrimmed-line (filter #(or (= \- %) (Character/isLetterOrDigit %)) 
-                                          (-> draft ccs/split-lines first (sreplace " " "-") lower-case))
+                                          (-> draft split-lines first (sreplace " " "-") lower-case))
                    trim (fn [s] (apply str (drop-while #(= \- %) s)))
                    title-uncut (-> untrimmed-line trim reverse trim reverse)
                    max-length (get-setting :max-title-length #(Integer/parseInt %) 80)

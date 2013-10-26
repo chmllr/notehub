@@ -2,11 +2,13 @@
   (:require [NoteHub.crossover.lib :as lib])
   (:use [NoteHub.views.pages]
         [noir.util.test]
-        [clojure.contrib.string :only [substring?]]
         [NoteHub.views.common :only [url]]
         [NoteHub.storage]
         [clojure.test]))
 
+(defn substring? [a b]
+  (not (= nil 
+          (re-matches (re-pattern (str "(?s).*" a ".*")) b))))
 (def date [2012 6 3])
 (def test-title "some-title")
 (def test-note "# This is a test note.\nHello _world_. Motörhead, тест.")

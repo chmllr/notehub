@@ -1,5 +1,4 @@
 (ns NoteHub.settings
-  (:require [clojure.contrib.string :as ccs])
   (:refer-clojure :exclude [replace reverse])
   (:use [clojure.string]))
 
@@ -8,7 +7,7 @@
 (defn- get-pairs-map [file]
   (let [file-content (slurp file)
         pairs (map #(map trim (split % #"=" 2)) 
-                   (remove ccs/blank? (ccs/split-lines file-content)))]
+                   (remove blank? (split-lines file-content)))]
     (apply hash-map 
            (mapcat #(list (keyword (first %)) (second %)) pairs))))
 
