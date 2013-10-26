@@ -1,7 +1,7 @@
 (ns NoteHub.views.common
   (:use
     [NoteHub.settings :only [get-message]]
-    [NoteHub.views.css-generator]
+    [NoteHub.views.css]
     [noir.core :only [defpartial]]
     [noir.options :only [dev-mode?]]
     [hiccup.util :only [escape-html]]

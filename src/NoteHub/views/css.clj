@@ -1,4 +1,4 @@
-(ns NoteHub.views.css-generator
+(ns NoteHub.views.css
   (:use 
     [cssgen]
     [cssgen.types :only [px %]]
@@ -93,12 +93,13 @@
             :opacity 0.8
             :font-size :1em
             :background background)
+      (rule ".landing-button, table, tr, td, textarea, fieldset" 
+            :border :none)
       (rule ".landing-button"
             :box-shadow [0 :2px :5px :#aaa]
             :text-decoration :none
             :font-size :1.5em
             :background :#0a2
-            :border :none
             :border-radius :10px
             :padding :10px
             helvetica-neue
@@ -126,8 +127,7 @@
                   (rule "& > td:first-child"
                         :text-align :right)))
       (rule "table,tr,td"
-            :margin 0
-            :border :none)
+            :margin 0)
       (rule "td"
             :padding :0.5em)
       (rule ".one-third-column"
@@ -174,14 +174,11 @@
             :border-radius :5px
             :font-family :Courier
             :font-size :1em
-            :border :none
             :height :500px)
       (rule ".hidden"
             :display :none)
       (rule ".central-element"
             central-element)
-      (rule "fieldset"
-            :border :none)
       (rule "h1"
             :font-size :2em)
       (rule "#dashed-line"

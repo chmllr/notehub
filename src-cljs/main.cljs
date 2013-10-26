@@ -41,13 +41,13 @@
 (.reset md5)
 
 ; try to detect iOS
-(def ios-detected (.match (.-userAgent js/navigator) "(iPad|iPod|iPhone)"))
+(def ios-detected? (.match (.-userAgent js/navigator) "(iPad|iPod|iPhone)"))
 
 (def timer nil)
 
 (def timerDelay
   ; TODO: also test for Android
-  (if ios-detected 800 400))
+  (if ios-detected? 800 400))
 
 (defn update-preview
   "Updates the preview"
@@ -55,6 +55,8 @@
   (do
     (js/clearTimeout timer)
     (let [content (val $draft)
+          ; the delay between the last typing and preview update is dynamic
+          ; and increases with the length of the text
           delay (Math/min timerDelay (* timerDelay (/ (count content) 400)))]
       (def timer
         (js/setTimeout
@@ -70,9 +72,9 @@
     (if (= "update" (val $action))
       (update-preview)
       (val $draft ""))
-    ; foces setting is impossible in iOS, so we border the field instead
-    (if ios-detected
-      (set! (.-className $draft) (str (.-className $draft) "ui-border"))
+    ; focus setting is impossible in iOS, so we border the field instead
+    (if ios-detected?
+      (set! (.-className $draft) (str (.-className $draft) " ui-border"))
       (.focus $draft))))
 
 ; show the preview & publish buttons as soon as the user starts typing.
