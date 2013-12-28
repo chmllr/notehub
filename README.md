@@ -45,6 +45,6 @@ After you've specified this in the url, you can copy the corresponding short url
 
 During the note publishing a password can be set.
 This password unlocks the note for editing.
-The edit mode can be entered by appending of `/edit`to the note url.
+The edit mode can be entered by appending of `/edit` to the note url.
 By appending of `/stats` to any note url, everyone can see a rudimentary statistics (currently, the number of note views only).
 By appending of `/export`, the original markdown content will be displayed in plain text format.
