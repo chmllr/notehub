@@ -126,16 +126,6 @@
             (rule "tr"
                   (rule "& > td:first-child"
                         :text-align :right)))
-      (rule "table,tr,td"
-            :margin 0)
-      (rule "td"
-            :padding :0.5em)
-      (rule ".one-third-column"
-            :line-height (% 120)
-            :text-align :justify
-            :vertical-align :top
-            ; Replace this by arithmetic with css-lengths as soon as they fix the bug
-            :width (px (quot page-width 3)))
       (rule ".helvetica-neue"
             helvetica-neue)
       (rule "#hero"
