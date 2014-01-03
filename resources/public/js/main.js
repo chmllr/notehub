@@ -27,17 +27,24 @@ var updatePreview = function(){
     var content = $draft.value;
     var delay = Math.min(timerDelay, timerDelay * (content.length / 400));
     timer = setTimeout(function(){
-            show($dashed_line);
-            show($input_elems);
-            $preview.innerHTML = marked(content);
-        }, delay);
+        show($dashed_line);
+        show($input_elems);
+        $preview.innerHTML = marked(content);
+    }, delay);
 };
 
-if($action.value == "update") updatePreview(); else $draft.value = "";
-if(iosDetected) $draft.className += " ui-border"; else $draft.focus();
-$draft.onkeyup = updatePreview;
-$("publish-button").onclick = function(e) {
-    if($plain_password.value != "") $password.value = md5($plain_password.value);
-    $plain_password.value = null;
-    $("session-value").value = hash($draft.value + $("session-key").value);
+if($action){
+    if($action.value == "update") updatePreview(); else $draft.value = "";
+    $draft.onkeyup = updatePreview;
+    $("publish-button").onclick = function(e) {
+        if($plain_password.value != "") $password.value = md5($plain_password.value);
+        $plain_password.value = null;
+        $("session-value").value = hash($draft.value + $("session-key").value);
+    }
+    if(iosDetected) $draft.className += " ui-border"; else $draft.focus();
+}
+
+var mdDocs = document.getElementsByClassName("markdown");
+for(var i = 0; i < mdDocs.length; i++){
+    mdDocs[i].innerHTML = marked(mdDocs[i].innerHTML);
 }

@@ -16,39 +16,38 @@
 
 ; Creates the main html layout
 (defpartial generate-layout 
-            [params title & content]
-            ; for the sake of security: escape all symbols of the param values
-            (let [params (into {} (for [[k v] params] [k (escape-html v)]))]
-              (html5
-                [:head
-                 [:title (print-str (get-message :name) "&mdash;" title)]
-                 [:meta {:charset "UTF-8"}]
-                 ; generating a link to google's webfonts
-                 [:link {:href 
-                         (clojure.string/replace
-                           (str "http://fonts.googleapis.com/css?family="
-                                (apply
-                                  str
-                                  (interpose "|"
-                                             ; ugly thing, but it cannot be avoided since these
-                                             ; fonts have to be loaded (independently of CSS)
-                                             (concat ["PT+Serif:700" "Noticia+Text:700"]
-                                                     (vals (select-keys params 
-                                                                        [:header-font :text-font])))))
-                                "&subset=latin,cyrillic") " " "+")
-                         :rel "stylesheet"
-                         :type "text/css"}]
-                 ; generating the global CSS
-                 [:link {:rel "stylesheet" :type "text/css" :href "/style.css"}]
-                 ; google analytics code should appear in prod mode only
-                 (if-not (dev-mode?) (include-js "/js/google-analytics.js"))]
-                [:body content
-                 ; we only need JS during a new note creation, so don't render it otherwise
-                 (when (params :js)
-                   (html
-                     (include-js "/js/md5.js")
-                     (include-js "/js/marked.js")
-                     (include-js "/js/main.js")))])))
+  [params title & content]
+  ; for the sake of security: escape all symbols of the param values
+  (let [params (into {} (for [[k v] params] [k (escape-html v)]))]
+    (html5
+      [:head
+       [:title (print-str (get-message :name) "&mdash;" title)]
+       [:meta {:charset "UTF-8"}]
+       ; generating a link to google's webfonts
+       [:link {:href 
+               (clojure.string/replace
+                 (str "http://fonts.googleapis.com/css?family="
+                      (apply
+                        str
+                        (interpose "|"
+                                   ; ugly thing, but it cannot be avoided since these
+                                   ; fonts have to be loaded (independently of CSS)
+                                   (concat ["PT+Serif:700" "Noticia+Text:700"]
+                                           (vals (select-keys params 
+                                                              [:header-font :text-font])))))
+                      "&subset=latin,cyrillic") " " "+")
+               :rel "stylesheet"
+               :type "text/css"}]
+       ; generating the global CSS
+       [:link {:rel "stylesheet" :type "text/css" :href "/style.css"}]
+       ; google analytics code should appear in prod mode only
+       (if-not (dev-mode?) (include-js "/js/google-analytics.js"))]
+      [:body content
+       ; we only need JS during a new note creation, so don't render it otherwise
+       (html
+         (include-js "/js/md5.js")
+         (include-js "/js/marked.js")
+         (include-js "/js/main.js"))])))
 
 (defn layout
   "Generates the main html layout"

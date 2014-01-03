@@ -6,7 +6,7 @@
 ## About
 [NoteHub](http://notehub.org) is a free and hassle-free anonymous pastebin for markdown pages, intended for anonymous one-off publishing.
 
-Send your feedback and comments directly to [@gravitydenier](http://twitter.com/gravitydenier) or open an [issue](https://github.com/gravitydenier/NoteHub/issues) on GitHub.
+Send your feedback and comments directly to [@gravitydenier](http://twitter.com/gravitydenier) or open an [issue](https://github.com/chmllr/NoteHub/issues) on GitHub.
 
 ## Features
 - **Color Themes**: specify the color scheme by appending the corresponding parameter to the URL:

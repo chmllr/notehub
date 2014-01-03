@@ -1,7 +1,3 @@
-## News
-
- - September 2013: Solarized color theme [added](https://github.com/chmllr/NoteHub/pull/4) (thanks Brandon!) ([Demo](http://notehub.org/2012/6/16/how-notehub-is-built?theme=solarized))
-
 ## About
 
 [NoteHub](http://notehub.org) is a free and hassle-free anonymous hosting for markdown pages. It can be used for publishing of markdown-formatted texts.
@@ -10,7 +6,7 @@ NoteHub was an one-app-one-language [experiment](http://notehub.org/2012/6/16/ho
 The [source code](https://github.com/chmllr/NoteHub) can be found on GitHub.
 NoteHub's persistence layer is based on the key-value store [redis](http://redis.io).
 Currently, NoteHub is hosted for free on [Heroku](http://heroku.com).
-Send your feedback and comments directly to [@gravitydenier](http://twitter.com/gravitydenier) or open an [issue](https://github.com/gravitydenier/NoteHub/issues) on GitHub.
+Send your feedback and comments directly to [@gravitydenier](http://twitter.com/gravitydenier) or open an [issue](https://github.com/chmllr/NoteHub/issues) on GitHub.
 
 ## Why?
 Not every person, who occasionally wants to express some thoughts, needs a blog.

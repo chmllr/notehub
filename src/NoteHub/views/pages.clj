@@ -14,16 +14,7 @@
     [noir.core :only [defpage defpartial]]
     [noir.statuses])
   (:import 
-    [java.util Calendar]
-    [org.pegdown PegDownProcessor]))
-
-; Create a new Object of the MD-processor
-(def md-processor
-  (PegDownProcessor.))
-
-; Markdown -> HTML mapper
-(defn md-to-html [md-text]
-  (.markdownToHtml md-processor md-text))
+    [java.util Calendar]))
 
 (defn get-hash 
   "A simple hash-function, which computes a hash from the text field 
@@ -57,7 +48,7 @@
 (defn- wrap [short-url params md-text]
   (when md-text 
     (layout params (params :title)
-            [:article.bottom-space (md-to-html md-text)]
+            [:article.bottom-space.markdown md-text]
             (let [links (map #(link-to 
                                 (if (= :short-url %)
                                   (url short-url)
@@ -78,11 +69,6 @@
 ; Routes
 ; ======
 
-; This function answers to an AJAX request: it gets a session key and a markdown text.
-; It returns the html code of the provided markdown and a new session key.
-(defpage [:post "/preview"] {:keys [session-key draft]}
-  (str "{ preview: " (escape (md-to-html draft) {\" "\\\""}) "}"))
-
 ; Landing Page
 (defpage "/" {}
   (layout (get-message :page-title)
@@ -92,16 +78,15 @@
            [:br]
            [:a.landing-button {:href "/new" :style "color: white"} (get-message :new-page)]]
           [:div#dashed-line]
-          ; dynamically generates three column, retrieving corresponding messages
-          [:article.helvetica-neue.bottom-space {:style "font-size: 1em"} 
-           (md-to-html (slurp "LANDING.md"))]
-          [:div.centered.helvetica-neue (md-to-html (get-message :footer))]))
+          [:article.helvetica-neue.bottom-space.markdown {:style "font-size: 1em"} 
+           (slurp "LANDING.md")]
+          [:div.centered.helvetica-neue.markdown (get-message :footer)]))
 
 ; input form for the markdown text with a preview area
 (defpartial input-form [form-url command fields content passwd-msg]
   (let [css-class (when (= :publish command) :hidden)]
     (layout {:js true} (get-message :new-note)
-            [:article#preview " "]
+            [:article#preview.markdown " "]
             [:div#dashed-line {:class css-class}]
             [:div.central-element.helvetica-neue {:style "margin-bottom: 3em"}
              (form-to {:autocomplete :off} [:post form-url]
