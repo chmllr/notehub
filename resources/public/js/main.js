@@ -10,30 +10,30 @@ var hash = function (input) {
 }
 
 var $ = function(id){ return document.getElementById(id); }
-var $draft = $("draft");
-var $action = $("action");
-var $preview = $("preview");
-var $password = $("password");
-var $plain_password = $("plain-password");
-var $input_elems = $("input-elems");
-var $dashed_line = $("dashed-line");
 var iosDetected = navigator.userAgent.match("(iPad|iPod|iPhone)");
 var timer = null;
 var timerDelay = iosDetected ? 800 : 400;
 var show = function(elem) { elem.style.display = "block" }
-
-var updatePreview = function(){
-    clearTimeout(timer);
-    var content = $draft.value;
-    var delay = Math.min(timerDelay, timerDelay * (content.length / 400));
-    timer = setTimeout(function(){
-        show($dashed_line);
-        show($input_elems);
-        $preview.innerHTML = marked(content);
-    }, delay);
-};
+var $draft, $action, $preview, $password, $plain_password, $input_elems, $dashed_line, updatePreview;
 
 function loadPage() {
+    $draft = $("draft");
+    $action = $("action");
+    $preview = $("preview");
+    $password = $("password");
+    $plain_password = $("plain-password");
+    $input_elems = $("input-elems");
+    $dashed_line = $("dashed-line");
+    updatePreview = function(){
+        clearTimeout(timer);
+        var content = $draft.value;
+        var delay = Math.min(timerDelay, timerDelay * (content.length / 400));
+        timer = setTimeout(function(){
+            show($dashed_line);
+            show($input_elems);
+            $preview.innerHTML = marked(content);
+        }, delay);
+    };
     if($action){
         if($action.value == "update") updatePreview(); else $draft.value = "";
         $draft.onkeyup = updatePreview;
