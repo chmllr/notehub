@@ -1,6 +1,6 @@
 ## News
 
- - January 2014: NoteHub 2.0 released with a lot of improvements (new theme, more performance, extended markdown)
+ - January 2014: NoteHub 2.0 released: new theme, more performance, extended markdown
  - September 2013: Solarized color theme [added](https://github.com/chmllr/NoteHub/pull/4) (thanks Brandon!) ([Demo](http://notehub.org/2012/6/16/how-notehub-is-built?theme=solarized))
 
 ## About
