@@ -18,7 +18,8 @@
 (defpartial generate-layout 
   [params title & content]
   ; for the sake of security: escape all symbols of the param values
-  (let [params (into {} (for [[k v] params] [k (escape-html v)]))]
+  (let [params (into {} (for [[k v] params] [k (escape-html v)]))
+        theme (:theme params "default")]
     (html5
       [:head
        [:title (print-str (get-message :name) "&mdash;" title)]
@@ -38,16 +39,25 @@
                       "&subset=latin,cyrillic") " " "+")
                :rel "stylesheet"
                :type "text/css"}]
-       ; generating the global CSS
-       [:link {:rel "stylesheet" :type "text/css" :href "/style.css"}]
+       [:link {:rel "stylesheet/less" :type "text/css" :href "/style.less"}]
        ; google analytics code should appear in prod mode only
        (if-not (dev-mode?) (include-js "/js/google-analytics.js"))]
       [:body content
        ; we only need JS during a new note creation, so don't render it otherwise
        (html
+         (include-js "/js/less.js")
          (include-js "/js/md5.js")
          (include-js "/js/marked.js")
-         (include-js "/js/main.js"))])))
+         (include-js "/js/main.js")
+         (include-js "/js/themes.js")
+         (javascript-tag (str "less.modifyVars({
+                          '@background': themes['" theme "'].background.normal,
+                          '@background_halftone': themes['" theme "'].background.halftone,
+                          '@foreground': themes['" theme "'].foreground.normal,
+                          '@foreground_halftone': themes['" theme "'].foreground.halftone,
+                          '@link_fresh': themes['" theme "'].link.fresh,
+                          '@link_visited': themes['" theme "'].link.visited,
+                          '@link_hover': themes['" theme "'].link.hover});")))])))
 
 (defn layout
   "Generates the main html layout"

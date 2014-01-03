@@ -78,9 +78,9 @@
            [:br]
            [:a.landing-button {:href "/new" :style "color: white"} (get-message :new-page)]]
           [:div#dashed-line]
-          [:article.helvetica-neue.bottom-space.markdown {:style "font-size: 1em"} 
+          [:article.helvetica.bottom-space.markdown {:style "font-size: 1em"} 
            (slurp "LANDING.md")]
-          [:div.centered.helvetica-neue.markdown (get-message :footer)]))
+          [:div.centered.helvetica.markdown (get-message :footer)]))
 
 ; input form for the markdown text with a preview area
 (defpartial input-form [form-url command fields content passwd-msg]
@@ -88,7 +88,7 @@
     (layout {:js true} (get-message :new-note)
             [:article#preview.markdown " "]
             [:div#dashed-line {:class css-class}]
-            [:div.central-element.helvetica-neue {:style "margin-bottom: 3em"}
+            [:div.central-element.helvetica {:style "margin-bottom: 3em"}
              (form-to {:autocomplete :off} [:post form-url]
                       (hidden-field :action command)
                       (hidden-field :password)
@@ -129,7 +129,7 @@
 (defpage "/:year/:month/:day/:title/stats" {:keys [year month day title]}
   (when-let [views (get-note-views [year month day] title)]
     (layout (get-message :statistics)
-            [:table#stats.helvetica-neue.central-element
+            [:table#stats.helvetica.central-element
              [:tr
               [:td (get-message :published)]
               [:td (interpose "-" [year month day])]]

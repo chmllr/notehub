@@ -1,34 +1,59 @@
+// variables
+
+@background: #fff;
+@foreground: #333;
+@background_halftone: #efefef;
+@foreground_halftone: #888;
+@link_fresh: #097;
+@link_visited: #054;
+@link_hover: #0a8;
+
+@width: 800px;
+
+// mixins
+.helvetica {
+    font-weight: 300;
+    font-family: 'Helvetica Neue','Helvetica','Arial','Lucida Grande','sans-serif';
+}
+.central-element {
+    width: @width;
+    margin-left: auto;
+    margin-right: auto;
+}
+.thin-border {
+    border: 1px solid @foreground;
+}
+
 a {
-    color: #097;
+    color: @link_fresh;
     text-decoration: none;
     border-bottom: 1px dotted;
 }
 a:hover {
-    color: #0a8;
+    color: @link_hover;
 }
 
 a:visited {
-    color: #054;
+    color: @link_visited;
 }
 #draft {
     margin-bottom: 3em;
 }
 .ui-border {
     border-radius: 3px;
-    border: 1px solid #333;
+    .thin-border;
 }
 .button {
     cursor: pointer;
 }
 .ui-elem {
-    font-weight: 300;
-    font-family: 'Helvetica Neue','Helvetica','Arial','Lucida Grande','sans-serif';
+    .helvetica;
     border-radius: 3px;
-    border: 1px solid #333;
+    .thin-border;
     padding: 0.3em;
     opacity: 0.8;
     font-size: 1em;
-    background: #fff;
+    background: @background;
 }
 .landing-button, table, tr, td, textarea, fieldset {
     border: none;
@@ -40,19 +65,17 @@ a:visited {
     background: #0a2;
     border-radius: 10px;
     padding: 10px;
-    font-weight: 300;
-    font-family: 'Helvetica Neue','Helvetica','Arial','Lucida Grande','sans-serif';
+    .helvetica;
 }
 .landing-button:hover {
     background: #0b2;
 }
 #panel {
-    font-weight: 300;
-    font-family: 'Helvetica Neue','Helvetica','Arial','Lucida Grande','sans-serif';
+    .helvetica;
     position: fixed;
     width: 100%;
-    border-top: 1px dotted #888;
-    background: #efefef;
+    border-top: 1px dotted @foreground_halftone;
+    background: @background_halftone;
     padding: 0.2em;
     bottom: 0px;
     font-size: 0.7em;
@@ -62,23 +85,13 @@ a:visited {
     border: none;
 }
 html, body {
-    background: #fff;
-    color: #333;
+    background: @background;
+    color: @foreground;
     margin: 0;
     padding: 0;
 }
-#stats {
-
-}
-#stats tr {
-
-}
 #stats tr > td:first-child {
     text-align: right;
-}
-.helvetica-neue {
-    font-weight: 300;
-    font-family: 'Helvetica Neue','Helvetica','Arial','Lucida Grande','sans-serif';
 }
 #hero {
     padding-top: 5em;
@@ -90,14 +103,11 @@ html, body {
 }
 
 #hero h2 {
-    font-weight: 300;
-    font-family: 'Helvetica Neue','Helvetica','Arial','Lucida Grande','sans-serif';
+    .helvetica;
     margin: 2em;
 }
 article {
-    width: 800px;
-    margin-left: auto;
-    margin-right: auto;
+    .central-element;
     margin-top: 5em;
     font-family: 'Georgia';
     text-align: justify;
@@ -120,14 +130,14 @@ article > h1:first-child {
 pre {
     border-radius: 3px;
     padding: 0.5em;
-    border: 1px dotted #888;
-    background: #efefef;
+    border: 1px dotted @foreground_halftone;
+    background: @background_halftone;
 }
 *:focus {
     outline: 0px none transparent;
 }
 textarea {
-    width: 800px;
+    width: @width;
     border-radius: 5px;
     font-family: Courier;
     font-size: 1em;
@@ -136,16 +146,11 @@ textarea {
 .hidden {
     display: none;
 }
-.central-element {
-    width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-}
 h1 {
     font-size: 2em;
 }
 #dashed-line {
-    border-bottom: 1px dashed #888;
+    border-bottom: 1px dashed @foreground_halftone;
     margin-top: 3em;
     margin-bottom: 3em;
 }
