@@ -1,10 +1,10 @@
 ## News
 
- - January 2014: NoteHub made more lightweight by dropping of CSS generation & ClojureScript usage
+ - January 2014: NoteHub 2.0 released with a lot of improvements (new theme, more performance, extended markdown)
  - September 2013: Solarized color theme [added](https://github.com/chmllr/NoteHub/pull/4) (thanks Brandon!) ([Demo](http://notehub.org/2012/6/16/how-notehub-is-built?theme=solarized))
 
 ## About
-[NoteHub](http://notehub.org) is a free and hassle-free anonymous pastebin for markdown pages, intended for anonymous one-off publishing.
+[NoteHub](http://notehub.org) is a free and hassle-free anonymous pastebin for markdown pages intended for anonymous one-off publishing.
 
 Send your feedback and comments directly to [@gravitydenier](http://twitter.com/gravitydenier) or open an [issue](https://github.com/chmllr/NoteHub/issues) on GitHub.
 
