@@ -10,6 +10,9 @@
 
 @width: 800px;
 
+@header_font: 'Noticia Text';
+@text_font: 'Georgia';
+
 // mixins
 .helvetica {
     font-weight: 300;
@@ -109,7 +112,7 @@ html, body {
 article {
     .central-element;
     margin-top: 5em;
-    font-family: 'Georgia';
+    font-family: @text_font, 'Georgia';
     text-align: justify;
     font-size: 1.2em;
 }
@@ -155,5 +158,5 @@ h1 {
     margin-bottom: 3em;
 }
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'Noticia Text','PT Serif','Georgia';
+    font-family: @header_font,'Noticia Text','PT Serif','Georgia';
 }

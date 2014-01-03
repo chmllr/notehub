@@ -19,7 +19,9 @@
   [params title & content]
   ; for the sake of security: escape all symbols of the param values
   (let [params (into {} (for [[k v] params] [k (escape-html v)]))
-        theme (:theme params "default")]
+        theme (:theme params "default")
+        header-font (:header-font params)
+        text-font (:text-font params)]
     (html5
       [:head
        [:title (print-str (get-message :name) "&mdash;" title)]
@@ -28,14 +30,8 @@
        [:link {:href 
                (clojure.string/replace
                  (str "http://fonts.googleapis.com/css?family="
-                      (apply
-                        str
-                        (interpose "|"
-                                   ; ugly thing, but it cannot be avoided since these
-                                   ; fonts have to be loaded (independently of CSS)
-                                   (concat ["PT+Serif:700" "Noticia+Text:700"]
-                                           (vals (select-keys params 
-                                                              [:header-font :text-font])))))
+                      (apply str
+                        (interpose "|" ["PT+Serif:700" "Noticia+Text:700" header-font text-font]))
                       "&subset=latin,cyrillic") " " "+")
                :rel "stylesheet"
                :type "text/css"}]
@@ -53,7 +49,10 @@
                               '@foreground_halftone': themes['" theme "'].foreground.halftone,
                               '@link_fresh': themes['" theme "'].link.fresh,
                               '@link_visited': themes['" theme "'].link.visited,
-                              '@link_hover': themes['" theme "'].link.hover});")))
+                              '@link_hover': themes['" theme "'].link.hover"
+                              (when header-font (str ", '@header_font': '" header-font "'"))
+                              (when text-font (str ",'@text_font': '" text-font "'"))
+                              "});")))
        ; google analytics code should appear in prod mode only
        (if-not (dev-mode?) (include-js "/js/google-analytics.js"))]
       [:body {:onload "loadPage()"} content])))
