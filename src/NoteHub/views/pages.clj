@@ -1,6 +1,5 @@
 (ns NoteHub.views.pages
-  (:require [NoteHub.crossover.lib :as lib]
-            [hiccup.util :as util])
+  (:require [hiccup.util :as util])
   (:use
     [NoteHub.storage]
     [NoteHub.settings]
@@ -25,6 +24,22 @@
 ; Markdown -> HTML mapper
 (defn md-to-html [md-text]
   (.markdownToHtml md-processor md-text))
+
+(defn get-hash 
+  "A simple hash-function, which computes a hash from the text field 
+  content and given session number. It is intended to be used as a spam
+  protection / captcha alternative. (Probably doesn't work for UTF-16)"
+  [s]
+  (let [short-mod #(mod % 32767)
+        char-codes (map #(.codePointAt % 0) (remove #(contains? #{"\n" "\r"} %) (map str s)))
+        zip-with-index (map list char-codes (range))]
+    (reduce
+      #(short-mod (+ % 
+                     (short-mod (* (first %2) 
+                                   ((if (odd? %)
+                                      bit-xor
+                                      bit-and) 16381 (second %2))))))
+      0 zip-with-index)))
 
 ; Sets a custom message for each needed HTTP status.
 ; The message to be assigned is extracted with a dynamically generated key
@@ -151,7 +166,7 @@
                ; is the hash code correct?
                valid-hash (try
                             (= (Short/parseShort session-value) 
-                               (lib/hash #(.codePointAt % 0) (str draft session-key)))
+                               (get-hash (str draft session-key)))
                             (catch Exception e nil))]
            ; check whether the new note can be added
            (if (and valid-session valid-draft valid-hash)

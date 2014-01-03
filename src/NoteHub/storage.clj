@@ -41,8 +41,9 @@
 (defn update-note
   "Updates a note with the given store key if the specified password is correct"
   [key text passwd]
-  (when (= passwd (redis/hget db password key))
-    (redis/hset db note key text)))
+  (let [stored-password (redis/hget db password key)]
+    (when (and stored-password (= passwd stored-password))
+      (redis/hset db note key text))))
 
 (defn set-note
   "Creates a note with the given title and text in the given date namespace"

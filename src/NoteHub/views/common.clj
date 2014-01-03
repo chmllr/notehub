@@ -1,7 +1,6 @@
 (ns NoteHub.views.common
   (:use
     [NoteHub.settings :only [get-message]]
-    [NoteHub.views.css]
     [noir.core :only [defpartial]]
     [noir.options :only [dev-mode?]]
     [hiccup.util :only [escape-html]]
@@ -40,16 +39,16 @@
                          :rel "stylesheet"
                          :type "text/css"}]
                  ; generating the global CSS
-                 [:style {:type "text/css"} (global-css params)]
+                 [:link {:rel "stylesheet" :type "text/css" :href "/style.css"}]
                  ; google analytics code should appear in prod mode only
                  (if-not (dev-mode?) (include-js "/js/google-analytics.js"))]
                 [:body content
                  ; we only need JS during a new note creation, so don't render it otherwise
                  (when (params :js)
                    (html
-                     (javascript-tag "var CLOSURE_NO_DEPS = true;")
+                     (include-js "/js/md5.js")
                      (include-js "/js/pagedown/Markdown.Converter.js")
-                     (include-js "/cljs/main.js")))])))
+                     (include-js "/js/main.js")))])))
 
 (defn layout
   "Generates the main html layout"

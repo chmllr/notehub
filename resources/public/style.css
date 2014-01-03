@@ -1,0 +1,154 @@
+a {
+    color: #097;
+    text-decoration: none;
+    border-bottom: 1px dotted;
+}
+a:hover {
+    color: #0a8;
+}
+
+a:visited {
+    color: #054;
+}
+#draft {
+    margin-bottom: 3em;
+}
+.ui-border {
+    border-radius: 3px;
+    border: 1px solid #333;
+}
+.button {
+    cursor: pointer;
+}
+.ui-elem {
+    font-weight: 300;
+    font-family: 'Helvetica Neue','Helvetica','Arial','Lucida Grande','sans-serif';
+    border-radius: 3px;
+    border: 1px solid #333;
+    padding: 0.3em;
+    opacity: 0.8;
+    font-size: 1em;
+    background: #fff;
+}
+.landing-button, table, tr, td, textarea, fieldset {
+    border: none;
+}
+.landing-button {
+    box-shadow: 0 2px 5px #aaa;
+    text-decoration: none;
+    font-size: 1.5em;
+    background: #0a2;
+    border-radius: 10px;
+    padding: 10px;
+    font-weight: 300;
+    font-family: 'Helvetica Neue','Helvetica','Arial','Lucida Grande','sans-serif';
+}
+.landing-button:hover {
+    background: #0b2;
+}
+#panel {
+    font-weight: 300;
+    font-family: 'Helvetica Neue','Helvetica','Arial','Lucida Grande','sans-serif';
+    position: fixed;
+    width: 100%;
+    border-top: 1px dotted #888;
+    background: #efefef;
+    padding: 0.2em;
+    bottom: 0px;
+    font-size: 0.7em;
+    text-align: center;
+}
+#panel a {
+    border: none;
+}
+html, body {
+    background: #fff;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+#stats {
+
+}
+#stats tr {
+
+}
+#stats tr > td:first-child {
+    text-align: right;
+}
+.helvetica-neue {
+    font-weight: 300;
+    font-family: 'Helvetica Neue','Helvetica','Arial','Lucida Grande','sans-serif';
+}
+#hero {
+    padding-top: 5em;
+    padding-bottom: 5em;
+    text-align: center;
+}
+#hero h1 {
+    font-size: 2.5em;
+}
+
+#hero h2 {
+    font-weight: 300;
+    font-family: 'Helvetica Neue','Helvetica','Arial','Lucida Grande','sans-serif';
+    margin: 2em;
+}
+article {
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5em;
+    font-family: 'Georgia';
+    text-align: justify;
+    font-size: 1.2em;
+}
+article p {
+    line-height: 140%;
+}
+
+article > h1:first-child {
+    text-align: center;
+    margin: 2em;
+}
+.centered {
+    text-align: center;
+}
+.bottom-space {
+    margin-bottom: 7em;
+}
+pre {
+    border-radius: 3px;
+    padding: 0.5em;
+    border: 1px dotted #888;
+    background: #efefef;
+}
+*:focus {
+    outline: 0px none transparent;
+}
+textarea {
+    width: 800px;
+    border-radius: 5px;
+    font-family: Courier;
+    font-size: 1em;
+    height: 500px;
+}
+.hidden {
+    display: none;
+}
+.central-element {
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+h1 {
+    font-size: 2em;
+}
+#dashed-line {
+    border-bottom: 1px dashed #888;
+    margin-top: 3em;
+    margin-bottom: 3em;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Noticia Text','PT Serif','Georgia';
+}
