@@ -47,7 +47,7 @@
                  (when (params :js)
                    (html
                      (include-js "/js/md5.js")
-                     (include-js "/js/pagedown/Markdown.Converter.js")
+                     (include-js "/js/marked.js")
                      (include-js "/js/main.js")))])))
 
 (defn layout

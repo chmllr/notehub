@@ -9,7 +9,6 @@ var hash = function (input) {
     return h;
 }
 
-var mdConverter = new Markdown.Converter();
 var $ = function(id){ return document.getElementById(id); }
 var $draft = $("draft");
 var $action = $("action");
@@ -30,7 +29,7 @@ var updatePreview = function(){
     timer = setTimeout(function(){
             show($dashed_line);
             show($input_elems);
-            $preview.innerHTML = mdConverter.makeHtml(content);
+            $preview.innerHTML = marked(content);
         }, delay);
 };
 
