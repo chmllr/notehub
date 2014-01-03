@@ -1,4 +1,5 @@
-title = Free and Hassle-free Hosting for Markdown Pages.
+page-title = Publish Markdown for Free
+title = Free and Hassle-free Pastebin for Markdown Pages.
 name = NoteHub
 new-page = New Page
 
@@ -7,12 +8,11 @@ status-400 = Bad Request.
 status-403 = Wrong Password.
 status-500 = OMG, Server Exploded.
 
-created-by = Created by [@gravitydenier](http://twitter.com/gravitydenier)
+footer = Created by [@gravitydenier](http://twitter.com/gravitydenier) &clubs; Available on [GitHub](https://github.com/chmllr/NoteHub)
 
 loading = Loading...
 set-passwd = Password for editing
 enter-passwd = Password
-preview = Preview
 publish = Publish
 update = Save
 published = Published
@@ -22,4 +22,3 @@ stats = statistics
 export = export
 edit = edit
 short-url = short url
-new-note = New Markdown Note
