@@ -40,10 +40,6 @@
                :rel "stylesheet"
                :type "text/css"}]
        [:link {:rel "stylesheet/less" :type "text/css" :href "/style.less"}]
-       ; google analytics code should appear in prod mode only
-       (if-not (dev-mode?) (include-js "/js/google-analytics.js"))]
-      [:body content
-       ; we only need JS during a new note creation, so don't render it otherwise
        (html
          (include-js "/js/less.js")
          (include-js "/js/md5.js")
@@ -51,13 +47,16 @@
          (include-js "/js/main.js")
          (include-js "/js/themes.js")
          (javascript-tag (str "less.modifyVars({
-                          '@background': themes['" theme "'].background.normal,
-                          '@background_halftone': themes['" theme "'].background.halftone,
-                          '@foreground': themes['" theme "'].foreground.normal,
-                          '@foreground_halftone': themes['" theme "'].foreground.halftone,
-                          '@link_fresh': themes['" theme "'].link.fresh,
-                          '@link_visited': themes['" theme "'].link.visited,
-                          '@link_hover': themes['" theme "'].link.hover});")))])))
+                              '@background': themes['" theme "'].background.normal,
+                              '@background_halftone': themes['" theme "'].background.halftone,
+                              '@foreground': themes['" theme "'].foreground.normal,
+                              '@foreground_halftone': themes['" theme "'].foreground.halftone,
+                              '@link_fresh': themes['" theme "'].link.fresh,
+                              '@link_visited': themes['" theme "'].link.visited,
+                              '@link_hover': themes['" theme "'].link.hover});")))
+       ; google analytics code should appear in prod mode only
+       (if-not (dev-mode?) (include-js "/js/google-analytics.js"))]
+      [:body {:onload "loadPage()"} content])))
 
 (defn layout
   "Generates the main html layout"

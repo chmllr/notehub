@@ -33,18 +33,21 @@ var updatePreview = function(){
     }, delay);
 };
 
-if($action){
-    if($action.value == "update") updatePreview(); else $draft.value = "";
-    $draft.onkeyup = updatePreview;
-    $("publish-button").onclick = function(e) {
-        if($plain_password.value != "") $password.value = md5($plain_password.value);
-        $plain_password.value = null;
-        $("session-value").value = hash($draft.value + $("session-key").value);
+function loadPage() {
+    if($action){
+        if($action.value == "update") updatePreview(); else $draft.value = "";
+        $draft.onkeyup = updatePreview;
+        $("publish-button").onclick = function(e) {
+            if($plain_password.value != "") $password.value = md5($plain_password.value);
+            $plain_password.value = null;
+            $("session-value").value = hash($draft.value + $("session-key").value);
+        }
+        if(iosDetected) $draft.className += " ui-border"; else $draft.focus();
     }
-    if(iosDetected) $draft.className += " ui-border"; else $draft.focus();
-}
 
-var mdDocs = document.getElementsByClassName("markdown");
-for(var i = 0; i < mdDocs.length; i++){
-    mdDocs[i].innerHTML = marked(mdDocs[i].innerHTML);
+    var mdDocs = document.getElementsByClassName("markdown");
+    for(var i = 0; i < mdDocs.length; i++){
+        mdDocs[i].innerHTML = marked(mdDocs[i].innerHTML);
+        show(mdDocs[i]);
+    }
 }
