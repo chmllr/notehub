@@ -13,7 +13,7 @@ Send your feedback and comments directly to [@gravitydenier](http://twitter.com/
     - [Dark](http://notehub.org/2012/6/16/how-notehub-is-built?theme=dark)
     - [Solarized-Dark](http://notehub.org/2012/6/16/how-notehub-is-built?theme=solarized-dark)
     - [Solarized-Light](http://notehub.org/2012/6/16/how-notehub-is-built?theme=solarized-light)
-- **Fonts**: select a [Google Web Font](http://www.google.com/webfonts/) for headers and for the text by appending parameters to the note [URL](http://notehub.org/2012/6/16/how-notehub-is-built?header-font=Chau+Philomene+One&text-font=Alegreya+Sans+SC).
+- **Fonts**: specify a font (also one of the [Google Web Fonts](http://www.google.com/webfonts/)) for headers and for the text by appending parameters to the note [URL](http://notehub.org/0vrcp).
 - **Short URLs**: every page (including theme & font options) has its own short url.
 - **Editing**: if you set a password during publishing, you can edit your note any time later.
 - **Statistics**: a rudimentary statistics available (date of publishing & view counter).
