@@ -13,6 +13,8 @@
 @header_font: 'Noticia Text';
 @text_font: 'Georgia';
 
+@font_size: 1.2em;
+
 // mixins
 .helvetica {
     font-weight: 300;
@@ -27,6 +29,12 @@
     border: 1px solid @foreground;
 }
 
+// end mixins
+
+code, pre {
+    font-family: "Menlo", "Andale Mono", "Consolas", Fixed, monospace;
+    font-size: 0.9em;
+}
 a {
     color: @link_fresh;
     text-decoration: none;
@@ -114,7 +122,7 @@ article {
     margin-top: 5em;
     font-family: @text_font, 'Georgia';
     text-align: justify;
-    font-size: 1.2em;
+    font-size: @font_size;
 }
 article p {
     line-height: 140%;
@@ -122,6 +130,7 @@ article p {
 
 article > h1:first-child {
     text-align: center;
+    font-size: 2em;
     margin: 2em;
 }
 .centered {
@@ -148,9 +157,6 @@ textarea {
 }
 .hidden, .markdown {
     display: none;
-}
-h1 {
-    font-size: 2em;
 }
 #dashed-line {
     border-bottom: 1px dashed @foreground_halftone;
