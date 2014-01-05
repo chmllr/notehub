@@ -16,10 +16,6 @@
 
 (deftest api
   (testing "API"
-    (testing "signature implementation"
-      (is (= 3577853521 (get-signature "Lorem ipsum dolor sit amet" "abcdef")))
-      (is (= -180217198 (get-signature "Notehub is a free pastebin for markdown" "12345678")))
-      (is (= 6887137804 (get-signature "abcd !§$%& параграф" "A VERY LONG KEY"))))
     (testing "publisher registration"
       (let [psk2 (register-publisher pid2)]
         (is (valid-publisher? pid))
@@ -29,28 +25,28 @@
         (isnt (valid-publisher? "any_PID"))
         (isnt (valid-publisher? pid2))))
     (testing "note publishing & retrieval"
-      (let [post-response (post-note note pid (get-signature note psk) ver)
+      (let [post-response (post-note note pid (get-signature pid psk note) ver)
             get-response (get-note ver (:noteID post-response))]
         (is (:success (:status post-response)))
         (is (:success (:status get-response)))
         (is (= note (:note get-response)))
         (is (= (:longURL post-response) (:longURL get-response)))
         (is (= (:shortURL post-response) (:shortURL get-response))))
-      (isnt (:success (:status (post-note note pid (get-signature note2 psk) ver))))
-      (isnt (:success (:status (post-note note pid (get-signature note "random_psk") ver))))
-      (is (:success (:status (post-note note pid (get-signature note psk) ver))))
+      (isnt (:success (:status (post-note note pid (get-signature pid psk note) ver))))
+      (isnt (:success (:status (post-note note pid (get-signature pid "random_psk" note) ver))))
+      (is (:success (:status (post-note note pid (get-signature pid psk note) ver))))
       (let [psk2 (register-publisher "randomPID")]
-        (is (:success (:status (post-note note "randomPID" (get-signature note psk2) ver))))
+        (is (:success (:status (post-note note "randomPID" (get-signature pid psk2 note) ver))))
         (is (revoke-publisher pid2))
-        (isnt (:success (:status (post-note note "randomPID" (get-signature note psk2) ver))))))
+        (isnt (:success (:status (post-note note "randomPID" (get-signature pid psk2 note) ver))))))
     (testing "note update"
-      (let [post-response (post-note note pid (get-signature note psk) ver "passwd")
+      (let [post-response (post-note note pid (get-signature pid psk note) ver "passwd")
             note-id (:noteID post-response)
             get-response (get-note ver note-id)
             new-note "a new note!"
-            update-response (update-note note-id new-note pid (get-signature new-note psk) ver "passwd")
+            update-response (update-note note-id new-note pid (get-signature pid psk new-note) ver "passwd")
             get-response-new (get-note ver note-id)
-            update-response-false (update-note note-id new-note pid (get-signature new-note psk) ver "pass")
+            update-response-false (update-note note-id new-note pid (get-signature pid psk new-note) ver "pass")
             ]
         (is (:success (:status post-response)))
         (is (:success (:status get-response)))

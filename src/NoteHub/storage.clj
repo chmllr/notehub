@@ -28,7 +28,8 @@
   "Creates a random session token"
   []
   (let [token (encrypt (str (rand-int Integer/MAX_VALUE)))]
-    (do (redis/sadd db sessions token) token)))
+    (do (redis/sadd db sessions token)
+        token)))
 
 (defn invalidate-session
   "Invalidates given session"
@@ -36,7 +37,8 @@
   ; Jedis is buggy & returns an NPE for token == nil
   (when token
     (let [was-valid (redis/sismember db sessions token)]
-      (do (redis/srem db sessions token) was-valid))))
+      (do (redis/srem db sessions token)
+          was-valid))))
 
 (defn update-note
   "Updates a note with the given store key if the specified password is correct"
