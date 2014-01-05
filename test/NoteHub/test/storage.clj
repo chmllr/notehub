@@ -1,5 +1,7 @@
 (ns NoteHub.test.storage
-  (:use [NoteHub.storage] [clojure.test]))
+  (:use [NoteHub.storage]
+        [NoteHub.views.pages]
+        [clojure.test]))
 
 (def date [2012 06 03])
 (def test-title "Some title.")
@@ -25,29 +27,29 @@
                    (short-url-exists? url))))))
     (testing "of correct note creation"
       (is (= (do
-               (set-note date test-title test-note)
-               (get-note date test-title))
+               (add-note (build-key date test-title) test-note)
+               (get-note (build-key date test-title)))
              test-note))
-      (is (= "1" (get-note-views date test-title)))
+      (is (= "1" (get-note-views (build-key date test-title))))
       (is (= (do
-               (get-note date test-title)
-               (get-note-views date test-title))
+               (get-note (build-key date test-title))
+               (get-note-views (build-key date test-title)))
              "2")))
     (testing "of note update"
       (is (= (do
-               (set-note date test-title test-note "12345qwert")
-               (get-note date test-title))
+               (add-note (build-key date test-title) test-note "12345qwert")
+               (get-note (build-key date test-title)))
              test-note))
       (is (= (do
                (update-note (build-key date test-title) "update" "12345qwert")
-               (get-note date test-title))
+               (get-note (build-key date test-title)))
              "update"))
       (is (= (do
                (update-note (build-key date test-title) "not authorized" "44444")
-               (get-note date test-title))
+               (get-note (build-key date test-title)))
              "update")))
     (testing "of the note access"
-      (is (not= (get-note date test-title) "any text")))
+      (is (not= (get-note (build-key date test-title)) "any text")))
     (testing "session management"
       (let [s1 (create-session)
             s2 (create-session)
@@ -58,9 +60,9 @@
         (is (not (invalidate-session "wrongtoken")))
         (is (invalidate-session s3))))
     (testing "of note existence"
-      (is (note-exists? date test-title))
+      (is (note-exists? (build-key date test-title)))
       (is (not (do
-                 (delete-note date test-title) 
-                 (note-exists? date test-title))))
-      (is (not (note-exists? [2013 06 03] test-title)))
-      (is (not (note-exists? date "some title"))))))
+                 (delete-note (build-key date test-title)) 
+                 (note-exists? (build-key date test-title)))))
+      (is (not (note-exists? (build-key [2013 06 03] test-title))))
+      (is (not (note-exists? (build-key date "some title")))))))

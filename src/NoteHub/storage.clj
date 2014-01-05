@@ -18,21 +18,13 @@
 (def sessions "sessions")
 (def short-url "short-url")
 
-; Concatenates all fields to a string
-(defn build-key 
-  "Returns a storage-key for the given note coordinates"
-  [[year month day] title]
-  (print-str year month day title))
-
 (defn create-session
-  "Creates a random session token"
   []
   (let [token (encrypt (str (rand-int Integer/MAX_VALUE)))]
     (do (redis/sadd db sessions token)
         token)))
 
 (defn invalidate-session
-  "Invalidates given session"
   [token]
   ; Jedis is buggy & returns an NPE for token == nil
   (when token
@@ -41,49 +33,43 @@
           was-valid))))
 
 (defn update-note
-  "Updates a note with the given store key if the specified password is correct"
-  [key text passwd]
-  (let [stored-password (redis/hget db password key)]
+  [noteID text passwd]
+  (let [stored-password (redis/hget db password noteID)]
     (when (and stored-password (= passwd stored-password))
-      (redis/hset db note key text))))
+      (redis/hset db note noteID text))))
 
-(defn set-note
-  "Creates a note with the given title and text in the given date namespace"
-  ([date title text] (set-note date title text nil))
-  ([date title text passwd]
-   (let [key (build-key date title)]
-     (do
-       (redis/hset db note key text)
-       (when (not (blank? passwd))
-         (redis/hset db password key passwd))))))
+(defn add-note
+  ([noteID text] (add-note noteID text nil))
+  ([noteID text passwd]
+   (do
+     (redis/hset db note noteID text)
+     (when (not (blank? passwd))
+       (redis/hset db password noteID passwd)))))
 
 (defn get-note
-  "Gets the note from the given date namespaces for the specified title"
-  [date title]
-  (let [key (build-key date title)
-        text (redis/hget db note key)]
+  [noteID]
+  (let [text (redis/hget db note noteID)]
     (when text
       (do
-        (redis/hincrby db views key 1)
+        (redis/hincrby db views noteID 1)
         text))))
 
 (defn get-note-views 
-  "Returns the number of views for the specified date and note title"
-  [date title]
-  (redis/hget db views (build-key date title)))
+  "Returns the number of views for the specified noteID"
+  [noteID]
+  (redis/hget db views noteID))
 
 (defn note-exists?
-  "Returns true if the note with the specified title and date exists"
-  [date title]
-  (redis/hexists db note (build-key date title)))
+  "Returns true if the note with the specified noteID"
+  [noteID]
+  (redis/hexists db note noteID))
 
 (defn delete-note
   "Deletes the note with the specified coordinates"
-  [date title]
-  (let [key (build-key date title)]
-    (doseq [kw [password views note]]
-      ; TODO: delete short url by looking for the title
-      (redis/hdel db kw key))))
+  [noteID]
+  (doseq [kw [password views note]]
+    ; TODO: delete short url by looking for the title
+    (redis/hdel db kw noteID)))
 
 (defn short-url-exists?
   "Checks whether the provided short url is taken (for testing only)"
@@ -99,10 +85,10 @@
 
 (defn delete-short-url
   "Deletes a short url (for testing only)"
-  [key]
-  (let [value (redis/hget db short-url key)]
+  [noteID]
+  (let [value (redis/hget db short-url noteID)]
     (do
-      (redis/hdel db short-url key)
+      (redis/hdel db short-url noteID)
       (redis/hdel db short-url value))))
 
 (defn create-short-url

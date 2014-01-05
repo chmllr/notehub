@@ -16,6 +16,12 @@
   (:import 
     [java.util Calendar]))
 
+; Concatenates all fields to a string
+(defn build-key 
+  "Returns a storage-key for the given note coordinates"
+  [[year month day] title]
+  (print-str year month day title))
+
 (defn get-hash 
   "A simple hash-function, which computes a hash from the text field 
   content and given session number. It is intended to be used as a spam
@@ -103,8 +109,9 @@
 ; Update Note Page
 (defpage "/:year/:month/:day/:title/edit" {:keys [year month day title]}
   (input-form "/update-note" :update 
-              (html (hidden-field :key (build-key [year month day] title)))
-              (get-note [year month day] title) :enter-passwd))
+              (let [noteID (build-key [year month day] title)]
+                (html (hidden-field :key noteID))
+                (get-note noteID) :enter-passwd)))
 
 ; New Note Page
 (defpage "/new" {}
@@ -118,16 +125,16 @@
   (wrap 
     (create-short-url params)
     (select-keys params [:title :theme :header-font :text-font])
-    (get-note [year month day] title)))
+    (get-note (build-key [year month day] title))))
 
 ; Provides Markdown of the specified note
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
-  (when-let [md-text (get-note [year month day] title)]
+  (when-let [md-text (get-note (build-key [year month day] title))]
     (content-type "text/plain; charset=utf-8" md-text)))
 
 ; Provides the number of views of the specified note
 (defpage "/:year/:month/:day/:title/stats" {:keys [year month day title]}
-  (when-let [views (get-note-views [year month day] title)]
+  (when-let [views (get-note-views (build-key [year month day] title))]
     (layout (get-message :statistics)
             [:table#stats.helvetica.central-element
              [:tr
@@ -167,11 +174,11 @@
             ; TODO: replace to ccs/take when it gets fixed
             proposed-title (apply str (take max-length title-uncut))
             date [year month day] 
-            title (first (drop-while #(note-exists? date %)
+            title (first (drop-while #(note-exists? (build-key date %))
                                      (cons proposed-title
                                            (map #(str proposed-title "-" (+ 2 %)) (range)))))]
         (do
-          (set-note date title draft password)
+          (add-note (build-key date title) draft password)
           (redirect (url year month day title))))
       (response 400))))
 
