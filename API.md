@@ -54,7 +54,11 @@ Parameter    | Explanation                              | Type
 `password`   | MD5 hash of a plain password for editing | *optional*
 `version`    | Used API version                         | **required**
 
-The Signature must be computed on the client side using the note text _and_ the PSK, wrt. the algorithm described below. The signature serves as a proof, that the request is authentic and will be issued by the publisher corresponding to the provided PID.
+The Signature is the MD5 hash of the following string concatenation:
+
+    pid + psk + note
+
+The signature serves as a proof, that the request is authentic and will be issued by the publisher corresponding to the provided PID.
 
 The response of the server will contain the fields `noteID`, `longURL`, `shortURL`, `status`.
 
@@ -89,7 +93,10 @@ Parameter    | Explanation                                       | Type
 `password`   | MD5 hash of the plain password used for creation  | **required**
 `version`    | Used API version                                  | **required**
 
-The Signature is computed identically to the note creation.
+The Signature is the MD5 hash of the following string concatenation:
+
+    pid + psk + noteID + note + password
+
 
 The response of the server will contain the fields `longURL`, `shortURL`, `status`.
 
@@ -105,29 +112,3 @@ Example:
     }
 
 The status object serves the same purpose as in the case of note retrieval and creation.
-
-## Signature Implementation
-
-The signature is computed as a very simple hash function. Consider the following sample implementation in JavaScript:
-
-    function getSignature(text, psk) {
-        var hash = 5381;
-        for (var pos = 0; pos < text.length; pos++){
-            hash = ((hash << 5) + hash) + 
-                   (text.charCodeAt(pos) ^ psk.charCodeAt(hash % psk.length));
-        }
-        return hash;
-    }
-
-Note:
- - the `hash` variable is typed as a signed 32-bit integer
- - `^` denotes an XOR
- - `charCodeAt()` returns the char code of the note letter at the given position; e.g., it will return values [97, 167, 1092] for three characters of the string `a§ф`.
-
-Your can test your implementation on the following tests:
-
-Input                                                   | Output
----                                                     | ---
-"Lorem ipsum dolor sit amet", "abcdef"                  | 3577853521
-"Notehub is a free pastebin for markdown", "12345678"   | -180217198
-"abcd !§$%& параграф", "A VERY LONG KEY"                | 6887137804
