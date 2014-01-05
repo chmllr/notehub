@@ -1,7 +1,8 @@
 (ns NoteHub.views.pages
   (:require [hiccup.util :as util])
   (:use
-    [NoteHub.storage]
+    [NoteHub.storage] ; TODO: delete this
+    [NoteHub.api :only [build-key get-date]]
     [NoteHub.settings]
     [NoteHub.views.common]
     [clojure.string :rename {replace sreplace}
@@ -12,15 +13,7 @@
     [hiccup.element]
     [noir.response :only [redirect status content-type]]
     [noir.core :only [defpage defpartial]]
-    [noir.statuses])
-  (:import 
-    [java.util Calendar]))
-
-; Concatenates all fields to a string
-(defn build-key 
-  "Returns a storage-key for the given note coordinates"
-  [[year month day] title]
-  (print-str year month day title))
+    [noir.statuses]))
 
 (defn get-hash 
   "A simple hash-function, which computes a hash from the text field 
@@ -65,12 +58,6 @@
                   separator (str space "&middot;" space)
                   links (interpose separator links)]
               [:div#panel (map identity links)]))))
-
-(defn get-date
-  "Returns today's date"
-  []
-  (map #(+ (second %) (.get (Calendar/getInstance) (first %))) 
-       {Calendar/YEAR 0, Calendar/MONTH 1, Calendar/DAY_OF_MONTH 0}))
 
 ; Routes
 ; ======

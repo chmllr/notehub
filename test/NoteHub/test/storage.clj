@@ -1,5 +1,6 @@
 (ns NoteHub.test.storage
   (:use [NoteHub.storage]
+        [NoteHub.api :only [build-key]]
         [NoteHub.views.pages]
         [clojure.test]))
 

@@ -11,12 +11,34 @@
     (when-not (dev-mode?)
       {:url (get-setting :db-url)})))
 
+(defn get-current-date []
+  (str (java.util.Date.)))
+
 ; DB hierarchy levels
 (def note "note")
+(def published "published")
+(def edited "edited")
 (def views "views")
 (def password "password")
 (def sessions "sessions")
 (def short-url "short-url")
+(def publisher "publisher")
+
+(defn valid-publisher? [pid]
+  (redis/hexists db publisher pid))
+
+(defn register-publisher [pid]
+  "Returns nil if given PID exists or a PSK otherwise"
+  (when (not (valid-publisher? pid))
+    (let [psk (encrypt (str (rand-int Integer/MAX_VALUE) pid))
+          _ (redis/hset db publisher pid psk)]
+      psk)))
+
+(defn revoke-publisher [pid]
+  (redis/hdel db publisher pid))
+
+(defn get-psk [pid]
+  (redis/hget db publisher pid))
 
 (defn create-session
   []
@@ -36,6 +58,7 @@
   [noteID text passwd]
   (let [stored-password (redis/hget db password noteID)]
     (when (and stored-password (= passwd stored-password))
+      (redis/hset db edited noteID (get-current-date))
       (redis/hset db note noteID text))))
 
 (defn add-note
@@ -43,6 +66,7 @@
   ([noteID text passwd]
    (do
      (redis/hset db note noteID text)
+     (redis/hset db published noteID (get-current-date))
      (when (not (blank? passwd))
        (redis/hset db password noteID passwd)))))
 
@@ -55,17 +79,21 @@
         text))))
 
 (defn get-note-views 
-  "Returns the number of views for the specified noteID"
   [noteID]
   (redis/hget db views noteID))
 
+(defn get-note-statistics
+  "Return views, publishing and editing timestamp"
+  [noteID]
+  { :view (redis/hget db views noteID)
+    :published (redis/hget db published noteID)
+    :edited (redis/hget db edited noteID) })
+
 (defn note-exists?
-  "Returns true if the note with the specified noteID"
   [noteID]
   (redis/hexists db note noteID))
 
 (defn delete-note
-  "Deletes the note with the specified coordinates"
   [noteID]
   (doseq [kw [password views note]]
     ; TODO: delete short url by looking for the title
@@ -75,6 +103,9 @@
   "Checks whether the provided short url is taken (for testing only)"
   [url]
   (redis/hexists db short-url url))
+
+(defn get-short-url [noteID]
+  (redis/hget db short-url noteID))
 
 (defn resolve-url
   "Resolves short url by providing all metadata of the request"
@@ -92,12 +123,12 @@
       (redis/hdel db short-url value))))
 
 (defn create-short-url
-  "Creates a short url for the given request metadata or extracts
+  "Creates a short url for the given request metadata or noteID or extracts
   one if it was already created"
-  [metadata]
-  (let [request (str (into (sorted-map) metadata))]
-    (if (short-url-exists? request)
-      (redis/hget db short-url request)
+  [arg]
+  (let [key (if (map? arg) (str (into (sorted-map) arg)) arg)]
+    (if (short-url-exists? key)
+      (redis/hget db short-url key)
       (let [hash-stream (partition 5 (repeatedly #(rand-int 36)))
             hash-to-string (fn [hash]
                              (apply str 
@@ -108,8 +139,8 @@
                   (remove short-url-exists?
                           (map hash-to-string hash-stream)))]
         (do 
-          ; we create two mappings: request params -> short url and back,
+          ; we create two mappings: key params -> short url and back,
           ; s.t. we can later easily check whether a short url already exists
-          (redis/hset db short-url url request)
-          (redis/hset db short-url request url)
+          (redis/hset db short-url url key)
+          (redis/hset db short-url key url)
           url)))))

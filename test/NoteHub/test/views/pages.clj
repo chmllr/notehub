@@ -1,5 +1,6 @@
 (ns NoteHub.test.views.pages
   (:use [NoteHub.views.pages]
+        [NoteHub.api :only [build-key get-date]]
         [noir.util.test]
         [NoteHub.views.common :only [url]]
         [NoteHub.storage]
