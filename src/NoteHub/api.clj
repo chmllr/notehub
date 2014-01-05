@@ -28,8 +28,8 @@
   ([success message & params]
    (assoc (create-response success) :message (apply format message params))))
 
-(defn- getURL [noteID description]
-  (if (description)
+(defn- getURL [noteID & description]
+  (if description
     (str domain (storage/get-short-url noteID))
     (str domain (sreplace noteID #" " "/"))))
 
