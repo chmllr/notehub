@@ -14,7 +14,7 @@ All API requests must be issued with one special parameter `version` denoting th
 
 A simple `GET` request to the following URL:
 
-    http://notehub.org/api/get-note?version=1.0&title=<NOTE-ID>
+    http://notehub.org/api/note?version=1.0&title=<NOTE-ID>
 
 will return a JSON object containing following self explaining fields: `note`, `longURL`, `shortURL`, `statistics`, `status`.
 
@@ -42,7 +42,7 @@ The note ID is a string, containing the date of publishing and a few first words
 
 A note must be created by a `POST` request to the following URL:
 
-    http://notehub.org/api/post-note
+    http://notehub.org/api/note
 
 with the following parameters:
 
@@ -74,9 +74,9 @@ The status object serves the same purpose as in the case of note retrieval.
 
 ## Note Update
 
-To update a note, an `UPDATE` request must be issued to the following URL:
+To update a note, an `PUT` request must be issued to the following URL:
 
-    http://notehub.org/api/update-note
+    http://notehub.org/api/note
 
 with the following parameters:
 
