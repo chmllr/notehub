@@ -54,12 +54,19 @@
       (do (redis/srem db sessions token)
           was-valid))))
 
+; TODO: deprecated
 (defn update-note
   [noteID text passwd]
   (let [stored-password (redis/hget db password noteID)]
     (when (and stored-password (= passwd stored-password))
       (redis/hset db edited noteID (get-current-date))
       (redis/hset db note noteID text))))
+
+(defn edit-note
+  [noteID text]
+  (do
+    (redis/hset db edited noteID (get-current-date))
+    (redis/hset db note noteID text)))
 
 (defn add-note
   ([noteID text] (add-note noteID text nil))
@@ -69,6 +76,10 @@
      (redis/hset db published noteID (get-current-date))
      (when (not (blank? passwd))
        (redis/hset db password noteID passwd)))))
+
+(defn valid-password? [noteID passwd]
+  (let [stored (redis/hget db password noteID)]
+    (and stored (= stored passwd))))
 
 (defn get-note
   [noteID]

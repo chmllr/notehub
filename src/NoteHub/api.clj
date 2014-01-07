@@ -55,12 +55,11 @@
   ([note pid signature] (post-note note pid signature nil))
   ([note pid signature password]
   (let [errors (filter identity
-                       (lazy-seq
                          [(when-not (storage/valid-publisher? pid) "pid invalid")
                           (when-not (= signature
                                        (get-signature pid (storage/get-psk pid) note))
                             "signature invalid")
-                          (when (blank? note) "note is empty")]))]
+                          (when (blank? note) "note is empty")])]
     (if (empty? errors)
       (let [[year month day] (get-date)
             untrimmed-line (filter #(or (= \- %) (Character/isLetterOrDigit %)) 
@@ -88,17 +87,19 @@
 
 (defn update-note [noteID note pid signature password]
   (let [errors (filter identity
-                       (lazy-seq
+                       (seq
                          [(when-not (storage/valid-publisher? pid) "pid invalid")
                           (when-not (= signature
                                        (get-signature pid (storage/get-psk pid) noteID note password))
                             "signature invalid")
                           (when (blank? note) "note is empty")
-                          (when-not (storage/update-note noteID note password) "password invalid")]))]
+                          (when-not (storage/valid-password? noteID password) "password invalid")]))]
     (if (empty? errors)
-      {
-       :longURL (getURL noteID)
-       :shortURL (getURL noteID :short)
-       :status (create-response true)
-       }
+      (do
+        (storage/edit-note noteID note)
+        {
+         :longURL (getURL noteID)
+         :shortURL (getURL noteID :short)
+         :status (create-response true)
+         })
       {:status (create-response false (first errors))})))

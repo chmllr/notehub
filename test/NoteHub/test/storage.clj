@@ -41,6 +41,7 @@
                (add-note (build-key date test-title) test-note "12345qwert")
                (get-note (build-key date test-title)))
              test-note))
+      #_(is (valid-password? (build-key date test-title) "12345qwert"))
       (is (= (do
                (update-note (build-key date test-title) "update" "12345qwert")
                (get-note (build-key date test-title)))
