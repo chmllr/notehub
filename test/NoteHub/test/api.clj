@@ -41,7 +41,10 @@
         (is (:success (:status get-response)))
         (is (= note (:note get-response)))
         (is (= (:longURL post-response) (:longURL get-response) note-url))
-        (is (= (:shortURL post-response) (:shortURL get-response)))))
+        (is (= (:shortURL post-response) (:shortURL get-response)))
+        (is (= "1" (get-in get-response [:statistics :views])))
+        (isnt (get-in get-response [:statistics :edited]))
+        (is (= "2" (get-in (get-note (:noteID post-response)) [:statistics :views])))))
     (testing "creation with wrong signature"
       (let [response (post-note note pid (get-signature pid2 psk note))]
         (isnt (:success (:status response)))
@@ -71,6 +74,7 @@
         (let [update-response (update-note note-id new-note pid 
                                            (get-signature pid psk note-id new-note "passwd") "passwd")]
           (is (= { :success true } (:status update-response)))
+          (isnt (= nil (get-in (get-note note-id) [:statistics :edited])))
           (is (= new-note (:note (get-note note-id)))))
         (let [update-response (update-note note-id "aaa" pid 
                                            (get-signature pid psk note-id "aaa" "pass") "pass")]

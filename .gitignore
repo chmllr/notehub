@@ -8,3 +8,4 @@ pom.xml
 .lein-*
 .crossover-cljs
 target/
+.nrepl-port

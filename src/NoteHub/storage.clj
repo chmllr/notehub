@@ -96,7 +96,7 @@
 (defn get-note-statistics
   "Return views, publishing and editing timestamp"
   [noteID]
-  { :view (redis/hget db views noteID)
+  { :views (redis/hget db views noteID)
     :published (redis/hget db published noteID)
     :edited (redis/hget db edited noteID) })
 
