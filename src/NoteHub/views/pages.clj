@@ -182,7 +182,7 @@
 ; Here lives the API
 
 (defpage "/api" args
-  (let [title (get-message :api-registration)]
+  (let [title (get-message :api-title)]
   (layout title [:article.markdown (slurp "API.md")])))
 
 (defpage [:get "/api/note"] {:keys [version noteID]}
