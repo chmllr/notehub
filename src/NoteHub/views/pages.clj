@@ -1,6 +1,7 @@
 (ns NoteHub.views.pages
   (:require [hiccup.util :as util]
             [NoteHub.api :as api]
+            [NoteHub.storage :as storage]
             [cheshire.core :refer :all])
   (:use
     [NoteHub.storage] ; TODO: delete this
@@ -94,12 +95,19 @@
            (slurp "LANDING.md")]
           [:div.centered.helvetica.markdown (get-message :footer)]))
 
+; Displays the note
+(defpage "/:year/:month/:day/:title" {:keys [year month day title theme header-font text-font] :as params}
+  (wrap 
+    (create-short-url params)
+    (select-keys params [:title :theme :header-font :text-font])
+    (:note (api/get-note (api/build-key [year month day] title)))))
+
 ; Update Note Page
 (defpage "/:year/:month/:day/:title/edit" {:keys [year month day title]}
   (let [noteID (api/build-key [year month day] title)]
     (input-form "/update-note" :update 
                 (html (hidden-field :key noteID))
-                (get-note noteID) :enter-passwd)))
+                (:note (api/get-note noteID)) :enter-passwd)))
 
 ; New Note Page
 (defpage "/new" {}
@@ -108,29 +116,26 @@
                     (hidden-field {:id :session-value} :session-value))
               (get-message :loading) :set-passwd))
 
-; Displays the note
-(defpage "/:year/:month/:day/:title" {:keys [year month day title theme header-font text-font] :as params}
-  (wrap 
-    (create-short-url params)
-    (select-keys params [:title :theme :header-font :text-font])
-    (get-note (api/build-key [year month day] title))))
-
 ; Provides Markdown of the specified note
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
-  (when-let [md-text (get-note (api/build-key [year month day] title))]
+  (when-let [md-text (:note (api/get-note (api/build-key [year month day] title)))]
     (content-type "text/plain; charset=utf-8" md-text)))
 
 ; Provides the number of views of the specified note
 (defpage "/:year/:month/:day/:title/stats" {:keys [year month day title]}
-  (when-let [views (get-note-views (api/build-key [year month day] title))]
+  (when-let [stats (:statistics (api/get-note (api/build-key [year month day] title)))]
     (layout (get-message :statistics)
             [:table#stats.helvetica.central-element
              [:tr
               [:td (get-message :published)]
-              [:td (interpose "-" [year month day])]]
+              [:td (:published stats)]]
+             (when (:edited stats)
+               [:tr
+                [:td (get-message :edited)]
+                [:td (:edited stats)]])
              [:tr
               [:td (get-message :article-views)]
-              [:td views]]])))
+              [:td (:views stats)]]])))
 
 ; Updates a note
 (defpage [:post "/update-note"] {:keys [key draft password]}
