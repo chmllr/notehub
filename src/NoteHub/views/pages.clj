@@ -1,8 +1,9 @@
 (ns NoteHub.views.pages
-  (:require [hiccup.util :as util])
+  (:require [hiccup.util :as util]
+            [NoteHub.api :as api]
+            [cheshire.core :refer :all])
   (:use
     [NoteHub.storage] ; TODO: delete this
-    [NoteHub.api :only [build-key get-date]]
     [NoteHub.settings]
     [NoteHub.views.common]
     [clojure.string :rename {replace sreplace}
@@ -95,8 +96,8 @@
 
 ; Update Note Page
 (defpage "/:year/:month/:day/:title/edit" {:keys [year month day title]}
-  (input-form "/update-note" :update 
-              (let [noteID (build-key [year month day] title)]
+  (let [noteID (api/build-key [year month day] title)]
+    (input-form "/update-note" :update 
                 (html (hidden-field :key noteID))
                 (get-note noteID) :enter-passwd)))
 
@@ -112,16 +113,16 @@
   (wrap 
     (create-short-url params)
     (select-keys params [:title :theme :header-font :text-font])
-    (get-note (build-key [year month day] title))))
+    (get-note (api/build-key [year month day] title))))
 
 ; Provides Markdown of the specified note
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
-  (when-let [md-text (get-note (build-key [year month day] title))]
+  (when-let [md-text (get-note (api/build-key [year month day] title))]
     (content-type "text/plain; charset=utf-8" md-text)))
 
 ; Provides the number of views of the specified note
 (defpage "/:year/:month/:day/:title/stats" {:keys [year month day title]}
-  (when-let [views (get-note-views (build-key [year month day] title))]
+  (when-let [views (get-note-views (api/build-key [year month day] title))]
     (layout (get-message :statistics)
             [:table#stats.helvetica.central-element
              [:tr
@@ -152,7 +153,7 @@
       ; if yes, we compute the current date, extract a title string from the text,
       ; which will be a part of the url and look whether this title is free today;
       ; if not, append "-n", where "n" is the next free number
-      (let [[year month day] (get-date)
+      (let [[year month day] (api/get-date)
             untrimmed-line (filter #(or (= \- %) (Character/isLetterOrDigit %)) 
                                    (-> draft split-lines first (sreplace " " "-") lower-case))
             trim (fn [s] (apply str (drop-while #(= \- %) s)))
@@ -161,11 +162,11 @@
             ; TODO: replace to ccs/take when it gets fixed
             proposed-title (apply str (take max-length title-uncut))
             date [year month day] 
-            title (first (drop-while #(note-exists? (build-key date %))
+            title (first (drop-while #(note-exists? (api/build-key date %))
                                      (cons proposed-title
                                            (map #(str proposed-title "-" (+ 2 %)) (range)))))]
         (do
-          (add-note (build-key date title) draft password)
+          (add-note (api/build-key date title) draft password)
           (redirect (url year month day title))))
       (response 400))))
 
@@ -178,4 +179,8 @@
           long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
       (redirect long-url))))
 
+; Here lives the API
 
+(defpage "/api" args
+  (let [title (get-message :api-registration)]
+  (layout title [:article.markdown (slurp "API.md")])))
