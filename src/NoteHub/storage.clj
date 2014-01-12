@@ -106,7 +106,7 @@
 
 (defn delete-note
   [noteID]
-  (doseq [kw [password views note]]
+  (doseq [kw [password views note published edited]]
     ; TODO: delete short url by looking for the title
     (redis/hdel db kw noteID)))
 

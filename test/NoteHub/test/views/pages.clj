@@ -6,8 +6,7 @@
         [NoteHub.storage]
         [clojure.test]))
 
-(defn substring? [a b]
-  (not (= nil (re-matches (re-pattern (str "(?s).*" a ".*")) b))))
+(defn substring? [a b] (not (= nil (re-matches (re-pattern (str "(?s).*" a ".*")) b))))
 (def date [2012 6 3])
 (def test-title "some-title")
 (def test-note "# This is a test note.\nHello _world_. Motörhead, тест.")

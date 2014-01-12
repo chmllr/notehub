@@ -11,6 +11,7 @@
 (def pid2 "somePlugin2")
 (def note-title (str (apply print-str (get-date)) " hello-world-this-is-a-test-note"))
 (def note-url (str domain (apply str (interpose "/" (get-date))) "/hello-world-this-is-a-test-note"))
+(defn substring? [a b] (not (= nil (re-matches (re-pattern (str "(?s).*" a ".*")) b))))
 
 (defmacro isnt [arg] `(is (not ~arg)))
 
@@ -92,66 +93,61 @@
                                   :pid pid
                                   :signature (get-signature pid psk note)
                                   :version "1.0"})
-          body (parse-string (:body response))]
+          body (parse-string (:body response))
+          noteID (body "noteID")]
       (is (has-status response 200))
       (is (get-in body ["status" "success"]))
       (is (= note ((parse-string
-                     (:body (send-request [:get "/api/note"] {:version "1.0" :noteID (body "noteID")}))) "note")))
+                     (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
       (is (do 
-            (storage/delete-note (body "noteID"))
-            (not (storage/note-exists? (body "noteID"))))))))
+            (storage/delete-note noteID)
+            (not (storage/note-exists? noteID)))))))
 
-#_
 (deftest note-update
-  (let [session-key (create-session)
-        date (get-date)
-        title "test-note"
-        [year month day] date]
+  (let [response (send-request [:post "/api/note"]
+                               {:note note
+                                :pid pid
+                                :signature (get-signature pid psk note)
+                                :version "1.0"
+                                :password "qwerty"})
+        body (parse-string (:body response))
+        noteID (body "noteID")]
     (testing "Note update"
-      (is (has-status 
-            (send-request 
-              [:post "/post-note"]
-              {:session-key session-key
-               :draft "test note"
-               :password "qwerty"
-               :session-value (str (get-hash (str "test note" session-key)))}) 302))
-      (is (note-exists? (build-key date title)))
-      (is (substring? "test note"
-                      ((send-request (url year month day title)) :body)))
-      (is (has-status 
-            (send-request 
-              [:post "/update-note"]
-              {:key (build-key [year month day] title)
-               :draft "WRONG pass"
-               :password "qwerty1" }) 403))
-      (is (substring? "test note"
-                      ((send-request (url year month day title)) :body)))
-      (is (has-status 
-            (send-request 
-              [:post "/update-note"]
-              {:key (build-key [year month day] title)
-               :draft "UPDATED CONTENT"
-               :password "qwerty" }) 302))
+      (is (has-status response 200))
+      (is (get-in body ["status" "success"]))
+      (is (storage/note-exists? noteID))
+      (is (substring? "_test_ note"
+                      ((parse-string
+                         (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
+      (let [response (send-request [:put "/api/note"]
+                                   {:noteID noteID
+                                    :note "WRONG pass"
+                                    :pid pid
+                                    :signature (get-signature pid psk noteID "WRONG pass" "qwerty1")
+                                    :password "qwerty1"
+                                    :version "1.0"})
+            body (parse-string (:body response))]
+        (is (has-status response 200))
+        (isnt (get-in body ["status" "success"]))
+        (is (= "password invalid" (get-in body ["status" "message"])))
+        (isnt (get-in body ["statistics" "edited"]))
+        (is (substring? "_test_ note"
+                        ((parse-string
+                           (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note"))))
+      (is (get-in (parse-string
+                    (:body (send-request [:put "/api/note"]
+                                         {:noteID noteID
+                                          :note "UPDATED CONTENT"
+                                          :pid pid
+                                          :signature (get-signature pid psk noteID "UPDATED CONTENT" "qwerty")
+                                          :password "qwerty"
+                                          :version "1.0"}))) ["status" "success"]))
+      (isnt (= nil (((parse-string
+                       (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID})))
+                     "statistics") "edited")))
       (is (substring? "UPDATED CONTENT"
-                      ((send-request (url year month day title)) :body)))
+                      ((parse-string
+                         (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
       (is (do 
-            (delete-note (build-key date title))
-            (not (note-exists? (build-key date title))))))))
-#_
-
-(deftest requests
-  (testing "HTTP Status"
-    (testing "of a wrong access"
-      (is (has-status (send-request "/wrong-page") 404))
-      (is (has-status (send-request (url 2012 6 3 "lol" "stat")) 404))
-      (is (has-status (send-request (url 2012 6 3 "lol" "export")) 404))
-      (is (has-status (send-request (url 2012 6 3 "lol")) 404))
-      (is (has-status (send-request (url 2012 6 4 "wrong-title")) 404)))
-    (testing "of corrupt note-post"
-      (is (has-status (send-request [:post "/post-note"]) 400)))
-    (testing "valid accesses"
-      ;(is (has-status (send-request "/new") 200) "accessing /new")
-      (is (has-status (send-request (url 2012 6 3 "some-title")) 200) "accessing test note")
-      (is (has-status (send-request (url 2012 6 3 "some-title" "export")) 200) "accessing test note's export")
-      (is (has-status (send-request (url 2012 6 3 "some-title" "stats")) 200) "accessing test note's stats")
-      (is (has-status (send-request "/") 200) "accessing landing page"))))
+            (storage/delete-note noteID)
+            (not (storage/note-exists? noteID)))))))
