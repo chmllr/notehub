@@ -40,7 +40,7 @@ Example:
         },
         status: {
             success: true,
-            comment: <some server message>
+            comment: "some server message"
         }
     }
 
@@ -80,7 +80,7 @@ Example:
         shortURL: "http://notehub.org/0vrcp",
         status: {
             success: true,
-            comment: <some server message>
+            comment: "some server message"
         }
     }
 
@@ -117,7 +117,7 @@ Example:
         shortURL: "http://notehub.org/0vrcp",
         status: {
             success: true,
-            comment: <some server message>
+            comment: "some server message"
         }
     }
 
