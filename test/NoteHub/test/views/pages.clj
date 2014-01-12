@@ -1,21 +1,20 @@
 (ns NoteHub.test.views.pages
   (:use [NoteHub.views.pages]
+        [NoteHub.api :only [build-key get-date]]
         [noir.util.test]
         [NoteHub.views.common :only [url]]
         [NoteHub.storage]
         [clojure.test]))
 
-(defn substring? [a b]
-  (not (= nil 
-          (re-matches (re-pattern (str "(?s).*" a ".*")) b))))
+(defn substring? [a b] (not (= nil (re-matches (re-pattern (str "(?s).*" a ".*")) b))))
 (def date [2012 6 3])
 (def test-title "some-title")
 (def test-note "# This is a test note.\nHello _world_. Motörhead, тест.")
 
 (defn create-testnote-fixture [f]
-  (set-note date test-title test-note)
+  (add-note (build-key date test-title) test-note)
   (f)
-  (delete-note date test-title))
+  (delete-note (build-key date test-title)))
 
 (use-fixtures :each create-testnote-fixture)
 
@@ -23,8 +22,8 @@
 
 (deftest testing-fixture
   (testing "Was a not created?"
-    (is (= (get-note date test-title) test-note))
-    (is (note-exists? date test-title))))
+    (is (= (get-note (build-key date test-title)) test-note))
+    (is (note-exists? (build-key date test-title)))))
 
 (deftest export-test
   (testing "Markdown export"
@@ -42,12 +41,12 @@
               {:session-key session-key
                :draft test-note
                :session-value (str (get-hash (str test-note session-key)))}) 302))
-      (is (note-exists? date title))
+      (is (note-exists? (build-key date title)))
       (is (substring? "Hello _world_"
                       ((send-request (url year month day title)) :body)))
       (is (do 
-            (delete-note date title)
-            (not (note-exists? date title)))))))
+            (delete-note (build-key date title))
+            (not (note-exists? (build-key date title))))))))
 
 (deftest note-update
   (let [session-key (create-session)
@@ -62,7 +61,7 @@
                :draft "test note"
                :password "qwerty"
                :session-value (str (get-hash (str "test note" session-key)))}) 302))
-      (is (note-exists? date title))
+      (is (note-exists? (build-key date title)))
       (is (substring? "test note"
                       ((send-request (url year month day title)) :body)))
       (is (has-status 
@@ -82,8 +81,8 @@
       (is (substring? "UPDATED CONTENT"
                       ((send-request (url year month day title)) :body)))
       (is (do 
-            (delete-note date title)
-            (not (note-exists? date title)))))))
+            (delete-note (build-key date title))
+            (not (note-exists? (build-key date title))))))))
 
 (deftest requests
   (testing "HTTP Status"

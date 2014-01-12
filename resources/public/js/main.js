@@ -16,6 +16,10 @@ var timerDelay = iosDetected ? 800 : 400;
 var show = function(elem) { elem.style.display = "block" }
 var $draft, $action, $preview, $password, $plain_password, $input_elems, $dashed_line, updatePreview;
 
+function md2html(input){
+    return marked(input);
+}
+
 function loadPage() {
     $draft = $("draft");
     $action = $("action");
@@ -31,7 +35,7 @@ function loadPage() {
         timer = setTimeout(function(){
             show($dashed_line);
             show($input_elems);
-            $preview.innerHTML = marked(content);
+            $preview.innerHTML = md2html(content);
         }, delay);
     };
     if($action){
@@ -47,7 +51,7 @@ function loadPage() {
 
     var mdDocs = document.getElementsByClassName("markdown");
     for(var i = 0; i < mdDocs.length; i++){
-        mdDocs[i].innerHTML = marked(mdDocs[i].innerHTML);
+        mdDocs[i].innerHTML = md2html(mdDocs[i].innerHTML);
         show(mdDocs[i]);
     }
 }

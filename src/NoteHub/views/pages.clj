@@ -1,7 +1,9 @@
 (ns NoteHub.views.pages
-  (:require [hiccup.util :as util])
+  (:require [hiccup.util :as util]
+            [NoteHub.api :as api]
+            [cheshire.core :refer :all])
   (:use
-    [NoteHub.storage]
+    [NoteHub.storage] ; TODO: delete this
     [NoteHub.settings]
     [NoteHub.views.common]
     [clojure.string :rename {replace sreplace}
@@ -12,9 +14,7 @@
     [hiccup.element]
     [noir.response :only [redirect status content-type]]
     [noir.core :only [defpage defpartial]]
-    [noir.statuses])
-  (:import 
-    [java.util Calendar]))
+    [noir.statuses]))
 
 (defn get-hash 
   "A simple hash-function, which computes a hash from the text field 
@@ -60,12 +60,6 @@
                   links (interpose separator links)]
               [:div#panel (map identity links)]))))
 
-(defn get-date
-  "Returns today's date"
-  []
-  (map #(+ (second %) (.get (Calendar/getInstance) (first %))) 
-       {Calendar/YEAR 0, Calendar/MONTH 1, Calendar/DAY_OF_MONTH 0}))
-
 ; Routes
 ; ======
 
@@ -102,9 +96,10 @@
 
 ; Update Note Page
 (defpage "/:year/:month/:day/:title/edit" {:keys [year month day title]}
-  (input-form "/update-note" :update 
-              (html (hidden-field :key (build-key [year month day] title)))
-              (get-note [year month day] title) :enter-passwd))
+  (let [noteID (api/build-key [year month day] title)]
+    (input-form "/update-note" :update 
+                (html (hidden-field :key noteID))
+                (get-note noteID) :enter-passwd)))
 
 ; New Note Page
 (defpage "/new" {}
@@ -118,16 +113,16 @@
   (wrap 
     (create-short-url params)
     (select-keys params [:title :theme :header-font :text-font])
-    (get-note [year month day] title)))
+    (get-note (api/build-key [year month day] title))))
 
 ; Provides Markdown of the specified note
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
-  (when-let [md-text (get-note [year month day] title)]
+  (when-let [md-text (get-note (api/build-key [year month day] title))]
     (content-type "text/plain; charset=utf-8" md-text)))
 
 ; Provides the number of views of the specified note
 (defpage "/:year/:month/:day/:title/stats" {:keys [year month day title]}
-  (when-let [views (get-note-views [year month day] title)]
+  (when-let [views (get-note-views (api/build-key [year month day] title))]
     (layout (get-message :statistics)
             [:table#stats.helvetica.central-element
              [:tr
@@ -158,7 +153,7 @@
       ; if yes, we compute the current date, extract a title string from the text,
       ; which will be a part of the url and look whether this title is free today;
       ; if not, append "-n", where "n" is the next free number
-      (let [[year month day] (get-date)
+      (let [[year month day] (api/get-date)
             untrimmed-line (filter #(or (= \- %) (Character/isLetterOrDigit %)) 
                                    (-> draft split-lines first (sreplace " " "-") lower-case))
             trim (fn [s] (apply str (drop-while #(= \- %) s)))
@@ -167,11 +162,11 @@
             ; TODO: replace to ccs/take when it gets fixed
             proposed-title (apply str (take max-length title-uncut))
             date [year month day] 
-            title (first (drop-while #(note-exists? date %)
+            title (first (drop-while #(note-exists? (api/build-key date %))
                                      (cons proposed-title
                                            (map #(str proposed-title "-" (+ 2 %)) (range)))))]
         (do
-          (set-note date title draft password)
+          (add-note (api/build-key date title) draft password)
           (redirect (url year month day title))))
       (response 400))))
 
@@ -183,5 +178,23 @@
           core-url (url year month day title)
           long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
       (redirect long-url))))
+
+; Here lives the API
+
+(defpage "/api" args
+  (let [title (get-message :api-registration)]
+  (layout title [:article.markdown (slurp "API.md")])))
+
+(defpage [:get "/api/note"] {:keys [version noteID]}
+  (generate-string (api/get-note noteID)))
+
+(defpage [:post "/api/note"] {:keys [version note pid signature password]}
+  (generate-string (api/post-note note pid signature password)))
+
+(defpage [:put "/api/note"] {:keys [version noteID note pid signature password]}
+  (generate-string (api/update-note noteID note pid signature password)))
+
+
+
 
 
