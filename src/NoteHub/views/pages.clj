@@ -60,22 +60,6 @@
                   links (interpose separator links)]
               [:div#panel (map identity links)]))))
 
-; Routes
-; ======
-
-; Landing Page
-(defpage "/" {}
-  (layout (get-message :page-title)
-          [:div#hero
-           [:h1 (get-message :name)]
-           [:h2 (get-message :title)]
-           [:br]
-           [:a.landing-button {:href "/new" :style "color: white"} (get-message :new-page)]]
-          [:div#dashed-line]
-          [:article.helvetica.bottom-space.markdown {:style "font-size: 1em"} 
-           (slurp "LANDING.md")]
-          [:div.centered.helvetica.markdown (get-message :footer)]))
-
 ; input form for the markdown text with a preview area
 (defpartial input-form [form-url command fields content passwd-msg]
   (let [css-class (when (= :publish command) :hidden)]
@@ -93,6 +77,22 @@
                                    :plain-password)
                        (submit-button {:class "button ui-elem"
                                        :id :publish-button} (get-message command))])])))
+
+; Routes
+; ======
+
+; Landing Page
+(defpage "/" {}
+  (layout (get-message :page-title)
+          [:div#hero
+           [:h1 (get-message :name)]
+           [:h2 (get-message :title)]
+           [:br]
+           [:a.landing-button {:href "/new" :style "color: white"} (get-message :new-page)]]
+          [:div#dashed-line]
+          [:article.helvetica.bottom-space.markdown {:style "font-size: 1em"} 
+           (slurp "LANDING.md")]
+          [:div.centered.helvetica.markdown (get-message :footer)]))
 
 ; Update Note Page
 (defpage "/:year/:month/:day/:title/edit" {:keys [year month day title]}
