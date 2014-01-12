@@ -1,7 +1,9 @@
 (ns NoteHub.test.api
   (:require 
+    [cheshire.core :refer :all]
     [NoteHub.storage :as storage])
   (:use [NoteHub.api]
+        [noir.util.test]
         [clojure.test]))
 
 (def note "hello world! This is a _test_ note!")
@@ -82,3 +84,74 @@
           (is (= "password invalid" (:message (:status update-response)))))
         (is (= new-note (:note (get-note note-id))))
         (is (= new-note (:note (get-note note-id))))))))
+
+(deftest api-note-creation
+  (testing "Note creation"
+    (let [response (send-request [:post "/api/note"]
+                                 {:note note
+                                  :pid pid
+                                  :signature (get-signature pid psk note)
+                                  :version "1.0"})
+          body (parse-string (:body response))]
+      (is (has-status response 200))
+      (is (get-in body ["status" "success"]))
+      (is (= note ((parse-string
+                     (:body (send-request [:get "/api/note"] {:version "1.0" :noteID (body "noteID")}))) "note")))
+      (is (do 
+            (storage/delete-note (body "noteID"))
+            (not (storage/note-exists? (body "noteID"))))))))
+
+#_
+(deftest note-update
+  (let [session-key (create-session)
+        date (get-date)
+        title "test-note"
+        [year month day] date]
+    (testing "Note update"
+      (is (has-status 
+            (send-request 
+              [:post "/post-note"]
+              {:session-key session-key
+               :draft "test note"
+               :password "qwerty"
+               :session-value (str (get-hash (str "test note" session-key)))}) 302))
+      (is (note-exists? (build-key date title)))
+      (is (substring? "test note"
+                      ((send-request (url year month day title)) :body)))
+      (is (has-status 
+            (send-request 
+              [:post "/update-note"]
+              {:key (build-key [year month day] title)
+               :draft "WRONG pass"
+               :password "qwerty1" }) 403))
+      (is (substring? "test note"
+                      ((send-request (url year month day title)) :body)))
+      (is (has-status 
+            (send-request 
+              [:post "/update-note"]
+              {:key (build-key [year month day] title)
+               :draft "UPDATED CONTENT"
+               :password "qwerty" }) 302))
+      (is (substring? "UPDATED CONTENT"
+                      ((send-request (url year month day title)) :body)))
+      (is (do 
+            (delete-note (build-key date title))
+            (not (note-exists? (build-key date title))))))))
+#_
+
+(deftest requests
+  (testing "HTTP Status"
+    (testing "of a wrong access"
+      (is (has-status (send-request "/wrong-page") 404))
+      (is (has-status (send-request (url 2012 6 3 "lol" "stat")) 404))
+      (is (has-status (send-request (url 2012 6 3 "lol" "export")) 404))
+      (is (has-status (send-request (url 2012 6 3 "lol")) 404))
+      (is (has-status (send-request (url 2012 6 4 "wrong-title")) 404)))
+    (testing "of corrupt note-post"
+      (is (has-status (send-request [:post "/post-note"]) 400)))
+    (testing "valid accesses"
+      ;(is (has-status (send-request "/new") 200) "accessing /new")
+      (is (has-status (send-request (url 2012 6 3 "some-title")) 200) "accessing test note")
+      (is (has-status (send-request (url 2012 6 3 "some-title" "export")) 200) "accessing test note's export")
+      (is (has-status (send-request (url 2012 6 3 "some-title" "stats")) 200) "accessing test note's stats")
+      (is (has-status (send-request "/") 200) "accessing landing page"))))
