@@ -184,3 +184,17 @@
 (defpage "/api" args
   (let [title (get-message :api-registration)]
   (layout title [:article.markdown (slurp "API.md")])))
+
+(defpage [:get "/api/note"] {:keys [version noteID]}
+  (generate-string (api/get-note noteID)))
+
+(defpage [:post "/api/note"] {:keys [version note pid signature password]}
+  (generate-string (api/post-note note pid signature password)))
+
+(defpage [:put "/api/note"] {:keys [version noteID note pid signature password]}
+  (generate-string (api/update-note noteID note pid signature password)))
+
+
+
+
+
