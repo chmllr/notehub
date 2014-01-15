@@ -40,27 +40,17 @@
 (defn get-psk [pid]
   (redis/hget db publisher pid))
 
-(defn create-session
-  []
+(defn create-session []
   (let [token (encrypt (str (rand-int Integer/MAX_VALUE)))]
     (do (redis/sadd db sessions token)
         token)))
 
-(defn invalidate-session
-  [token]
+(defn invalidate-session [token]
   ; Jedis is buggy & returns an NPE for token == nil
   (when token
     (let [was-valid (redis/sismember db sessions token)]
       (do (redis/srem db sessions token)
           was-valid))))
-
-; TODO: deprecated
-(defn update-note
-  [noteID text passwd]
-  (let [stored-password (redis/hget db password noteID)]
-    (when (and stored-password (= passwd stored-password))
-      (redis/hset db edited noteID (get-current-date))
-      (redis/hset db note noteID text))))
 
 (defn edit-note
   [noteID text]
@@ -97,8 +87,8 @@
   "Return views, publishing and editing timestamp"
   [noteID]
   { :views (redis/hget db views noteID)
-    :published (redis/hget db published noteID)
-    :edited (redis/hget db edited noteID) })
+   :published (redis/hget db published noteID)
+   :edited (redis/hget db edited noteID) })
 
 (defn note-exists?
   [noteID]

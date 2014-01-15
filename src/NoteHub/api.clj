@@ -7,9 +7,9 @@
      :only [replace blank? lower-case split-lines]])
   (:require [NoteHub.storage :as storage]))
 
-(def api-version "1.0")
+(def version "1.0")
 
-(def domain "http://notehub.org/")
+(def domain (get-setting :domain))
 
 ; Concatenates all fields to a string
 (defn build-key 
@@ -28,10 +28,10 @@
   ([success message & params]
    (assoc (create-response success) :message (apply format message params))))
 
-(defn- getURL [noteID & description]
+(defn- getPath [noteID & description]
   (if description
-    (str domain (storage/get-short-url noteID))
-    (str domain (sreplace noteID #" " "/"))))
+    (str "/" (storage/get-short-url noteID))
+    (str "/" (sreplace noteID #" " "/"))))
 
 (let [md5Instance (java.security.MessageDigest/getInstance "MD5")]
   (defn get-signature
@@ -43,13 +43,13 @@
           (.toString (new java.math.BigInteger 1 (.digest md5Instance)) 16)))))
 
 (defn get-note [noteID]
-  {:note (storage/get-note noteID)
-   :longURL (getURL noteID)
-   :shortURL (getURL noteID :short)
-   :statistics (storage/get-note-statistics noteID)
-   :status (if (storage/note-exists? noteID)
-             (create-response true)
-             (create-response false "noteID '%s' unknown" noteID))})
+  (if (storage/note-exists? noteID)
+    {:note (storage/get-note noteID)
+     :longPath (getPath noteID)
+     :shortPath (getPath noteID :short)
+     :statistics (storage/get-note-statistics noteID)
+     :status (create-response true)}
+    (create-response false "noteID '%s' unknown" noteID)))
 
 (defn post-note
   ([note pid signature] (post-note note pid signature nil))
@@ -76,12 +76,10 @@
         (do
           (storage/add-note noteID note password)
           (storage/create-short-url noteID)
-          {
-           :noteID noteID
-           :longURL (getURL noteID)
-           :shortURL (getURL noteID :short)
-           :status (create-response true)
-           }))
+          {:noteID noteID
+           :longPath (getPath noteID)
+           :shortPath (getPath noteID :short)
+           :status (create-response true)}))
       {:status (create-response false (first errors))}))))
 
 
@@ -97,9 +95,7 @@
     (if (empty? errors)
       (do
         (storage/edit-note noteID note)
-        {
-         :longURL (getURL noteID)
-         :shortURL (getURL noteID :short)
-         :status (create-response true)
-         })
+        {:longPath (getPath noteID)
+         :shortPath (getPath noteID :short)
+         :status (create-response true)})
       {:status (create-response false (first errors))})))

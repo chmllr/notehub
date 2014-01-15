@@ -26,14 +26,14 @@ Parameter    | Explanation                              | Type
 `noteID`     | Note-ID                                           | **required**
 `version`    | Used API version                                  | **required**
 
-will return a JSON object containing following self explaining fields: `note`, `longURL`, `shortURL`, `statistics`, `status`.
+will return a JSON object containing following self explaining fields: `note`, `longPath`, `shortPath`, `statistics`, `status`.
 
 Example:
 
     {
         note: <markdown source>,
-        longURL: "http://notehub.org/2014/1/3/lorem-ipsum",
-        shortURL: "http://notehub.org/0vrcp",
+        longPath: "/2014/1/3/lorem-ipsum",
+        shortPath: "/0vrcp",
         statistics: {
             published: "2014-1-3",
             edited: "2014-1-12",
@@ -71,14 +71,14 @@ The Signature is the MD5 hash of the following string concatenation:
 
 The signature serves as a proof, that the request is authentic and will be issued by the publisher corresponding to the provided PID.
 
-The response of the server will contain the fields `noteID`, `longURL`, `shortURL`, `status`.
+The response of the server will contain the fields `noteID`, `longPath`, `shortPath`, `status`.
 
 Example:
 
     {
         noteID: "2014/1/3/lorem-ipsum",
-        longURL: "http://notehub.org/2014/1/3/lorem-ipsum",
-        shortURL: "http://notehub.org/0vrcp",
+        longPath: "/2014/1/3/lorem-ipsum",
+        shortPath: "/0vrcp",
         status: {
             success: true,
             comment: "some server message"
@@ -109,13 +109,13 @@ The Signature is the MD5 hash of the following string concatenation:
     pid + psk + noteID + note + password
 
 
-The response of the server will contain the fields `longURL`, `shortURL`, `status`.
+The response of the server will contain the fields `longPath`, `shortPath`, `status`.
 
 Example:
 
     {
-        longURL: "http://notehub.org/2014/1/3/lorem-ipsum",
-        shortURL: "http://notehub.org/0vrcp",
+        longPath: "/2014/1/3/lorem-ipsum",
+        shortPath: "/0vrcp",
         status: {
             success: true,
             comment: "some server message"

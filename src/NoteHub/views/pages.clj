@@ -4,12 +4,12 @@
             [NoteHub.storage :as storage]
             [cheshire.core :refer :all])
   (:use
-    [NoteHub.storage] ; TODO: delete this
     [NoteHub.settings]
     [NoteHub.views.common]
     [clojure.string :rename {replace sreplace}
      :only [escape split replace blank? split-lines lower-case]]
     [clojure.core.incubator :only [-?>]]
+    [noir.util.crypt :only [encrypt]]
     [hiccup.form]
     [hiccup.core]
     [hiccup.element]
@@ -17,21 +17,8 @@
     [noir.core :only [defpage defpartial]]
     [noir.statuses]))
 
-(defn get-hash 
-  "A simple hash-function, which computes a hash from the text field 
-  content and given session number. It is intended to be used as a spam
-  protection / captcha alternative. (Probably doesn't work for UTF-16)"
-  [s]
-  (let [short-mod #(mod % 32767)
-        char-codes (map #(.codePointAt % 0) (remove #(contains? #{"\n" "\r"} %) (map str s)))
-        zip-with-index (map list char-codes (range))]
-    (reduce
-      #(short-mod (+ % 
-                     (short-mod (* (first %2) 
-                                   ((if (odd? %)
-                                      bit-xor
-                                      bit-and) 16381 (second %2))))))
-      0 zip-with-index)))
+(when-not (storage/valid-publisher? api/domain)
+  (storage/register-publisher api/domain))
 
 ; Sets a custom message for each needed HTTP status.
 ; The message to be assigned is extracted with a dynamically generated key
@@ -70,14 +57,18 @@
             [:div.central-element.helvetica {:style "margin-bottom: 3em"}
              (form-to {:autocomplete :off} [:post form-url]
                       (hidden-field :action command)
+                      (hidden-field :version api/version)
                       (hidden-field :password)
                       fields
-                      (text-area {:class :max-width} :draft content)
+                      (text-area {:class :max-width} :note content)
                       [:fieldset#input-elems {:class css-class}
                        (text-field {:class "ui-elem" :placeholder (get-message passwd-msg)} 
                                    :plain-password)
                        (submit-button {:class "button ui-elem"
                                        :id :publish-button} (get-message command))])])))
+
+(defn generate-session []
+  (encrypt (str (rand-int Integer/MAX_VALUE))))
 
 ; Routes
 ; ======
@@ -98,23 +89,9 @@
 ; Displays the note
 (defpage "/:year/:month/:day/:title" {:keys [year month day title theme header-font text-font] :as params}
   (wrap 
-    (create-short-url params)
+    (storage/create-short-url params)
     (select-keys params [:title :theme :header-font :text-font])
     (:note (api/get-note (api/build-key [year month day] title)))))
-
-; Update Note Page
-(defpage "/:year/:month/:day/:title/edit" {:keys [year month day title]}
-  (let [noteID (api/build-key [year month day] title)]
-    (input-form "/update-note" :update 
-                (html (hidden-field :key noteID))
-                (:note (api/get-note noteID)) :enter-passwd)))
-
-; New Note Page
-(defpage "/new" {}
-  (input-form "/post-note" :publish
-              (html (hidden-field :session-key (create-session))
-                    (hidden-field {:id :session-value} :session-value))
-              (get-message :loading) :set-passwd))
 
 ; Provides Markdown of the specified note
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
@@ -137,52 +114,54 @@
               [:td (get-message :article-views)]
               [:td (:views stats)]]])))
 
-; Updates a note
-(defpage [:post "/update-note"] {:keys [key draft password]}
-  (if (update-note key draft password)
-    (redirect (apply url (split key #" ")))
-    (response 403)))
-
-; New Note Posting — the most "complex" function in the entire app ;)
-(defpage [:post "/post-note"] {:keys [draft password session-key session-value]}
-  ; first we collect all info needed to evaluate the validity of the note creation request
-  (let [valid-session (invalidate-session session-key) ; was the note posted from a newly generated form?
-        valid-draft (not (blank? draft)) ; has the note a meaningful content?
-        ; is the hash code correct?
-        valid-hash (try
-                     (= (Short/parseShort session-value) 
-                        (get-hash (str draft session-key)))
-                     (catch Exception e nil))]
-    ; check whether the new note can be added
-    (if (and valid-session valid-draft valid-hash)
-      ; if yes, we compute the current date, extract a title string from the text,
-      ; which will be a part of the url and look whether this title is free today;
-      ; if not, append "-n", where "n" is the next free number
-      (let [[year month day] (api/get-date)
-            untrimmed-line (filter #(or (= \- %) (Character/isLetterOrDigit %)) 
-                                   (-> draft split-lines first (sreplace " " "-") lower-case))
-            trim (fn [s] (apply str (drop-while #(= \- %) s)))
-            title-uncut (-> untrimmed-line trim reverse trim reverse)
-            max-length (get-setting :max-title-length #(Integer/parseInt %) 80)
-            ; TODO: replace to ccs/take when it gets fixed
-            proposed-title (apply str (take max-length title-uncut))
-            date [year month day] 
-            title (first (drop-while #(note-exists? (api/build-key date %))
-                                     (cons proposed-title
-                                           (map #(str proposed-title "-" (+ 2 %)) (range)))))]
-        (do
-          (add-note (api/build-key date title) draft password)
-          (redirect (url year month day title))))
-      (response 400))))
-
 ; Resolving of a short url
 (defpage "/:short-url" {:keys [short-url]}
-  (when-let [params (resolve-url short-url)]
+  (when-let [params (storage/resolve-url short-url)]
     (let [{:keys [year month day title]} params
           rest-params (dissoc params :year :month :day :title)
           core-url (url year month day title)
           long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
       (redirect long-url))))
+
+; New Note Page
+(defpage "/new" {}
+  (input-form "/post-note" :publish
+              (html (hidden-field :session (storage/create-session))
+                    (hidden-field {:id :signature} :signature))
+              (get-message :loading) :set-passwd))
+
+; Update Note Page
+(defpage "/:year/:month/:day/:title/edit" {:keys [year month day title]}
+  (let [noteID (api/build-key [year month day] title)]
+    (input-form "/update-note" :update 
+                (html (hidden-field :noteID noteID))
+                (:note (api/get-note noteID)) :enter-passwd)))
+
+; Creates New Note from Web
+(defpage [:post "/post-note"] {:keys [session note signature password version]}
+  (if (= signature (api/get-signature session note))
+    (let [pid api/domain
+          psk (storage/get-psk pid)]
+      (if (storage/valid-publisher? pid)
+        (let [resp (api/post-note note pid (api/get-signature (str pid psk note)) password)]
+          (if (get-in resp [:status :success])
+            (redirect (:longPath resp))
+            (response 400)))
+        (response 500)))
+    (response 400)))
+
+; Updates a note
+(defpage [:post "/update-note"] {:keys [noteID note password version]}
+  (let [pid api/domain
+        psk (storage/get-psk pid)]
+    (if (storage/valid-publisher? pid)
+      (let [resp (api/update-note noteID note pid 
+                                      (api/get-signature (str pid psk noteID note password)) 
+                                      password)]
+        (if (get-in resp [:status :success])
+          (redirect (:longPath resp))
+          (response 403)))
+      (response 500))))
 
 ; Here lives the API
 
@@ -198,8 +177,4 @@
 
 (defpage [:put "/api/note"] {:keys [version noteID note pid signature password]}
   (generate-string (api/update-note noteID note pid signature password)))
-
-
-
-
 

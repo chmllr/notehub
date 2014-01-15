@@ -1,6 +1,6 @@
 (ns NoteHub.test.views.pages
   (:use [NoteHub.views.pages]
-        [NoteHub.api :only [build-key get-date]]
+        [NoteHub.api :only [build-key get-signature get-date]]
         [noir.util.test]
         [NoteHub.views.common :only [url]]
         [NoteHub.storage]
@@ -38,9 +38,9 @@
       (is (has-status 
             (send-request 
               [:post "/post-note"]
-              {:session-key session-key
-               :draft test-note
-               :session-value (str (get-hash (str test-note session-key)))}) 302))
+              {:session session-key
+               :note test-note
+               :signature (get-signature session-key test-note)}) 302))
       (is (note-exists? (build-key date title)))
       (is (substring? "Hello _world_"
                       ((send-request (url year month day title)) :body)))
@@ -51,35 +51,33 @@
 (deftest note-update
   (let [session-key (create-session)
         date (get-date)
-        title "test-note"
-        [year month day] date]
+        title "this-is-a-test-note"
+        [year month day] date
+        hash (get-signature session-key test-note)]
     (testing "Note update"
       (is (has-status 
             (send-request 
               [:post "/post-note"]
-              {:session-key session-key
-               :draft "test note"
+              {:session session-key
+               :note test-note
                :password "qwerty"
-               :session-value (str (get-hash (str "test note" session-key)))}) 302))
+               :signature hash}) 302))
       (is (note-exists? (build-key date title)))
-      (is (substring? "test note"
-                      ((send-request (url year month day title)) :body)))
+      (is (substring? "test note" ((send-request (url year month day title)) :body)))
       (is (has-status 
             (send-request 
               [:post "/update-note"]
-              {:key (build-key [year month day] title)
-               :draft "WRONG pass"
+              {:noteID (build-key [year month day] title)
+               :note "WRONG pass"
                :password "qwerty1" }) 403))
-      (is (substring? "test note"
-                      ((send-request (url year month day title)) :body)))
+      (is (substring? "test note" ((send-request (url year month day title)) :body)))
       (is (has-status 
             (send-request 
               [:post "/update-note"]
-              {:key (build-key [year month day] title)
-               :draft "UPDATED CONTENT"
+              {:noteID (build-key [year month day] title)
+               :note "UPDATED CONTENT 123"
                :password "qwerty" }) 302))
-      (is (substring? "UPDATED CONTENT"
-                      ((send-request (url year month day title)) :body)))
+      (is (substring? "UPDATED CONTENT" ((send-request (url year month day title)) :body)))
       (is (do 
             (delete-note (build-key date title))
             (not (note-exists? (build-key date title))))))))
@@ -100,13 +98,3 @@
       (is (has-status (send-request (url 2012 6 3 "some-title" "export")) 200) "accessing test note's export")
       (is (has-status (send-request (url 2012 6 3 "some-title" "stats")) 200) "accessing test note's stats")
       (is (has-status (send-request "/") 200) "accessing landing page"))))
-
-(deftest hash-function
-  (testing "Self-made hash function"
-    (testing "for correct hashes"
-      (is (= 0 (get-hash "")))
-      (is (= 6178 (get-hash "test тест")))
-      (is (= 6178 (get-hash (str "test\n \rтест"))))
-      (is (= 274 (get-hash "Hello world!"))))
-    (testing "for a wrong hash"
-      (is (not= 6178 (get-hash "wrong hash"))))))

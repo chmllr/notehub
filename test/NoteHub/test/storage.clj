@@ -43,11 +43,7 @@
              test-note))
       (is (valid-password? (build-key date test-title) "12345qwert"))
       (is (= (do
-               (update-note (build-key date test-title) "update" "12345qwert")
-               (get-note (build-key date test-title)))
-             "update"))
-      (is (= (do
-               (update-note (build-key date test-title) "not authorized" "44444")
+               (edit-note (build-key date test-title) "update")
                (get-note (build-key date test-title)))
              "update")))
     (testing "of the note access"

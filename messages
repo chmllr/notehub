@@ -1,4 +1,4 @@
-page-title = Publish Markdown for Free
+page-title = Pastebin for Markdown: Publish Your Markdown Anonymously
 title = Free and Hassle-free Pastebin for Markdown Pages.
 name = NoteHub
 new-page = New Page
@@ -23,4 +23,4 @@ stats = statistics
 export = export
 edit = edit
 short-url = short url
-api-title = NoteHub API
+api-title = API
