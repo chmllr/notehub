@@ -10,7 +10,7 @@
 (def pid "somePlugin")
 (def pid2 "somePlugin2")
 (def note-title (str (apply print-str (get-date)) " hello-world-this-is-a-test-note"))
-(def note-url (str "/" (apply str (interpose "/" (get-date))) "/hello-world-this-is-a-test-note"))
+(def note-url (str (apply str (interpose "/" (get-date))) "/hello-world-this-is-a-test-note"))
 (defn substring? [a b] (not (= nil (re-matches (re-pattern (str "(?s).*" a ".*")) b))))
 
 (defmacro isnt [arg] `(is (not ~arg)))

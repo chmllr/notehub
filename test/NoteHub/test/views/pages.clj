@@ -48,6 +48,25 @@
             (delete-note (build-key date title))
             (not (note-exists? (build-key date title))))))))
 
+(deftest note-creation-utf
+  (let [session-key (create-session)
+        date (get-date)
+        title "радуга"
+        note "# Радуга\nкаждый охотник желает знать, где сидят фазаны."
+        [year month day] date]
+    (testing "Note creation with UTF8 symbols"
+      (is (has-status 
+            (send-request 
+              [:post "/post-note"]
+              {:session session-key
+               :note note
+               :signature (get-signature session-key note)}) 302))
+      (is (note-exists? (build-key date title)))
+      (is (substring? "знать" ((send-request (url year month day title)) :body)))
+      (is (do 
+            (delete-note (build-key date title))
+            (not (note-exists? (build-key date title))))))))
+
 (deftest note-update
   (let [session-key (create-session)
         date (get-date)

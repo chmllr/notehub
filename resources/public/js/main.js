@@ -5,7 +5,9 @@ var timerDelay = iosDetected ? 800 : 400;
 var show = function(elem) { elem.style.display = "block" }
 var $note, $action, $preview, $plain_password, $input_elems, $dashed_line, updatePreview;
 
-var md5 = hex_md5;
+var md5 = function (input) {
+    return hex_md5(input.replace(/[\n\r]/g, ""));
+}
 
 function md2html(input){
     return marked(input);

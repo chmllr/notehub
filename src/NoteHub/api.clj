@@ -4,12 +4,20 @@
   (:use
     [NoteHub.settings]
     [clojure.string :rename {replace sreplace}
-     :only [replace blank? lower-case split-lines]])
-  (:require [NoteHub.storage :as storage]))
+     :only [replace blank? lower-case split-lines split]])
+  (:require 
+    [ring.util.codec]
+    [NoteHub.storage :as storage]))
 
 (def version "1.0")
 
 (def domain (get-setting :domain))
+
+(defn log
+  "Logs args to the server stdout"
+  [string & args]
+  (apply printf (str "%s:" string) (str (storage/get-current-date) ":LOG") args)
+  (println))
 
 ; Concatenates all fields to a string
 (defn build-key 
@@ -31,13 +39,15 @@
 (defn- getPath [noteID & description]
   (if description
     (str "/" (storage/get-short-url noteID))
-    (str "/" (sreplace noteID #" " "/"))))
+    (let [[year month day title] (split noteID #" ")]
+      (apply str (interpose "/" 
+                            [year month day (ring.util.codec/url-encode title)])))))
 
 (let [md5Instance (java.security.MessageDigest/getInstance "MD5")]
   (defn get-signature
     "Returns the MD5 hash for the concatenation of all passed parameters"
     [& args]
-    (let [input (apply str args)]
+    (let [input (sreplace (apply str args) #"[\r\n]" "")]
       (do (.reset md5Instance)
           (.update md5Instance (.getBytes input))
           (.toString (new java.math.BigInteger 1 (.digest md5Instance)) 16)))))
@@ -54,6 +64,7 @@
 (defn post-note
   ([note pid signature] (post-note note pid signature nil))
   ([note pid signature password]
+  ;(log "post-note: %s" {:pid pid :signature signature :password password :note note})
   (let [errors (filter identity
                          [(when-not (storage/valid-publisher? pid) "pid invalid")
                           (when-not (= signature
@@ -84,6 +95,7 @@
 
 
 (defn update-note [noteID note pid signature password]
+  ;(log "update-note: %s" {:pid pid :noteID noteID :signature signature :password password :note note})
   (let [errors (filter identity
                        (seq
                          [(when-not (storage/valid-publisher? pid) "pid invalid")
