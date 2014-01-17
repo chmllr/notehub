@@ -2,7 +2,7 @@
 
  - January 2014: NoteHub API v1.0 [introduced](/api).
  - January 2014: NoteHub 2.0 released: new theme, more performance, extended markdown
- - September 2013: Solarized color theme [added](https://github.com/chmllr/NoteHub/pull/4) (thanks Brandon!) ([Demo](http://notehub.org/2012/6/16/how-notehub-is-built?theme=solarized))
+ - September 2013: Solarized color theme [added](https://github.com/chmllr/NoteHub/pull/4) (thanks Brandon!) ([Demo](http://notehub.org/2012/6/16/how-notehub-is-built?theme=solarized-dark))
 
 ## About
 [NoteHub](http://notehub.org) is a free and hassle-free anonymous pastebin for markdown pages intended for anonymous one-off publishing.
