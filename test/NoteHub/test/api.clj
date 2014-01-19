@@ -6,11 +6,11 @@
         [noir.util.test]
         [clojure.test]))
 
-(def note "hello world! This is a _test_ note!")
+(def note "hello world!\nThis is a _test_ note!")
 (def pid "somePlugin")
 (def pid2 "somePlugin2")
-(def note-title (str (apply print-str (get-date)) " hello-world-this-is-a-test-note"))
-(def note-url (str (apply str domain "/" (interpose "/" (get-date))) "/hello-world-this-is-a-test-note"))
+(def note-title (str (apply print-str (get-date)) " hello-world"))
+(def note-url (str (apply str domain "/" (interpose "/" (get-date))) "/hello-world"))
 (defn substring? [a b] (not (= nil (re-matches (re-pattern (str "(?s).*" a ".*")) b))))
 
 (defmacro isnt [arg] `(is (not ~arg)))
@@ -46,6 +46,7 @@
         (is (= (:longURL post-response) (:longURL get-response) note-url))
         (is (= (:shortURL post-response) (:shortURL get-response)))
         (is (= (:publisher get-response) pid))
+        (is (= (:title get-response) (derive-title note)))
         (is (= "1" (get-in get-response [:statistics :views])))
         (isnt (get-in get-response [:statistics :edited]))
         (is (= "2" (get-in (get-note (:noteID post-response)) [:statistics :views])))))

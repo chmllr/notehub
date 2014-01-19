@@ -26,12 +26,13 @@ Parameter    | Explanation                              | Type
 `noteID`     | Note-ID                                           | **required**
 `version`    | Used API version                                  | **required**
 
-will return a JSON object containing following self explaining fields: `note`, `longURL`, `shortURL`, `statistics`, `status`.
+will return a JSON object containing following self explaining fields: `note`, `title`, `longURL`, `shortURL`, `statistics`, `status`, `publisher`.
 
 Example:
 
     {
         note: <markdown source>,
+        title: "Lorem Ipsum.",
         longURL: "http://notehub.org/2014/1/3/lorem-ipsum",
         shortURL: "http://notehub.org/0vrcp",
         statistics: {

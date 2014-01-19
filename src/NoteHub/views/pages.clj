@@ -73,7 +73,7 @@
 ; Converts given markdown to html and wraps with the main layout
 (defn- wrap [short-url params md-text]
   (when md-text
-    (layout params (params :title)
+    (layout params (api/derive-title md-text)
             [:article.bottom-space.markdown md-text]
             (let [links (map #(link-to
                                (if (= :short-url %)

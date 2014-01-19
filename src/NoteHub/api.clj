@@ -25,6 +25,11 @@
   [[year month day] title]
   (print-str year month day title))
 
+(defn derive-title [md-text]
+  (apply str
+         (remove #{\# \_ \*}
+                 (first (split-lines md-text)))))
+
 (defn get-date
   "Returns today's date"
   []
@@ -54,12 +59,14 @@
 
 (defn get-note [noteID]
   (if (storage/note-exists? noteID)
-    {:note (storage/get-note noteID)
-     :longURL (get-path noteID)
-     :shortURL (get-path noteID :short)
-     :statistics (storage/get-note-statistics noteID)
-     :status (create-response true)
-     :publisher (storage/get-publisher noteID)}
+    (let [note (storage/get-note noteID)]
+      {:note note
+       :title (derive-title note)
+       :longURL (get-path noteID)
+       :shortURL (get-path noteID :short)
+       :statistics (storage/get-note-statistics noteID)
+       :status (create-response true)
+       :publisher (storage/get-publisher noteID)})
     (create-response false "noteID '%s' unknown" noteID)))
 
 (defn post-note
