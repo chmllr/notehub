@@ -31,7 +31,7 @@ will return a JSON object containing following self explaining fields: `note`, `
 Example:
 
     {
-        note: <markdown source>,
+        note: "markdown source",
         title: "Lorem Ipsum.",
         longURL: "http://notehub.org/2014/1/3/lorem-ipsum",
         shortURL: "http://notehub.org/0vrcp",
