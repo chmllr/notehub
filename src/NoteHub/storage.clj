@@ -4,7 +4,8 @@
         [noir.util.crypt :only [encrypt]])
   (:require [taoensso.carmine :as car :refer (wcar)]))
 
-(def conn {:pool {} :spec (read-string (get-setting :db))})
+(def conn {:pool {} :spec {:uri (get-setting :db-url)}})
+
 (defmacro redis [cmd & body]
   `(car/wcar conn
              (~(symbol "car" (name cmd))
