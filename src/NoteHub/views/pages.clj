@@ -143,7 +143,7 @@
             [:table#stats.helvetica.central-element
              (map
               #(when (% stats)
-                 [:tr [:td (get-message %)] [:td (% stats)]])
+                 [:tr [:td (str (get-message %) ":")] [:td (% stats)]])
               [:published :edited :publisher :views])])))
 
 ; Resolving of a short url

@@ -66,7 +66,7 @@ a:visited {
     font-size: 1em;
     background: @background;
 }
-.landing-button, table, tr, td, textarea, fieldset {
+.landing-button, textarea, fieldset {
     border: none;
 }
 .landing-button {
@@ -165,4 +165,15 @@ textarea {
 }
 h1, h2, h3, h4, h5, h6 {
     font-family: @header_font,'Noticia Text','PT Serif','Georgia';
+}
+table {
+	border-collapse: collapse;
+}
+th {
+	padding: 0.3em;
+	background-color: @background_halftone;
+}
+td {
+	border-top: 1px dotted @foreground_halftone;
+	padding: 0.3em;
 }
