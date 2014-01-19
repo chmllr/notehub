@@ -11,7 +11,11 @@
 
 (def version "1.1")
 
-(def domain (get-setting :domain))
+(def domain
+  (get-setting
+   (if (get-setting :dev-mode)
+     :dev-domain
+     :prod-domain)))
 
 (defn log
   "Logs args to the server stdout"
@@ -42,9 +46,9 @@
    (assoc (create-response success) :message (apply format message params))))
 
 (defn- get-path [noteID & description]
-  (if description
-    (str domain "/" (storage/get-short-url noteID))
-    (let [[year month day title] (split noteID #" ")]
+  (let [[year month day title] (split noteID #" ")]
+    (if description
+      (str domain "/" (storage/create-short-url {:year year :month month :day day :title title}))
       (apply str (interpose "/" [domain year month day (ring.util.codec/url-encode title)])))))
 
 (let [md5Instance (java.security.MessageDigest/getInstance "MD5")]
@@ -90,10 +94,10 @@
             title (first (drop-while #(storage/note-exists? (build-key date %))
                                      (cons proposed-title
                                            (map #(str proposed-title "-" (+ 2 %)) (range)))))
-            noteID (build-key date title)]
+            noteID (build-key date title)
+            short-url (storage/create-short-url {:year year :month month :day day :title title})]
         (do
           (storage/add-note noteID note pid password)
-          (storage/create-short-url noteID)
           {:noteID noteID
            :longURL (get-path noteID)
            :shortURL (get-path noteID :short)

@@ -1,8 +1,7 @@
 (ns NoteHub.storage
   (:use [NoteHub.settings]
         [clojure.string :only (blank?)]
-        [noir.util.crypt :only [encrypt]]
-        [noir.options :only [dev-mode?]])
+        [noir.util.crypt :only [encrypt]])
   (:require [taoensso.carmine :as car :refer (wcar)]))
 
 (def conn {:pool {} :spec {:uri (get-setting :db-url)}})
@@ -112,10 +111,10 @@
       (redis :hdel short-url value))))
 
 (defn create-short-url
-  "Creates a short url for the given request metadata or noteID or extracts
+  "Creates a short url for the given request metadata or extracts
   one if it was already created"
   [arg]
-  (let [key (if (map? arg) (str (into (sorted-map) arg)) arg)]
+  (let [key (str (into (sorted-map) arg))]
     (if (short-url-exists? key)
       (redis :hget short-url key)
       (let [hash-stream (partition 5 (repeatedly #(rand-int 36)))

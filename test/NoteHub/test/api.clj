@@ -45,11 +45,18 @@
         (is (= note (:note get-response)))
         (is (= (:longURL post-response) (:longURL get-response) note-url))
         (is (= (:shortURL post-response) (:shortURL get-response)))
+        (is (storage/note-exists? (:noteID post-response)))
+        (let [su (last (clojure.string/split (:shortURL get-response) #"/"))]
+          (is (= su (storage/create-short-url (storage/resolve-url su)))))
+        (let [resp (send-request
+                                (clojure.string/replace (:shortURL get-response) domain ""))
+              resp (send-request ((:headers resp) "Location"))]
+        (is (substring? "hello world"(:body resp))))
         (is (= (:publisher get-response) pid))
         (is (= (:title get-response) (derive-title note)))
         (is (= "1" (get-in get-response [:statistics :views])))
         (isnt (get-in get-response [:statistics :edited]))
-        (is (= "2" (get-in (get-note (:noteID post-response)) [:statistics :views])))))
+        (is (= "3" (get-in (get-note (:noteID post-response)) [:statistics :views])))))
     (testing "creation with wrong signature"
       (let [response (post-note note pid (get-signature pid2 psk note))]
         (isnt (:success (:status response)))

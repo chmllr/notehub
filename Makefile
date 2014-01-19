@@ -1,6 +1,6 @@
 # starts the app in :dev mode
 run:
-	lein run dev
+	@DEVMODE=1 lein run
 
 server:
 	redis-server &

@@ -1,3 +1,4 @@
 max-title-length = 40
-domain = http://notehub.org
+prod-domain = http://notehub.org
+dev-domain = http://localhost:8080
 db-url = http://localhost:6379

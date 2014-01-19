@@ -11,7 +11,6 @@
    [noir.util.crypt :only [encrypt]]
    [hiccup.form]
    [hiccup.core]
-   [noir.options :only [dev-mode?]]
    [ring.util.codec :only [url-encode]]
    [hiccup.element]
    [hiccup.util :only [escape-html]]
@@ -38,7 +37,7 @@
      (include-js "/js/main.js")
      (include-js "/js/themes.js"))
     ; google analytics code should appear in prod mode only
-    (if-not (dev-mode?) (include-js "/js/google-analytics.js"))]
+    (if-not (get-setting :dev-mode?) (include-js "/js/google-analytics.js"))]
    [:body {:onload "onLoad()"} content]))
 
 ; Sets a custom message for each needed HTTP status.
@@ -97,7 +96,7 @@
           [:div.centered.helvetica.markdown (get-message :footer)]))
 
 ; Displays the note
-(defpage "/:year/:month/:day/:title" {:keys [year month day title]}
+(defpage "/:year/:month/:day/:title" {:keys [year month day title] :as params}
   (let [noteID (api/build-key [year month day] title)]
     (when (storage/note-exists? noteID)
       (let [note (api/get-note noteID)]
@@ -105,7 +104,7 @@
                 [:article.bottom-space.markdown (:note note)]
                 (let [links (map #(link-to
                                    (if (= :short-url %)
-                                     (:shortURL note)
+                                     (url (storage/create-short-url params))
                                      (str (:longURL note) "/" (name %)))
                                    (get-message %))
                                  [:stats :edit :export :short-url])
