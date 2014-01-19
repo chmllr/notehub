@@ -141,20 +141,10 @@
   (when-let [stats (:statistics (api/get-note (api/build-key [year month day] title)))]
     (layout (get-message :statistics)
             [:table#stats.helvetica.central-element
-             [:tr
-              [:td (get-message :published)]
-              [:td (:published stats)]]
-             (when (:edited stats)
-               [:tr
-                [:td (get-message :edited)]
-                [:td (:edited stats)]])
-             (when (:publisher stats)
-               [:tr
-                [:td (get-message :publisher)]
-                [:td (:publisher stats)]])
-             [:tr
-              [:td (get-message :article-views)]
-              [:td (:views stats)]]])))
+             (map
+              #(when (% stats)
+                 [:tr [:td (get-message %)] [:td (% stats)]])
+              [:published :edited :publisher :views])])))
 
 ; Resolving of a short url
 (defpage "/:short-url" {:keys [short-url]}
