@@ -1,5 +1,5 @@
 (ns NoteHub.test.api
-  (:require 
+  (:require
     [cheshire.core :refer :all]
     [NoteHub.storage :as storage])
   (:use [NoteHub.api]
@@ -10,7 +10,7 @@
 (def pid "somePlugin")
 (def pid2 "somePlugin2")
 (def note-title (str (apply print-str (get-date)) " hello-world-this-is-a-test-note"))
-(def note-url (str (apply str (interpose "/" (get-date))) "/hello-world-this-is-a-test-note"))
+(def note-url (str (apply str domain "/" (interpose "/" (get-date))) "/hello-world-this-is-a-test-note"))
 (defn substring? [a b] (not (= nil (re-matches (re-pattern (str "(?s).*" a ".*")) b))))
 
 (defmacro isnt [arg] `(is (not ~arg)))
@@ -43,8 +43,8 @@
         (is (:success (:status post-response)))
         (is (:success (:status get-response)))
         (is (= note (:note get-response)))
-        (is (= (:longPath post-response) (:longPath get-response) note-url))
-        (is (= (:shortPath post-response) (:shortPath get-response)))
+        (is (= (:longURL post-response) (:longURL get-response) note-url))
+        (is (= (:shortURL post-response) (:shortURL get-response)))
         (is (= "1" (get-in get-response [:statistics :views])))
         (isnt (get-in get-response [:statistics :edited]))
         (is (= "2" (get-in (get-note (:noteID post-response)) [:statistics :views])))))
@@ -74,12 +74,12 @@
           (isnt (:success (:status update-response)))
           (is (= "signature invalid" (:message (:status update-response)))))
         (is (= note (:note (get-note note-id))))
-        (let [update-response (update-note note-id new-note pid 
+        (let [update-response (update-note note-id new-note pid
                                            (get-signature pid psk note-id new-note "passwd") "passwd")]
           (is (= { :success true } (:status update-response)))
           (isnt (= nil (get-in (get-note note-id) [:statistics :edited])))
           (is (= new-note (:note (get-note note-id)))))
-        (let [update-response (update-note note-id "aaa" pid 
+        (let [update-response (update-note note-id "aaa" pid
                                            (get-signature pid psk note-id "aaa" "pass") "pass")]
           (isnt (:success (:status update-response)))
           (is (= "password invalid" (:message (:status update-response)))))
@@ -99,7 +99,7 @@
       (is (get-in body ["status" "success"]))
       (is (= note ((parse-string
                      (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
-      (is (do 
+      (is (do
             (storage/delete-note noteID)
             (not (storage/note-exists? noteID)))))))
 
@@ -148,6 +148,6 @@
       (is (substring? "UPDATED CONTENT"
                       ((parse-string
                          (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
-      (is (do 
+      (is (do
             (storage/delete-note noteID)
             (not (storage/note-exists? noteID)))))))

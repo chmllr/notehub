@@ -34,10 +34,10 @@
 
 ; Converts given markdown to html and wraps with the main layout
 (defn- wrap [short-url params md-text]
-  (when md-text 
+  (when md-text
     (layout params (params :title)
             [:article.bottom-space.markdown md-text]
-            (let [links (map #(link-to 
+            (let [links (map #(link-to
                                 (if (= :short-url %)
                                   (url short-url)
                                   (str (params :title) "/" (name %)))
@@ -62,7 +62,7 @@
                       fields
                       (text-area {:class :max-width} :note content)
                       [:fieldset#input-elems {:class css-class}
-                       (text-field {:class "ui-elem" :placeholder (get-message passwd-msg)} 
+                       (text-field {:class "ui-elem" :placeholder (get-message passwd-msg)}
                                    :plain-password)
                        (submit-button {:class "button ui-elem"
                                        :id :publish-button} (get-message command))])])))
@@ -82,13 +82,13 @@
            [:br]
            [:a.landing-button {:href "/new" :style "color: white"} (get-message :new-page)]]
           [:div#dashed-line]
-          [:article.helvetica.bottom-space.markdown {:style "font-size: 1em"} 
+          [:article.helvetica.bottom-space.markdown {:style "font-size: 1em"}
            (slurp "LANDING.md")]
           [:div.centered.helvetica.markdown (get-message :footer)]))
 
 ; Displays the note
 (defpage "/:year/:month/:day/:title" {:keys [year month day title theme header-font text-font] :as params}
-  (wrap 
+  (wrap
     (storage/create-short-url params)
     (select-keys params [:title :theme :header-font :text-font])
     (:note (api/get-note (api/build-key [year month day] title)))))
@@ -133,7 +133,7 @@
 ; Update Note Page
 (defpage "/:year/:month/:day/:title/edit" {:keys [year month day title]}
   (let [noteID (api/build-key [year month day] title)]
-    (input-form "/update-note" :update 
+    (input-form "/update-note" :update
                 (html (hidden-field :noteID noteID))
                 (:note (api/get-note noteID)) :enter-passwd)))
 
@@ -145,7 +145,7 @@
       (if (storage/valid-publisher? pid)
         (let [resp (api/post-note note pid (api/get-signature (str pid psk note)) password)]
           (if (get-in resp [:status :success])
-            (redirect (:longPath resp))
+            (redirect (:longURL resp))
             (response 400)))
         (response 500)))
     (response 400)))
@@ -155,11 +155,11 @@
   (let [pid api/domain
         psk (storage/get-psk pid)]
     (if (storage/valid-publisher? pid)
-      (let [resp (api/update-note noteID note pid 
-                                      (api/get-signature (str pid psk noteID note password)) 
+      (let [resp (api/update-note noteID note pid
+                                      (api/get-signature (str pid psk noteID note password))
                                       password)]
         (if (get-in resp [:status :success])
-          (redirect (:longPath resp))
+          (redirect (:longURL resp))
           (response 403)))
       (response 500))))
 

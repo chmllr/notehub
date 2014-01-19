@@ -35,18 +35,18 @@
         title "this-is-a-test-note"
         [year month day] date]
     (testing "Note creation"
-      (is (has-status 
-            (send-request 
-              [:post "/post-note"]
-              {:session session-key
-               :note test-note
-               :signature (get-signature session-key test-note)}) 302))
-      (is (note-exists? (build-key date title)))
-      (is (substring? "Hello _world_"
-                      ((send-request (url year month day title)) :body)))
-      (is (do 
-            (delete-note (build-key date title))
-            (not (note-exists? (build-key date title))))))))
+      (let [resp (send-request
+                  [:post "/post-note"]
+                  {:session session-key
+                   :note test-note
+                   :signature (get-signature session-key test-note)})]
+        (is (has-status resp 302))
+        (is (note-exists? (build-key date title)))
+        (is (substring? "Hello _world_"
+                        ((send-request (url year month day title)) :body)))
+        (is (do
+              (delete-note (build-key date title))
+              (not (note-exists? (build-key date title)))))))))
 
 (deftest note-creation-utf
   (let [session-key (create-session)
@@ -55,15 +55,15 @@
         note "# Радуга\nкаждый охотник желает знать, где сидят фазаны."
         [year month day] date]
     (testing "Note creation with UTF8 symbols"
-      (is (has-status 
-            (send-request 
+      (is (has-status
+            (send-request
               [:post "/post-note"]
               {:session session-key
                :note note
                :signature (get-signature session-key note)}) 302))
       (is (note-exists? (build-key date title)))
       (is (substring? "знать" ((send-request (url year month day title)) :body)))
-      (is (do 
+      (is (do
             (delete-note (build-key date title))
             (not (note-exists? (build-key date title))))))))
 
@@ -74,8 +74,8 @@
         [year month day] date
         hash (get-signature session-key test-note)]
     (testing "Note update"
-      (is (has-status 
-            (send-request 
+      (is (has-status
+            (send-request
               [:post "/post-note"]
               {:session session-key
                :note test-note
@@ -83,21 +83,21 @@
                :signature hash}) 302))
       (is (note-exists? (build-key date title)))
       (is (substring? "test note" ((send-request (url year month day title)) :body)))
-      (is (has-status 
-            (send-request 
+      (is (has-status
+            (send-request
               [:post "/update-note"]
               {:noteID (build-key [year month day] title)
                :note "WRONG pass"
                :password "qwerty1" }) 403))
       (is (substring? "test note" ((send-request (url year month day title)) :body)))
-      (is (has-status 
-            (send-request 
+      (is (has-status
+            (send-request
               [:post "/update-note"]
               {:noteID (build-key [year month day] title)
                :note "UPDATED CONTENT 123"
                :password "qwerty" }) 302))
       (is (substring? "UPDATED CONTENT" ((send-request (url year month day title)) :body)))
-      (is (do 
+      (is (do
             (delete-note (build-key date title))
             (not (note-exists? (build-key date title))))))))
 
