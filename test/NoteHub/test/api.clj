@@ -1,7 +1,7 @@
 (ns NoteHub.test.api
   (:require
-    [cheshire.core :refer :all]
-    [NoteHub.storage :as storage])
+   [cheshire.core :refer :all]
+   [NoteHub.storage :as storage])
   (:use [NoteHub.api]
         [noir.util.test]
         [clojure.test]))
@@ -37,9 +37,9 @@
         (isnt (storage/valid-publisher? pid2))))
     (testing "note publishing & retrieval"
       (isnt (:success (:status (get-note "some note id"))))
+      (is (= "note is empty" (:message (:status (post-note "" pid (get-signature pid psk ""))))))
       (let [post-response (post-note note pid (get-signature pid psk note))
             get-response (get-note (:noteID post-response))]
-        (is (= "note is empty" (:message (:status (post-note "" pid (get-signature pid psk ""))))))
         (is (:success (:status post-response)))
         (is (:success (:status get-response)))
         (is (= note (:note get-response)))
@@ -100,7 +100,7 @@
       (is (has-status response 200))
       (is (get-in body ["status" "success"]))
       (is (= note ((parse-string
-                     (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
+                    (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
       (is (do
             (storage/delete-note noteID)
             (not (storage/note-exists? noteID)))))))
@@ -120,7 +120,7 @@
       (is (storage/note-exists? noteID))
       (is (substring? "_test_ note"
                       ((parse-string
-                         (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
+                        (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
       (let [response (send-request [:put "/api/note"]
                                    {:noteID noteID
                                     :note "WRONG pass"
@@ -135,21 +135,21 @@
         (isnt (get-in body ["statistics" "edited"]))
         (is (substring? "_test_ note"
                         ((parse-string
-                           (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note"))))
+                          (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note"))))
       (is (get-in (parse-string
-                    (:body (send-request [:put "/api/note"]
-                                         {:noteID noteID
-                                          :note "UPDATED CONTENT"
-                                          :pid pid
-                                          :signature (get-signature pid psk noteID "UPDATED CONTENT" "qwerty")
-                                          :password "qwerty"
-                                          :version "1.0"}))) ["status" "success"]))
+                   (:body (send-request [:put "/api/note"]
+                                        {:noteID noteID
+                                         :note "UPDATED CONTENT"
+                                         :pid pid
+                                         :signature (get-signature pid psk noteID "UPDATED CONTENT" "qwerty")
+                                         :password "qwerty"
+                                         :version "1.0"}))) ["status" "success"]))
       (isnt (= nil (((parse-string
-                       (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID})))
+                      (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID})))
                      "statistics") "edited")))
       (is (substring? "UPDATED CONTENT"
                       ((parse-string
-                         (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
+                        (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
       (is (do
             (storage/delete-note noteID)
             (not (storage/note-exists? noteID)))))))

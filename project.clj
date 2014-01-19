@@ -4,7 +4,7 @@
                            [hiccup "1.0.0"]
                            [cheshire "5.3.1"]
                            [ring/ring-core "1.1.0"]
-                           [clj-redis "0.0.12"]
+                           [com.taoensso/carmine "2.4.4"]
                            [noir "1.3.0-beta1"]]
             :jvm-opts ["-Dfile.encoding=utf-8"]
             :main NoteHub.server)

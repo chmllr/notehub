@@ -9,7 +9,7 @@
     [ring.util.codec]
     [NoteHub.storage :as storage]))
 
-(def version "1.0")
+(def version "1.1")
 
 (def domain (get-setting :domain))
 
@@ -45,8 +45,7 @@
   (if description
     (str domain "/" (storage/get-short-url noteID))
     (let [[year month day title] (split noteID #" ")]
-      (apply str (interpose "/"
-                            [domain year month day (ring.util.codec/url-encode title)])))))
+      (apply str (interpose "/" [domain year month day (ring.util.codec/url-encode title)])))))
 
 (let [md5Instance (java.security.MessageDigest/getInstance "MD5")]
   (defn get-signature
