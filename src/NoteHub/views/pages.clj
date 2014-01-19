@@ -157,7 +157,9 @@
           psk (storage/get-psk pid)]
       (if (storage/valid-publisher? pid)
         (let [resp (api/post-note note pid (api/get-signature (str pid psk note)) password)]
-          (if (get-in resp [:status :success])
+          (if (and
+               (storage/invalidate-session session)
+               (get-in resp [:status :success]))
             (redirect (:longURL resp))
             (response 400)))
         (response 500)))
@@ -179,8 +181,8 @@
 ; Here lives the API
 
 (defpage "/api" args
-  (let [title (get-message :api-title)]
-    (layout title [:article.markdown (slurp "API.md")])))
+    (layout (get-message :api-title)
+            [:article.markdown (slurp "API.md")]))
 
 (defpage [:get "/api/note"] {:keys [version noteID]}
   (generate-string (api/get-note noteID)))
@@ -190,4 +192,3 @@
 
 (defpage [:put "/api/note"] {:keys [version noteID note pid signature password]}
   (generate-string (api/update-note noteID note pid signature password)))
-

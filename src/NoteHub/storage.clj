@@ -47,11 +47,9 @@
         token)))
 
 (defn invalidate-session [token]
-  ; Jedis is buggy & returns an NPE for token == nil
-  (when token
-    (let [was-valid (redis/sismember db sessions token)]
-      (do (redis/srem db sessions token)
-          was-valid))))
+  (let [was-valid (redis/sismember db sessions token)]
+    (redis/srem db sessions token)
+    was-valid))
 
 (defn edit-note
   [noteID text]
