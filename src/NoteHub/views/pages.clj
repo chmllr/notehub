@@ -24,34 +24,22 @@
   (storage/register-publisher "NoteHub"))
 
 ; Creates the main html layout
-(defpartial generate-layout
-  [params title & content]
-  ; for the sake of security: escape all symbols of the param values
-  (let [params (into {} (for [[k v] params] [k (escape-html v)]))
-        theme (:theme params "default")
-        header-font (:header-font params)
-        text-font (:text-font params)]
-    (html5
-     [:head
-      [:title (print-str (get-message :name) "&mdash;" title)]
-      [:meta {:charset "UTF-8"}]
-      [:link {:rel "stylesheet/less" :type "text/css" :href "/style.less"}]
-      (html
-       (include-js "/js/less.js")
-       (include-js "/js/md5.js")
-       (include-js "/js/marked.js")
-       (include-js "/js/main.js")
-       (include-js "/js/themes.js"))
-      ; google analytics code should appear in prod mode only
-      (if-not (dev-mode?) (include-js "/js/google-analytics.js"))]
-     [:body {:onload "onLoad()"} content])))
-
-(defn layout
-  "Generates the main html layout"
-  [& args]
-  (if (map? (first args))
-    (apply generate-layout args)
-    (apply generate-layout {} args)))
+(defpartial layout
+  [title & content]
+  (html5
+   [:head
+    [:title (print-str (get-message :name) "&mdash;" title)]
+    [:meta {:charset "UTF-8"}]
+    [:link {:rel "stylesheet/less" :type "text/css" :href "/style.less"}]
+    (html
+     (include-js "/js/less.js")
+     (include-js "/js/md5.js")
+     (include-js "/js/marked.js")
+     (include-js "/js/main.js")
+     (include-js "/js/themes.js"))
+    ; google analytics code should appear in prod mode only
+    (if-not (dev-mode?) (include-js "/js/google-analytics.js"))]
+   [:body {:onload "onLoad()"} content]))
 
 ; Sets a custom message for each needed HTTP status.
 ; The message to be assigned is extracted with a dynamically generated key
@@ -70,26 +58,10 @@
   [& args]
   (apply str (interpose "/" (cons "" (map url-encode args)))))
 
-; Converts given markdown to html and wraps with the main layout
-(defn- wrap [short-url params md-text]
-  (when md-text
-    (layout params (api/derive-title md-text)
-            [:article.bottom-space.markdown md-text]
-            (let [links (map #(link-to
-                               (if (= :short-url %)
-                                 (url short-url)
-                                 (str (params :title) "/" (name %)))
-                               (get-message %))
-                             [:stats :edit :export :short-url])
-                  space (apply str (repeat 4 "&nbsp;"))
-                  separator (str space "&middot;" space)
-                  links (interpose separator links)]
-              [:div#panel (map identity links)]))))
-
 ; input form for the markdown text with a preview area
 (defpartial input-form [form-url command fields content passwd-msg]
   (let [css-class (when (= :publish command) :hidden)]
-    (layout {:js true} (get-message :new-note)
+    (layout (get-message :new-note)
             [:article#preview.markdown " "]
             [:div#dashed-line {:class css-class}]
             [:div.central-element.helvetica {:style "margin-bottom: 3em"}
@@ -125,11 +97,20 @@
           [:div.centered.helvetica.markdown (get-message :footer)]))
 
 ; Displays the note
-(defpage "/:year/:month/:day/:title" {:keys [year month day title theme header-font text-font] :as params}
-  (wrap
-   (storage/create-short-url params)
-   (select-keys params [:title :theme :header-font :text-font])
-   (:note (api/get-note (api/build-key [year month day] title)))))
+(defpage "/:year/:month/:day/:title" {:keys [year month day title]}
+  (let [noteID (api/build-key [year month day] title)]
+    (when (storage/note-exists? noteID)
+      (let [note (api/get-note noteID)]
+        (layout (:title note)
+                [:article.bottom-space.markdown (:note note)]
+                (let [links (map #(link-to
+                                   (if (= :short-url %)
+                                     (:shortURL note)
+                                     (str (:longURL note) "/" (name %)))
+                                   (get-message %))
+                                 [:stats :edit :export :short-url])
+                      links (interpose [:span.middot "&middot;"] links)]
+                  [:div#panel (map identity links)]))))))
 
 ; Provides Markdown of the specified note
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}

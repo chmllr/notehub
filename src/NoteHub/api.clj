@@ -43,7 +43,7 @@
 
 (defn- get-path [noteID & description]
   (if description
-    (str "/" (storage/get-short-url noteID))
+    (str domain "/" (storage/get-short-url noteID))
     (let [[year month day title] (split noteID #" ")]
       (apply str (interpose "/"
                             [domain year month day (ring.util.codec/url-encode title)])))))
