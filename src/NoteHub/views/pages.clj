@@ -4,21 +4,54 @@
             [NoteHub.storage :as storage]
             [cheshire.core :refer :all])
   (:use
-    [NoteHub.settings]
-    [NoteHub.views.common]
-    [clojure.string :rename {replace sreplace}
-     :only [escape split replace blank? split-lines lower-case]]
-    [clojure.core.incubator :only [-?>]]
-    [noir.util.crypt :only [encrypt]]
-    [hiccup.form]
-    [hiccup.core]
-    [hiccup.element]
-    [noir.response :only [redirect status content-type]]
-    [noir.core :only [defpage defpartial]]
-    [noir.statuses]))
+   [NoteHub.settings]
+   [clojure.string :rename {replace sreplace}
+    :only [escape split replace blank? split-lines lower-case]]
+   [clojure.core.incubator :only [-?>]]
+   [noir.util.crypt :only [encrypt]]
+   [hiccup.form]
+   [hiccup.core]
+   [noir.options :only [dev-mode?]]
+   [ring.util.codec :only [url-encode]]
+   [hiccup.element]
+   [hiccup.util :only [escape-html]]
+   [hiccup.page :only [include-js html5]]
+   [noir.response :only [redirect status content-type]]
+   [noir.core :only [defpage defpartial]]
+   [noir.statuses]))
 
 (when-not (storage/valid-publisher? api/domain)
   (storage/register-publisher api/domain))
+
+; Creates the main html layout
+(defpartial generate-layout
+  [params title & content]
+  ; for the sake of security: escape all symbols of the param values
+  (let [params (into {} (for [[k v] params] [k (escape-html v)]))
+        theme (:theme params "default")
+        header-font (:header-font params)
+        text-font (:text-font params)]
+    (html5
+     [:head
+      [:title (print-str (get-message :name) "&mdash;" title)]
+      [:meta {:charset "UTF-8"}]
+      [:link {:rel "stylesheet/less" :type "text/css" :href "/style.less"}]
+      (html
+       (include-js "/js/less.js")
+       (include-js "/js/md5.js")
+       (include-js "/js/marked.js")
+       (include-js "/js/main.js")
+       (include-js "/js/themes.js"))
+      ; google analytics code should appear in prod mode only
+      (if-not (dev-mode?) (include-js "/js/google-analytics.js"))]
+     [:body {:onload "onLoad()"} content])))
+
+(defn layout
+  "Generates the main html layout"
+  [& args]
+  (if (map? (first args))
+    (apply generate-layout args)
+    (apply generate-layout {} args)))
 
 ; Sets a custom message for each needed HTTP status.
 ; The message to be assigned is extracted with a dynamically generated key
@@ -32,16 +65,21 @@
 (defn- response [code]
   (status code (get-page code)))
 
+(defn url
+  "Creates a local url from the given substrings"
+  [& args]
+  (apply str (interpose "/" (cons "" (map url-encode args)))))
+
 ; Converts given markdown to html and wraps with the main layout
 (defn- wrap [short-url params md-text]
   (when md-text
     (layout params (params :title)
             [:article.bottom-space.markdown md-text]
             (let [links (map #(link-to
-                                (if (= :short-url %)
-                                  (url short-url)
-                                  (str (params :title) "/" (name %)))
-                                (get-message %))
+                               (if (= :short-url %)
+                                 (url short-url)
+                                 (str (params :title) "/" (name %)))
+                               (get-message %))
                              [:stats :edit :export :short-url])
                   space (apply str (repeat 4 "&nbsp;"))
                   separator (str space "&middot;" space)
@@ -89,9 +127,9 @@
 ; Displays the note
 (defpage "/:year/:month/:day/:title" {:keys [year month day title theme header-font text-font] :as params}
   (wrap
-    (storage/create-short-url params)
-    (select-keys params [:title :theme :header-font :text-font])
-    (:note (api/get-note (api/build-key [year month day] title)))))
+   (storage/create-short-url params)
+   (select-keys params [:title :theme :header-font :text-font])
+   (:note (api/get-note (api/build-key [year month day] title)))))
 
 ; Provides Markdown of the specified note
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
@@ -156,8 +194,8 @@
         psk (storage/get-psk pid)]
     (if (storage/valid-publisher? pid)
       (let [resp (api/update-note noteID note pid
-                                      (api/get-signature (str pid psk noteID note password))
-                                      password)]
+                                  (api/get-signature (str pid psk noteID note password))
+                                  password)]
         (if (get-in resp [:status :success])
           (redirect (:longURL resp))
           (response 403)))
@@ -167,7 +205,7 @@
 
 (defpage "/api" args
   (let [title (get-message :api-title)]
-  (layout title [:article.markdown (slurp "API.md")])))
+    (layout title [:article.markdown (slurp "API.md")])))
 
 (defpage [:get "/api/note"] {:keys [version noteID]}
   (generate-string (api/get-note noteID)))

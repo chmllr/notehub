@@ -2,7 +2,6 @@
   (:use [NoteHub.views.pages]
         [NoteHub.api :only [build-key get-signature get-date]]
         [noir.util.test]
-        [NoteHub.views.common :only [url]]
         [NoteHub.storage]
         [clojure.test]))
 

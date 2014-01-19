@@ -13,7 +13,8 @@ function md2html(input){
     return marked(input);
 }
 
-function loadPage() {
+function onLoad() {
+    applyTheme();
     $note = $("note");
     $action = $("action");
     $preview = $("preview");
