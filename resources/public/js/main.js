@@ -44,7 +44,7 @@ function onLoad() {
 
   var mdDocs = document.getElementsByClassName("markdown");
   for(var i = 0; i < mdDocs.length; i++){
-    mdDocs[i].innerHTML = md2html(mdDocs[i].innerText);
+    mdDocs[i].innerHTML = md2html(mdDocs[i].innerHTML);
     show(mdDocs[i]);
   }
 }
