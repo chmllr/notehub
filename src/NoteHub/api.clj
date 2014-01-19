@@ -58,7 +58,8 @@
      :longURL (get-path noteID)
      :shortURL (get-path noteID :short)
      :statistics (storage/get-note-statistics noteID)
-     :status (create-response true)}
+     :status (create-response true)
+     :publisher (storage/get-publisher noteID)}
     (create-response false "noteID '%s' unknown" noteID)))
 
 (defn post-note
@@ -85,7 +86,7 @@
                                            (map #(str proposed-title "-" (+ 2 %)) (range)))))
             noteID (build-key date title)]
         (do
-          (storage/add-note noteID note password)
+          (storage/add-note noteID note pid password)
           (storage/create-short-url noteID)
           {:noteID noteID
            :longURL (get-path noteID)

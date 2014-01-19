@@ -16,6 +16,7 @@ enter-passwd = Password
 publish = Publish
 update = Save
 published = Published
+publisher = Publisher
 edited = Edited
 article-views = Article Views
 statistics = Statistics

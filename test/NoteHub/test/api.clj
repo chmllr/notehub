@@ -45,6 +45,7 @@
         (is (= note (:note get-response)))
         (is (= (:longURL post-response) (:longURL get-response) note-url))
         (is (= (:shortURL post-response) (:shortURL get-response)))
+        (is (= (:publisher get-response) pid))
         (is (= "1" (get-in get-response [:statistics :views])))
         (isnt (get-in get-response [:statistics :edited]))
         (is (= "2" (get-in (get-note (:noteID post-response)) [:statistics :views])))))

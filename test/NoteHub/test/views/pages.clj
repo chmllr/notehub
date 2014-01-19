@@ -11,7 +11,7 @@
 (def test-note "# This is a test note.\nHello _world_. Motörhead, тест.")
 
 (defn create-testnote-fixture [f]
-  (add-note (build-key date test-title) test-note)
+  (add-note (build-key date test-title) test-note "testPID")
   (f)
   (delete-note (build-key date test-title)))
 

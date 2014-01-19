@@ -1,6 +1,6 @@
 # NoteHub API
 
-**Version 1.0, status: released.**
+**Version 1.1, status: released.**
 
 ## Prerequisites
 
@@ -42,7 +42,8 @@ Example:
         status: {
             success: true,
             comment: "some server message"
-        }
+        },
+        publisher: "Publisher Description"
     }
 
 Hence, the status of the request can be evaluated by reading of the property `status.success`. The field `status.comment`might contain an error message, a warning or any other comments from the server.

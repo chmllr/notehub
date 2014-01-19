@@ -5,8 +5,8 @@
         [noir.options :only [dev-mode?]])
   (:require [clj-redis.client :as redis]))
 
-; Initialize the data base 
-(def db 
+; Initialize the data base
+(def db
   (redis/init
     (when-not (dev-mode?)
       {:url (get-setting :db-url)})))
@@ -23,22 +23,23 @@
 (def sessions "sessions")
 (def short-url "short-url")
 (def publisher "publisher")
+(def publisher-key "publisher-key")
 
 (defn valid-publisher? [pid]
-  (redis/hexists db publisher pid))
+  (redis/hexists db publisher-key pid))
 
 (defn register-publisher [pid]
   "Returns nil if given PID exists or a PSK otherwise"
   (when (not (valid-publisher? pid))
     (let [psk (encrypt (str (rand-int Integer/MAX_VALUE) pid))
-          _ (redis/hset db publisher pid psk)]
+          _ (redis/hset db publisher-key pid psk)]
       psk)))
 
 (defn revoke-publisher [pid]
-  (redis/hdel db publisher pid))
+  (redis/hdel db publisher-key pid))
 
 (defn get-psk [pid]
-  (redis/hget db publisher pid))
+  (redis/hget db publisher-key pid))
 
 (defn create-session []
   (let [token (encrypt (str (rand-int Integer/MAX_VALUE)))]
@@ -59,11 +60,12 @@
     (redis/hset db note noteID text)))
 
 (defn add-note
-  ([noteID text] (add-note noteID text nil))
-  ([noteID text passwd]
+  ([noteID text pid] (add-note noteID text pid nil))
+  ([noteID text pid passwd]
    (do
      (redis/hset db note noteID text)
      (redis/hset db published noteID (get-current-date))
+     (redis/hset db publisher noteID pid)
      (when (not (blank? passwd))
        (redis/hset db password noteID passwd)))))
 
@@ -79,16 +81,21 @@
         (redis/hincrby db views noteID 1)
         text))))
 
-(defn get-note-views 
+(defn get-note-views
   [noteID]
   (redis/hget db views noteID))
+
+(defn get-publisher
+  [noteID]
+  (redis/hget db publisher noteID))
 
 (defn get-note-statistics
   "Return views, publishing and editing timestamp"
   [noteID]
-  { :views (redis/hget db views noteID)
+  {:views (get-note-views noteID)
    :published (redis/hget db published noteID)
-   :edited (redis/hget db edited noteID) })
+   :edited (redis/hget db edited noteID)
+   :publisher (get-publisher noteID)})
 
 (defn note-exists?
   [noteID]
@@ -96,7 +103,7 @@
 
 (defn delete-note
   [noteID]
-  (doseq [kw [password views note published edited]]
+  (doseq [kw [password views note published edited publisher]]
     ; TODO: delete short url by looking for the title
     (redis/hdel db kw noteID)))
 
@@ -112,7 +119,7 @@
   "Resolves short url by providing all metadata of the request"
   [url]
   (let [value (redis/hget db short-url url)]
-    (when value 
+    (when value
       (read-string value))))
 
 (defn delete-short-url
@@ -132,14 +139,14 @@
       (redis/hget db short-url key)
       (let [hash-stream (partition 5 (repeatedly #(rand-int 36)))
             hash-to-string (fn [hash]
-                             (apply str 
+                             (apply str
                                     ; map first 10 numbers to digits
                                     ; and the rest to chars
                                     (map #(char (+ (if (< 9 %) 87 48) %)) hash)))
-            url (first 
+            url (first
                   (remove short-url-exists?
                           (map hash-to-string hash-stream)))]
-        (do 
+        (do
           ; we create two mappings: key params -> short url and back,
           ; s.t. we can later easily check whether a short url already exists
           (redis/hset db short-url url key)

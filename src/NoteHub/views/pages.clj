@@ -20,8 +20,8 @@
    [noir.core :only [defpage defpartial]]
    [noir.statuses]))
 
-(when-not (storage/valid-publisher? api/domain)
-  (storage/register-publisher api/domain))
+(when-not (storage/valid-publisher? "NoteHub")
+  (storage/register-publisher "NoteHub"))
 
 ; Creates the main html layout
 (defpartial generate-layout
@@ -148,6 +148,10 @@
                [:tr
                 [:td (get-message :edited)]
                 [:td (:edited stats)]])
+             (when (:publisher stats)
+               [:tr
+                [:td (get-message :publisher)]
+                [:td (:publisher stats)]])
              [:tr
               [:td (get-message :article-views)]
               [:td (:views stats)]]])))
@@ -178,7 +182,7 @@
 ; Creates New Note from Web
 (defpage [:post "/post-note"] {:keys [session note signature password version]}
   (if (= signature (api/get-signature session note))
-    (let [pid api/domain
+    (let [pid "NoteHub"
           psk (storage/get-psk pid)]
       (if (storage/valid-publisher? pid)
         (let [resp (api/post-note note pid (api/get-signature (str pid psk note)) password)]
@@ -190,7 +194,7 @@
 
 ; Updates a note
 (defpage [:post "/update-note"] {:keys [noteID note password version]}
-  (let [pid api/domain
+  (let [pid "NoteHub"
         psk (storage/get-psk pid)]
     (if (storage/valid-publisher? pid)
       (let [resp (api/update-note noteID note pid

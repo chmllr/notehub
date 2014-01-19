@@ -23,12 +23,12 @@
         (is (short-url-exists? url))
         (is (= url url2))
         (is (= metadata (resolve-url url)))
-        (is (not (do 
+        (is (not (do
                    (delete-short-url url)
                    (short-url-exists? url))))))
     (testing "of correct note creation"
       (is (= (do
-               (add-note (build-key date test-title) test-note)
+               (add-note (build-key date test-title) test-note "testPID")
                (get-note (build-key date test-title)))
              test-note))
       (is (= "1" (get-note-views (build-key date test-title))))
@@ -38,7 +38,7 @@
              "2")))
     (testing "of note update"
       (is (= (do
-               (add-note (build-key date test-title) test-note "12345qwert")
+               (add-note (build-key date test-title) test-note "testPID" "12345qwert")
                (get-note (build-key date test-title)))
              test-note))
       (is (valid-password? (build-key date test-title) "12345qwert"))
@@ -60,7 +60,7 @@
     (testing "of note existence"
       (is (note-exists? (build-key date test-title)))
       (is (not (do
-                 (delete-note (build-key date test-title)) 
+                 (delete-note (build-key date test-title))
                  (note-exists? (build-key date test-title)))))
       (is (not (note-exists? (build-key [2013 06 03] test-title))))
       (is (not (note-exists? (build-key date "some title")))))))
