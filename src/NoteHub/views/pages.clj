@@ -29,7 +29,7 @@
    [:head
     [:title (print-str (get-message :name) "&mdash;" title)]
     [:meta {:charset "UTF-8"}]
-    [:meta {:name "viewport" :content "width=device-width, initial-scale=1.2"}]
+    [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0"}]
     [:link {:rel "stylesheet/less" :type "text/css" :href "/style.less"}]
     (html
      (include-js "/js/less.js")
