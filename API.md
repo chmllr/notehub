@@ -2,6 +2,11 @@
 
 **Version 1.1, status: released.**
 
+## Changelog
+
+- **V1.1**: fields `publisher` and `title` in the response to the note retrieval.
+- **V1.0**: initial release.
+
 ## Prerequisites
 
 The NoteHub API can only be used in combination with a __Publisher ID__ (PID) and __Publisher Secret Key__ (PSK), which can be requested [here](#registration). The PSK can be revoked at any moment in case of an API abuse.
