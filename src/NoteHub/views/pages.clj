@@ -32,10 +32,10 @@
     [:link {:rel "stylesheet/less" :type "text/css" :href "/style.less"}]
     (html
      (include-js "/js/less.js")
+     (include-js "/js/themes.js")
      (include-js "/js/md5.js")
      (include-js "/js/marked.js")
-     (include-js "/js/main.js")
-     (include-js "/js/themes.js"))
+     (include-js "/js/main.js"))
     ; google analytics code should appear in prod mode only
     (if-not (get-setting :dev-mode) (include-js "/js/google-analytics.js"))]
    [:body {:onload "onLoad()"} content]))

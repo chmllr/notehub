@@ -14,7 +14,6 @@ function md2html(input){
 }
 
 function onLoad() {
-  applyTheme();
   $note = $("note");
   $action = $("action");
   $preview = $("preview");

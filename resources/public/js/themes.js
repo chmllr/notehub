@@ -61,46 +61,45 @@ var themes = {
   }
 };
 
-function applyTheme() {
-  var ui = { theme: "default" };
-  if (location.search.length > 0) {
-    location.search.slice(1).split("&").reduce(function(acc, e){
-      var p = e.split("=");
-      acc[p[0]] = p[1];
-      return acc
-    }, ui);
-  }
 
-  var vars = {
-    '@background': themes[ui.theme].background.normal,
-    '@background_halftone': themes[ui.theme].background.halftone,
-    '@foreground': themes[ui.theme].foreground.normal,
-    '@foreground_halftone': themes[ui.theme].foreground.halftone,
-    '@link_fresh': themes[ui.theme].link.fresh,
-    '@link_visited': themes[ui.theme].link.visited,
-    '@link_hover': themes[ui.theme].link.hover
-  };
-
-  var fontURL = "http://fonts.googleapis.com/" +
-      "css?family=PT+Serif:700|Noticia+Text:700%s" +
-      "&subset=latin,cyrillic",
-      injection = "";
-
-  if(ui["header-font"] || ui["text-font"]) {
-    injection = ["header-font", "text-font"].reduce(function(acc, font){
-      if(ui[font]) {
-        vars['@' + font.replace(/-/, "_")] = ui[font].replace(/\+/g," ");
-        return acc + "|" + ui[font];
-      } else return acc;
-    }, "");
-  }
-
-  fontURL = fontURL.replace(/%s/, injection);
-  var fileref = document.createElement("link")
-  fileref.setAttribute("rel", "stylesheet")
-  fileref.setAttribute("type", "text/css")
-  fileref.setAttribute("href", fontURL)
-  document.getElementsByTagName("head")[0].appendChild(fileref)
-
-  less.modifyVars(vars);
+var ui = { theme: "default" };
+if (location.search.length > 0) {
+  location.search.slice(1).split("&").reduce(function(acc, e){
+    var p = e.split("=");
+    acc[p[0]] = p[1];
+    return acc
+  }, ui);
 }
+
+var vars = {
+  '@background': themes[ui.theme].background.normal,
+  '@background_halftone': themes[ui.theme].background.halftone,
+  '@foreground': themes[ui.theme].foreground.normal,
+  '@foreground_halftone': themes[ui.theme].foreground.halftone,
+  '@link_fresh': themes[ui.theme].link.fresh,
+  '@link_visited': themes[ui.theme].link.visited,
+  '@link_hover': themes[ui.theme].link.hover
+};
+
+var fontURL = "http://fonts.googleapis.com/" +
+    "css?family=PT+Serif:700|Noticia+Text:700%s" +
+    "&subset=latin,cyrillic",
+    injection = "";
+
+if(ui["header-font"] || ui["text-font"]) {
+  injection = ["header-font", "text-font"].reduce(function(acc, font){
+    if(ui[font]) {
+      vars['@' + font.replace(/-/, "_")] = ui[font].replace(/\+/g," ");
+      return acc + "|" + ui[font];
+    } else return acc;
+  }, "");
+}
+
+fontURL = fontURL.replace(/%s/, injection);
+var fileref = document.createElement("link")
+fileref.setAttribute("rel", "stylesheet")
+fileref.setAttribute("type", "text/css")
+fileref.setAttribute("href", fontURL)
+document.getElementsByTagName("head")[0].appendChild(fileref)
+
+less.modifyVars(vars);
