@@ -17,162 +17,167 @@
 
 // mixins
 .helvetica {
-    font-weight: 300;
-    font-family: 'Helvetica Neue','Helvetica','Arial','Lucida Grande','sans-serif';
+  font-weight: 300;
+  font-family: 'Helvetica Neue','Helvetica','Arial','Lucida Grande','sans-serif';
 }
+
 .central-element {
+  @media screen and (min-width: 1024px) {
     width: @width;
     margin-left: auto;
     margin-right: auto;
+  }
+  @media screen and (max-width: 1023px) {
+    margin-left: 1em;
+    margin-right: 1em;
+  }
 }
 .thin-border {
-    border: 1px solid @foreground;
+  border: 1px solid @foreground;
 }
-
 // end mixins
 
-code, pre {
-    font-family: "Menlo", "Andale Mono", "Consolas", Fixed, monospace;
-    font-size: 0.9em;
-}
-a {
-    color: @link_fresh;
-    text-decoration: none;
-    border-bottom: 1px dotted;
-}
-a:hover {
-    color: @link_hover;
+.ui-border {
+  border-radius: 3px;
+  .thin-border;
 }
 
+code, pre {
+  font-family: "Menlo", "Andale Mono", "Consolas", Fixed, monospace;
+  font-size: 0.9em;
+}
+a {
+  color: @link_fresh;
+  text-decoration: none;
+  border-bottom: 1px dotted;
+}
+a:hover {
+  color: @link_hover;
+}
 a:visited {
-    color: @link_visited;
+  color: @link_visited;
 }
 #draft {
-    margin-bottom: 3em;
-}
-.ui-border {
-    border-radius: 3px;
-    .thin-border;
+  margin-bottom: 3em;
 }
 .button {
-    cursor: pointer;
+  cursor: pointer;
 }
 .ui-elem {
-    .helvetica;
-    border-radius: 3px;
-    .thin-border;
-    padding: 0.3em;
-    opacity: 0.8;
-    font-size: 1em;
-    background: @background;
+  .helvetica;
+  border-radius: 3px;
+  .thin-border;
+  padding: 0.3em;
+  opacity: 0.8;
+  font-size: 1em;
+  background: @background;
 }
 .landing-button, textarea, fieldset {
-    border: none;
+  border: none;
 }
 .landing-button {
-    box-shadow: 0 2px 5px #aaa;
-    text-decoration: none;
-    font-size: 1.5em;
-    background: #0a2;
-    border-radius: 10px;
-    padding: 10px;
-    .helvetica;
+  box-shadow: 0 2px 5px #aaa;
+  text-decoration: none;
+  font-size: 1.5em;
+  background: #0a2;
+  border-radius: 10px;
+  padding: 10px;
+  .helvetica;
 }
 .landing-button:hover {
-    background: #0b2;
+  background: #0b2;
 }
 #panel {
-    .helvetica;
-    position: fixed;
-    width: 100%;
-    border-top: 1px dotted @foreground_halftone;
-    background: @background_halftone;
-    padding: 0.2em;
-    bottom: 0px;
-    font-size: 0.7em;
-    text-align: center;
+  .helvetica;
+  position: fixed;
+  width: 100%;
+  border-top: 1px dotted @foreground_halftone;
+  background: @background_halftone;
+  padding: 0.2em;
+  bottom: 0px;
+  font-size: 0.7em;
+  text-align: center;
 }
 #panel a {
-    border: none;
+  border: none;
 }
 html, body {
-    background: @background;
-    color: @foreground;
-    margin: 0;
-    padding: 0;
+  background: @background;
+  color: @foreground;
+  margin: 0;
+  padding: 0;
 }
 #hero {
-    padding-top: 5em;
-    padding-bottom: 5em;
-    text-align: center;
+  padding-top: 5em;
+  padding-bottom: 5em;
+  text-align: center;
 }
 #hero h1 {
-    font-size: 2.5em;
+  font-size: 2.5em;
 }
 
 #hero h2 {
-    .helvetica;
-    margin: 2em;
+  .helvetica;
+  margin: 2em;
 }
 article {
-    font-family: @text_font, 'Georgia';
-    .central-element;
-    margin-top: 5em;
-    text-align: justify;
-    font-size: @font_size;
+  font-family: @text_font, 'Georgia';
+  .central-element;
+  margin-top: 5em;
+  text-align: justify;
+  font-size: @font_size;
 }
 article p {
-    line-height: 140%;
+  line-height: 140%;
 }
-
 article > h1:first-child {
-    text-align: center;
-    font-size: 2em;
-    margin: 2em;
+  text-align: center;
+  font-size: 2em;
+  margin: 2em;
 }
 .centered {
-    text-align: center;
+  text-align: center;
 }
 .bottom-space {
-    margin-bottom: 7em;
+  margin-bottom: 7em;
 }
 pre {
-    border-radius: 3px;
-    padding: 0.5em;
-    border: 1px dotted @foreground_halftone;
-    background: @background_halftone;
+  border-radius: 3px;
+  padding: 0.5em;
+  border: 1px dotted @foreground_halftone;
+  background: @background_halftone;
 }
 *:focus {
-    outline: 0px none transparent;
+  outline: 0px none transparent;
 }
 textarea {
-    width: @width;
-    border-radius: 5px;
-    font-family: Courier;
-    font-size: 1em;
-    height: 500px;
+  width: @width;
+  border-radius: 5px;
+  font-family: Courier;
+  font-size: 1em;
+  height: 500px;
 }
 .hidden, .markdown {
-    display: none;
+  display: none;
 }
 #dashed-line {
-    border-bottom: 1px dashed @foreground_halftone;
-    margin-top: 3em;
-    margin-bottom: 3em;
+  border-bottom: 1px dashed @foreground_halftone;
+  margin-top: 3em;
+  margin-bottom: 3em;
 }
 h1, h2, h3, h4, h5, h6 {
-    font-family: @header_font,'Noticia Text','PT Serif','Georgia';
+  font-family: @header_font,'Noticia Text','PT Serif','Georgia';
 }
 table {
-	border-collapse: collapse;
+  border-collapse: collapse;
 }
 th {
-	padding: 0.3em;
-	background-color: @background_halftone;
+  padding: 0.3em;
+  background-color: @background_halftone;
 }
 td {
-	border-top: 1px dotted @foreground_halftone;
-	padding: 0.3em;
+  border-top: 1px dotted @foreground_halftone;
+  padding: 0.3em;
 }
 .middot {
   padding: 0.5em;
