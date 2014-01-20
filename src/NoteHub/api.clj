@@ -78,8 +78,7 @@
   ;(log "post-note: %s" {:pid pid :signature signature :password password :note note})
   (let [errors (filter identity
                          [(when-not (storage/valid-publisher? pid) "pid invalid")
-                          (when-not (= signature
-                                       (get-signature pid (storage/get-psk pid) note))
+                          (when-not (= signature (get-signature pid (storage/get-psk pid) note))
                             "signature invalid")
                           (when (blank? note) "note is empty")])]
     (if (empty? errors)
@@ -108,13 +107,11 @@
 (defn update-note [noteID note pid signature password]
   ;(log "update-note: %s" {:pid pid :noteID noteID :signature signature :password password :note note})
   (let [errors (filter identity
-                       (seq
                          [(when-not (storage/valid-publisher? pid) "pid invalid")
-                          (when-not (= signature
-                                       (get-signature pid (storage/get-psk pid) noteID note password))
+                          (when-not (= signature (get-signature pid (storage/get-psk pid) noteID note password))
                             "signature invalid")
                           (when (blank? note) "note is empty")
-                          (when-not (storage/valid-password? noteID password) "password invalid")]))]
+                          (when-not (storage/valid-password? noteID password) "password invalid")])]
     (if (empty? errors)
       (do
         (storage/edit-note noteID note)

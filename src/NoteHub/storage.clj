@@ -32,8 +32,8 @@
 
 (defn create-session []
   (let [token (encrypt (str (rand-int Integer/MAX_VALUE)))]
-    (do (redis :sadd :sessions token)
-      token)))
+    (redis :sadd :sessions token)
+    token))
 
 (defn invalidate-session [token]
   (let [was-valid (redis :sismember :sessions token)]
@@ -91,14 +91,13 @@
 
 (defn resolve-url [url]
   (let [value (redis :hget :short-url url)]
-    (when value
+    (when value ; TODO: necessary?
       (read-string value))))
 
 (defn delete-short-url [noteID]
   (let [value (redis :hget :short-url noteID)]
-    (do
-      (redis :hdel :short-url noteID)
-      (redis :hdel :short-url value))))
+    (redis :hdel :short-url noteID)
+    (redis :hdel :short-url value)))
 
 (defn create-short-url
   "Creates a short url for the given request metadata or extracts
@@ -116,9 +115,8 @@
             url (first
                  (remove short-url-exists?
                          (map hash-to-string hash-stream)))]
-        (do
-          ; we create two mappings: key params -> short url and back,
-          ; s.t. we can later easily check whether a short url already exists
-          (redis :hset :short-url url key)
-          (redis :hset :short-url key url)
-          url)))))
+        ; we create two mappings: key params -> short url and back,
+        ; s.t. we can later easily check whether a short url already exists
+        (redis :hset :short-url url key)
+        (redis :hset :short-url key url)
+        url))))

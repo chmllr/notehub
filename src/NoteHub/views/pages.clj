@@ -155,7 +155,7 @@
     (let [pid "NoteHub"
           psk (storage/get-psk pid)]
       (if (storage/valid-publisher? pid)
-        (let [resp (api/post-note note pid (api/get-signature (str pid psk note)) password)]
+        (let [resp (api/post-note note pid (api/get-signature pid psk note) password)]
           (if (and
                (storage/invalidate-session session)
                (get-in resp [:status :success]))
@@ -170,7 +170,7 @@
         psk (storage/get-psk pid)]
     (if (storage/valid-publisher? pid)
       (let [resp (api/update-note noteID note pid
-                                  (api/get-signature (str pid psk noteID note password))
+                                  (api/get-signature pid psk noteID note password)
                                   password)]
         (if (get-in resp [:status :success])
           (redirect (:longURL resp))
