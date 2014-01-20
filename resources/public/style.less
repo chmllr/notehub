@@ -151,7 +151,9 @@ pre {
   outline: 0px none transparent;
 }
 textarea {
-  width: @width;
+  @media screen and (min-width: 1024px) {
+    width: @width;
+  }
   border-radius: 5px;
   font-family: Courier;
   font-size: 1em;
