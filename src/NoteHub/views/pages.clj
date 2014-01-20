@@ -37,7 +37,7 @@
      (include-js "/js/main.js")
      (include-js "/js/themes.js"))
     ; google analytics code should appear in prod mode only
-    (if-not (get-setting :dev-mode?) (include-js "/js/google-analytics.js"))]
+    (if-not (get-setting :dev-mode) (include-js "/js/google-analytics.js"))]
    [:body {:onload "onLoad()"} content]))
 
 ; Sets a custom message for each needed HTTP status.
@@ -48,8 +48,9 @@
                (layout message
                        [:article [:h1 message]]))))
 
-; shortcut for rendering an HTTP status
-(defn- response [code]
+(defn- response
+  "shortcut for rendering an HTTP status"
+  [code]
   (status code (get-page code)))
 
 (defn url
@@ -61,7 +62,7 @@
 (defpartial input-form [form-url command fields content passwd-msg]
   (let [css-class (when (= :publish command) :hidden)]
     (layout (get-message :new-note)
-            [:article#preview.markdown " "]
+            [:article#preview ""]
             [:div#dashed-line {:class css-class}]
             [:div.central-element.helvetica {:style "margin-bottom: 3em"}
              (form-to {:autocomplete :off} [:post form-url]
@@ -79,10 +80,17 @@
 (defn generate-session []
   (encrypt (str (rand-int Integer/MAX_VALUE))))
 
+(defn md-node
+  "Returns an HTML element with a textarea inside
+  containing the markdown text (to keep all chars unescaped)"
+  ([cls input] (md-node cls {} input))
+  ([cls opts input]
+  [(keyword (str (name cls) ".markdown")) opts
+   [:textarea input]]))
+
 ; Routes
 ; ======
 
-; Landing Page
 (defpage "/" {}
   (layout (get-message :page-title)
           [:div#hero
@@ -91,17 +99,17 @@
            [:br]
            [:a.landing-button {:href "/new" :style "color: white"} (get-message :new-page)]]
           [:div#dashed-line]
-          [:article.helvetica.bottom-space.markdown {:style "font-size: 1em"}
-           (slurp "LANDING.md")]
-          [:div.centered.helvetica.markdown (get-message :footer)]))
+          (md-node :article.helvetica.bottom-space
+                   {:style "font-size: 1em"}
+                   (slurp "LANDING.md"))
+          (md-node :div.centered.helvetica (get-message :footer))))
 
-; Displays the note
 (defpage "/:year/:month/:day/:title" {:keys [year month day title] :as params}
   (let [noteID (api/build-key [year month day] title)]
     (when (storage/note-exists? noteID)
       (let [note (api/get-note noteID)]
         (layout (:title note)
-                [:article.bottom-space.markdown (:note note)]
+                (md-node :article.bottom-space (:note note))
                 (let [links (map #(link-to
                                    (if (= :short-url %)
                                      (url (storage/create-short-url params))
@@ -111,12 +119,10 @@
                       links (interpose [:span.middot "&middot;"] links)]
                   [:div#panel (map identity links)]))))))
 
-; Provides Markdown of the specified note
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
   (when-let [md-text (:note (api/get-note (api/build-key [year month day] title)))]
     (content-type "text/plain; charset=utf-8" md-text)))
 
-; Provides the number of views of the specified note
 (defpage "/:year/:month/:day/:title/stats" {:keys [year month day title]}
   (when-let [stats (:statistics (api/get-note (api/build-key [year month day] title)))]
     (layout (get-message :statistics)
@@ -126,7 +132,6 @@
                  [:tr [:td (str (get-message %) ":")] [:td (% stats)]])
               [:published :edited :publisher :views])])))
 
-; Resolving of a short url
 (defpage "/:short-url" {:keys [short-url]}
   (when-let [params (storage/resolve-url short-url)]
     (let [{:keys [year month day title]} params
@@ -135,21 +140,18 @@
           long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
       (redirect long-url))))
 
-; New Note Page
-(defpage "/new" {}
-  (input-form "/post-note" :publish
-              (html (hidden-field :session (storage/create-session))
-                    (hidden-field {:id :signature} :signature))
-              (get-message :loading) :set-passwd))
-
-; Update Note Page
 (defpage "/:year/:month/:day/:title/edit" {:keys [year month day title]}
   (let [noteID (api/build-key [year month day] title)]
     (input-form "/update-note" :update
                 (html (hidden-field :noteID noteID))
                 (:note (api/get-note noteID)) :enter-passwd)))
 
-; Creates New Note from Web
+(defpage "/new" {}
+  (input-form "/post-note" :publish
+              (html (hidden-field :session (storage/create-session))
+                    (hidden-field {:id :signature} :signature))
+              (get-message :loading) :set-passwd))
+
 (defpage [:post "/post-note"] {:keys [session note signature password version]}
   (if (= signature (api/get-signature session note))
     (let [pid "NoteHub"
@@ -164,7 +166,6 @@
         (response 500)))
     (response 400)))
 
-; Updates a note
 (defpage [:post "/update-note"] {:keys [noteID note password version]}
   (let [pid "NoteHub"
         psk (storage/get-psk pid)]
@@ -180,8 +181,8 @@
 ; Here lives the API
 
 (defpage "/api" args
-    (layout (get-message :api-title)
-            [:article.markdown (slurp "API.md")]))
+  (layout (get-message :api-title)
+          (md-node :article (slurp "API.md"))))
 
 (defpage [:get "/api/note"] {:keys [version noteID]}
   (generate-string (api/get-note noteID)))
