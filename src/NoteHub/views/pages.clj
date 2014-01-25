@@ -158,7 +158,7 @@
     (let [pid "NoteHub"
           psk (storage/get-psk pid)]
       (if (storage/valid-publisher? pid)
-        (let [resp (api/post-note note pid (api/get-signature pid psk note) password)]
+        (let [resp (api/post-note note pid (api/get-signature pid psk note) {:password password})]
           (if (and
                (storage/invalidate-session session)
                (get-in resp [:status :success]))
@@ -188,8 +188,14 @@
 (defpage [:get "/api/note"] {:keys [version noteID]}
   (generate-string (api/get-note noteID)))
 
-(defpage [:post "/api/note"] {:keys [version note pid signature password]}
-  (generate-string (api/post-note note pid signature password)))
+(defpage [:post "/api/note"] {:keys [version note pid signature password] :as params}
+  (generate-string
+   (api/post-note
+    note
+    pid
+    signature
+    {:params (dissoc params :version :note :pid :signature :password)
+     :password password})))
 
 (defpage [:put "/api/note"] {:keys [version noteID note pid signature password]}
   (generate-string (api/update-note noteID note pid signature password)))

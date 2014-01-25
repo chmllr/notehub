@@ -73,7 +73,7 @@
         (isnt (:success (:status response)))
         (is (= (:message (:status response)) "pid invalid"))))
     (testing "note update"
-      (let [post-response (post-note note pid (get-signature pid psk note) "passwd")
+      (let [post-response (post-note note pid (get-signature pid psk note) {:password "passwd"})
             note-id (:noteID post-response)
             new-note "a new note!"]
         (is (:success (:status post-response)))
@@ -112,7 +112,30 @@
             (storage/delete-note noteID)
             (not (storage/note-exists? noteID)))))))
 
-(deftest note-update
+
+(deftest api-note-creation-with-params
+  (testing "Note creation with params"
+    (let [response (send-request [:post "/api/note"]
+                                 {:note note
+                                  :pid pid
+                                  :signature (get-signature pid psk note)
+                                  :version "1.0"
+                                  :theme "dark"
+                                  :text-font "Helvetica"})
+          body (parse-string (:body response))
+          noteID (body "noteID")]
+      (let [url ((:headers
+                  (send-request
+                   (str "/"
+                        (last (clojure.string/split
+                               ((parse-string (:body response)) "shortURL") #"/"))))) "Location")]
+        (substring? "theme=dark" url)
+        (substring? "text-font=Felvetica" url))
+      (is (do
+            (storage/delete-note noteID)
+            (not (storage/note-exists? noteID)))))))
+
+(deftest api-note-update
   (let [response (send-request [:post "/api/note"]
                                {:note note
                                 :pid pid

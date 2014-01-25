@@ -1,9 +1,10 @@
 # NoteHub API
 
-**Version 1.1, status: released.**
+**Version 1.2, status: released.**
 
 ## Changelog
 
+- **V1.2**: Theme & fonts can be specified at the creation.
 - **V1.1**: fields `publisher` and `title` in the response to the note retrieval.
 - **V1.0**: initial release.
 

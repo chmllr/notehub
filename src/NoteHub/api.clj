@@ -45,11 +45,13 @@
   ([success message & params]
    (assoc (create-response success) :message (apply format message params))))
 
-(defn- get-path [noteID & description]
-  (let [[year month day title] (split noteID #" ")]
-    (if description
-      (str domain "/" (storage/create-short-url noteID {:year year :month month :day day :title title}))
-      (apply str (interpose "/" [domain year month day (ring.util.codec/url-encode title)])))))
+(defn- get-path [token & [description]]
+  (if (= :url description)
+    (str domain "/" token)
+    (let [[year month day title] (split token #" ")]
+      (if description
+        (str domain "/" (storage/create-short-url token {:year year :month month :day day :title title}))
+        (apply str (interpose "/" [domain year month day (ring.util.codec/url-encode title)]))))))
 
 (let [md5Instance (java.security.MessageDigest/getInstance "MD5")]
   (defn get-signature
@@ -66,42 +68,45 @@
       {:note note
        :title (derive-title note)
        :longURL (get-path noteID)
-       :shortURL (get-path noteID :short)
+       :shortURL (get-path noteID :id)
        :statistics (storage/get-note-statistics noteID)
        :status (create-response true)
        :publisher (storage/get-publisher noteID)})
     (create-response false "noteID '%s' unknown" noteID)))
 
 (defn post-note
-  ([note pid signature] (post-note note pid signature nil))
-  ([note pid signature password]
-  ;(log "post-note: %s" {:pid pid :signature signature :password password :note note})
-  (let [errors (filter identity
-                         [(when-not (storage/valid-publisher? pid) "pid invalid")
-                          (when-not (= signature (get-signature pid (storage/get-psk pid) note))
-                            "signature invalid")
-                          (when (blank? note) "note is empty")])]
-    (if (empty? errors)
-      (let [[year month day] (get-date)
-            untrimmed-line (filter #(or (= \- %) (Character/isLetterOrDigit %))
-                                   (-> note split-lines first (sreplace " " "-") lower-case))
-            trim (fn [s] (apply str (drop-while #(= \- %) s)))
-            title-uncut (-> untrimmed-line trim reverse trim reverse)
-            max-length (get-setting :max-title-length #(Integer/parseInt %) 80)
-            proposed-title (apply str (take max-length title-uncut))
-            date [year month day]
-            title (first (drop-while #(storage/note-exists? (build-key date %))
-                                     (cons proposed-title
-                                           (map #(str proposed-title "-" (+ 2 %)) (range)))))
-            noteID (build-key date title)
-            short-url (storage/create-short-url noteID {:year year :month month :day day :title title})]
-        (do
-          (storage/add-note noteID note pid password)
-          {:noteID noteID
-           :longURL (get-path noteID)
-           :shortURL (get-path noteID :short)
-           :status (create-response true)}))
-      {:status (create-response false (first errors))}))))
+  ([note pid signature] (post-note note pid signature {}))
+  ([note pid signature opts]
+   ;(log "post-note: %s" {:pid pid :signature signature :password password :note note})
+   (let [errors (filter identity
+                        [(when-not (storage/valid-publisher? pid) "pid invalid")
+                         (when-not (= signature (get-signature pid (storage/get-psk pid) note))
+                           "signature invalid")
+                         (when (blank? note) "note is empty")])]
+     (if (empty? errors)
+       (let [[year month day] (map str (get-date))
+             password (opts :password)
+             params (opts :params {})
+             untrimmed-line (filter #(or (= \- %) (Character/isLetterOrDigit %))
+                                    (-> note split-lines first (sreplace " " "-") lower-case))
+             trim (fn [s] (apply str (drop-while #(= \- %) s)))
+             title-uncut (-> untrimmed-line trim reverse trim reverse)
+             max-length (get-setting :max-title-length #(Integer/parseInt %) 80)
+             proposed-title (apply str (take max-length title-uncut))
+             date [year month day]
+             title (first (drop-while #(storage/note-exists? (build-key date %))
+                                      (cons proposed-title
+                                            (map #(str proposed-title "-" (+ 2 %)) (range)))))
+             noteID (build-key date title)
+             new-params (assoc params :year year :month month :day day :title title)
+             short-url (storage/create-short-url noteID new-params)]
+         (do
+           (storage/add-note noteID note pid password)
+           {:noteID noteID
+            :longURL (get-path noteID)
+            :shortURL (get-path short-url :url)
+            :status (create-response true)}))
+       {:status (create-response false (first errors))}))))
 
 
 (defn update-note [noteID note pid signature password]
@@ -116,6 +121,6 @@
       (do
         (storage/edit-note noteID note)
         {:longURL (get-path noteID)
-         :shortURL (get-path noteID :short)
+         :shortURL (get-path noteID :id)
          :status (create-response true)})
       {:status (create-response false (first errors))})))
