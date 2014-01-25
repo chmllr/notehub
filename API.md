@@ -1,3 +1,4 @@
+
 # NoteHub API
 
 **Version 1.2, status: released.**
@@ -72,12 +73,17 @@ Parameter    | Explanation                              | Type
 `signature`  | Signature                                | **required**
 `password`   | MD5 hash of a plain password for editing | *optional*
 `version`    | Used API version                         | **required**
+`theme`      | Theme name                               | *optional*
+`text-font`  | Text font name                           | *optional*
+`header-font`| Header font name                         | *optional*
 
 The Signature is the MD5 hash of the following string concatenation:
 
     pid + psk + note
 
 The signature serves as a proof, that the request is authentic and will be issued by the publisher corresponding to the provided PID.
+
+The parameters specifying the theme name and fonts are optional and only impact the URLs returned back.
 
 The response of the server will contain the fields `noteID`, `longURL`, `shortURL`, `status`.
 

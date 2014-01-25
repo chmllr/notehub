@@ -1,13 +1,15 @@
 (ns NoteHub.api
   (:import
-    [java.util Calendar])
+   [java.util Calendar])
   (:use
-    [NoteHub.settings]
-    [clojure.string :rename {replace sreplace}
-     :only [replace blank? lower-case split-lines split]])
+   [NoteHub.settings]
+   [ring.util.codec :only [url-encode]]
+   [clojure.string :rename {replace sreplace}
+    :only [replace blank? lower-case split-lines split]])
   (:require
-    [ring.util.codec]
-    [NoteHub.storage :as storage]))
+   [ring.util.codec]
+   [hiccup.util :as util]
+   [NoteHub.storage :as storage]))
 
 (def version "1.1")
 
@@ -22,6 +24,11 @@
   [string & args]
   (apply printf (str "%s:" string) (str (storage/get-current-date) ":LOG") args)
   (println))
+
+(defn url
+  "Creates a local url from the given substrings"
+  [& args]
+  (apply str (interpose "/" (cons "" (map url-encode args)))))
 
 ; Concatenates all fields to a string
 (defn build-key
@@ -51,7 +58,7 @@
     (let [[year month day title] (split token #" ")]
       (if description
         (str domain "/" (storage/create-short-url token {:year year :month month :day day :title title}))
-        (apply str (interpose "/" [domain year month day (ring.util.codec/url-encode title)]))))))
+        (str domain (url year month day title))))))
 
 (let [md5Instance (java.security.MessageDigest/getInstance "MD5")]
   (defn get-signature
@@ -99,12 +106,13 @@
                                             (map #(str proposed-title "-" (+ 2 %)) (range)))))
              noteID (build-key date title)
              new-params (assoc params :year year :month month :day day :title title)
-             short-url (storage/create-short-url noteID new-params)]
+             short-url (get-path (storage/create-short-url noteID new-params) :url)
+             long-url (get-path noteID)]
          (do
            (storage/add-note noteID note pid password)
            {:noteID noteID
-            :longURL (get-path noteID)
-            :shortURL (get-path short-url :url)
+            :longURL (if (empty? params) long-url (str (util/url long-url params)))
+            :shortURL short-url
             :status (create-response true)}))
        {:status (create-response false (first errors))}))))
 

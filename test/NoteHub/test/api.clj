@@ -129,6 +129,7 @@
                    (str "/"
                         (last (clojure.string/split
                                ((parse-string (:body response)) "shortURL") #"/"))))) "Location")]
+        (= url ((parse-string (:body response)) "longURL"))
         (substring? "theme=dark" url)
         (substring? "text-font=Felvetica" url))
       (is (do

@@ -1,6 +1,6 @@
 (ns NoteHub.test.views.pages
   (:use [NoteHub.views.pages]
-        [NoteHub.api :only [build-key get-signature get-date]]
+        [NoteHub.api :only [build-key get-signature get-date url]]
         [noir.util.test]
         [NoteHub.storage]
         [clojure.test]))

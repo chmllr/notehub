@@ -11,7 +11,6 @@
    [noir.util.crypt :only [encrypt]]
    [hiccup.form]
    [hiccup.core]
-   [ring.util.codec :only [url-encode]]
    [hiccup.element]
    [hiccup.util :only [escape-html]]
    [hiccup.page :only [include-js html5]]
@@ -53,11 +52,6 @@
   "shortcut for rendering an HTTP status"
   [code]
   (status code (get-page code)))
-
-(defn url
-  "Creates a local url from the given substrings"
-  [& args]
-  (apply str (interpose "/" (cons "" (map url-encode args)))))
 
 ; input form for the markdown text with a preview area
 (defpartial input-form [form-url command fields content passwd-msg]
@@ -113,7 +107,7 @@
                 (md-node :article.bottom-space (:note note))
                 (let [links (map #(link-to
                                    (if (= :short-url %)
-                                     (url (storage/create-short-url noteID params))
+                                     (api/url (storage/create-short-url noteID params))
                                      (str (:longURL note) "/" (name %)))
                                    (get-message %))
                                  [:stats :edit :export :short-url])
@@ -137,7 +131,7 @@
   (when-let [params (storage/resolve-url short-url)]
     (let [{:keys [year month day title]} params
           rest-params (dissoc params :year :month :day :title)
-          core-url (url year month day title)
+          core-url (api/url year month day title)
           long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
       (redirect long-url))))
 
