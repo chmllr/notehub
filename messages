@@ -22,6 +22,7 @@ views = Article Views
 statistics = Statistics
 stats = statistics
 export = export
+notehub = notehub
 edit = edit
 short-url = short url
 api-title = API

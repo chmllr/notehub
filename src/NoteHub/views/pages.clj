@@ -105,14 +105,16 @@
       (let [note (api/get-note noteID)]
         (layout (:title note)
                 (md-node :article.bottom-space (:note note))
-                (let [links (map #(link-to
-                                   (if (= :short-url %)
-                                     (api/url (storage/create-short-url noteID params))
+                (let [urls {:short-url (api/url (storage/create-short-url noteID params))
+                            :notehub "/"}
+                      links (map #(link-to
+                                   (if (urls %)
+                                     (urls %)
                                      (str (:longURL note) "/" (name %)))
                                    (get-message %))
-                                 [:stats :edit :export :short-url])
+                                 [:notehub :stats :edit :export :short-url])
                       links (interpose [:span.middot "&middot;"] links)]
-                  [:div#panel (map identity links)]))))))
+                  [:div#links links]))))))
 
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
   (when-let [md-text (:note (api/get-note (api/build-key [year month day] title)))]
