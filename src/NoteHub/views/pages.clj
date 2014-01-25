@@ -113,7 +113,7 @@
                 (md-node :article.bottom-space (:note note))
                 (let [links (map #(link-to
                                    (if (= :short-url %)
-                                     (url (storage/create-short-url params))
+                                     (url (storage/create-short-url noteID params))
                                      (str (:longURL note) "/" (name %)))
                                    (get-message %))
                                  [:stats :edit :export :short-url])

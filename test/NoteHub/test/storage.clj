@@ -2,7 +2,8 @@
   (:use [NoteHub.storage]
         [NoteHub.api :only [build-key]]
         [NoteHub.views.pages]
-        [clojure.test]))
+        [clojure.test])
+  (:require [taoensso.carmine :as car :refer (wcar)]))
 
 (def date [2012 06 03])
 (def test-title "Some title.")
@@ -13,22 +14,29 @@
                :title test-title,
                :theme "dark",
                :header-font "Anton"})
+(def test-short-url "")
 
 
 (deftest storage
   (testing "Storage"
     (testing "of short-url mechanism"
-      (let [url (create-short-url metadata)
-            url2 (create-short-url metadata)]
+      (let [fakeID (build-key date test-title)
+            url (create-short-url fakeID metadata)
+            url2 (create-short-url fakeID metadata)]
+        (is (= 1 (redis :scard (str fakeID :urls))))
+        (def test-short-url (create-short-url fakeID (assoc metadata :a :b)))
+        (is (= 2 (redis :scard (str fakeID :urls))))
         (is (short-url-exists? url))
         (is (= url url2))
         (is (= metadata (resolve-url url)))
-        (is (not (do
-                   (delete-short-url url)
-                   (short-url-exists? url))))))
+        (delete-short-url url)
+        (is (not (short-url-exists? url))))))
     (testing "of correct note creation"
       (is (= (do
                (add-note (build-key date test-title) test-note "testPID")
+               (is (= 2 (redis :scard (str (build-key date test-title) :urls))))
+               (create-short-url (build-key date test-title) metadata)
+               (is (= 3 (redis :scard (str (build-key date test-title) :urls))))
                (get-note (build-key date test-title)))
              test-note))
       (is (= "1" (get-note-views (build-key date test-title))))
@@ -59,8 +67,11 @@
         (is (invalidate-session s3))))
     (testing "of note existence"
       (is (note-exists? (build-key date test-title)))
-      (is (not (do
-                 (delete-note (build-key date test-title))
-                 (note-exists? (build-key date test-title)))))
+      (is (short-url-exists? test-short-url))
+      (is (= 3 (redis :scard (str (build-key date test-title) :urls))))
+      (delete-note (build-key date test-title))
+      (is (not (short-url-exists? test-short-url)))
+      (is (not (note-exists? (build-key date test-title))))
+      (is (= 0 (redis :scard (str (build-key date test-title) :urls))))
       (is (not (note-exists? (build-key [2013 06 03] test-title))))
-      (is (not (note-exists? (build-key date "some title")))))))
+      (is (not (note-exists? (build-key date "some title"))))))

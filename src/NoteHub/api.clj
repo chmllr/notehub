@@ -48,7 +48,7 @@
 (defn- get-path [noteID & description]
   (let [[year month day title] (split noteID #" ")]
     (if description
-      (str domain "/" (storage/create-short-url {:year year :month month :day day :title title}))
+      (str domain "/" (storage/create-short-url noteID {:year year :month month :day day :title title}))
       (apply str (interpose "/" [domain year month day (ring.util.codec/url-encode title)])))))
 
 (let [md5Instance (java.security.MessageDigest/getInstance "MD5")]
@@ -94,7 +94,7 @@
                                      (cons proposed-title
                                            (map #(str proposed-title "-" (+ 2 %)) (range)))))
             noteID (build-key date title)
-            short-url (storage/create-short-url {:year year :month month :day day :title title})]
+            short-url (storage/create-short-url noteID {:year year :month month :day day :title title})]
         (do
           (storage/add-note noteID note pid password)
           {:noteID noteID

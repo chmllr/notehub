@@ -78,11 +78,6 @@
       (redis :hincrby :views noteID 1)
       (redis :hget :note noteID))))
 
-(defn delete-note [noteID]
-  (doseq [kw [:password :views :note :published :edited :publisher]]
-    ; TODO: delete short url by looking for the title
-    (redis :hdel kw noteID)))
-
 (defn short-url-exists? [url]
   (= 1 (redis :hexists :short-url url)))
 
@@ -94,16 +89,23 @@
     (when value ; TODO: necessary?
       (read-string value))))
 
-(defn delete-short-url [noteID]
-  (let [value (redis :hget :short-url noteID)]
-    (redis :hdel :short-url noteID)
-    (redis :hdel :short-url value)))
+(defn delete-short-url [url]
+  (when-let [params (redis :hget :short-url url)]
+    (redis :hdel :short-url params)
+    (redis :hdel :short-url url)))
+
+(defn delete-note [noteID]
+  (doseq [kw [:password :views :note :published :edited :publisher]]
+    (redis :hdel kw noteID))
+  (doseq [url (redis :smembers (str noteID :urls))]
+    (delete-short-url url))
+  (redis :del (str noteID :urls)))
 
 (defn create-short-url
   "Creates a short url for the given request metadata or extracts
   one if it was already created"
-  [arg]
-  (let [key (str (into (sorted-map) arg))]
+  [noteID params]
+  (let [key (str (into (sorted-map) params))]
     (if (short-url-exists? key)
       (redis :hget :short-url key)
       (let [hash-stream (partition 5 (repeatedly #(rand-int 36)))
@@ -119,4 +121,6 @@
         ; s.t. we can later easily check whether a short url already exists
         (redis :hset :short-url url key)
         (redis :hset :short-url key url)
+        ; we save all short urls of a note for removal later
+        (redis :sadd (str noteID :urls) url)
         url))))

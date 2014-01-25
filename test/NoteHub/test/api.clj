@@ -47,7 +47,7 @@
         (is (= (:shortURL post-response) (:shortURL get-response)))
         (is (storage/note-exists? (:noteID post-response)))
         (let [su (last (clojure.string/split (:shortURL get-response) #"/"))]
-          (is (= su (storage/create-short-url (storage/resolve-url su)))))
+          (is (= su (storage/create-short-url (:noteID post-response) (storage/resolve-url su)))))
         (let [resp (send-request
                                 (clojure.string/replace (:shortURL get-response) domain ""))
               resp (send-request ((:headers resp) "Location"))]
