@@ -93,6 +93,10 @@ a:visited {
   padding: 1em;
   font-size: 0.8em;
   text-align: center;
+  @media screen and (max-width: 1024px) {
+    font-size: 0.4em;
+  }
+
 }
 #links a {
   border: none;
@@ -155,7 +159,7 @@ textarea {
   font-size: 1em;
   height: 500px;
 }
-.hidden, .markdown {
+.hidden, .markdown, #links {
   display: none;
 }
 #dashed-line {

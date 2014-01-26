@@ -49,12 +49,13 @@ function onLoad() {
     show(elem);
   }
 
-  if(window.innerHeight >= document.body.clientHeight) {
-    var links = $("links");
-    if(links) {
+  var links = $("links");
+  if(links){
+    if(window.innerHeight >= document.body.clientHeight) {
       links.style.position = "fixed";
       links.style.bottom = 0;
     }
+    show(links);
   }
 
 }

@@ -14,10 +14,10 @@ Send your feedback and comments directly to [@gravitydenier](http://twitter.com/
 
 ## Features
 - **Color Themes**: specify the color scheme by appending the corresponding parameter to the URL:
-    - [Dark](http://notehub.org/2012/6/16/how-notehub-is-built?theme=dark)
-    - [Solarized-Dark](http://notehub.org/2012/6/16/how-notehub-is-built?theme=solarized-dark)
-    - [Solarized-Light](http://notehub.org/2012/6/16/how-notehub-is-built?theme=solarized-light)
-- **Fonts**: specify a font (also one of the [Google Web Fonts](http://www.google.com/webfonts/)) for headers and for the text by appending parameters to the note [URL](http://notehub.org/0vrcp).
+    - [Dark](/2012/6/16/how-notehub-is-built?theme=dark)
+    - [Solarized-Dark](/2012/6/16/how-notehub-is-built?theme=solarized-dark)
+    - [Solarized-Light](/2012/6/16/how-notehub-is-built?theme=solarized-light)
+- **Fonts**: specify a font (also one of the [Google Web Fonts](http://www.google.com/webfonts/)) for headers and for the text by appending parameters to the note [URL](/0vrcp).
 - **Short URLs**: every page (including theme & font options) has its own short url.
 - **Editing**: if you set a password during publishing, you can edit your note any time later.
 - **Statistics**: a rudimentary statistics available (date of publishing & view counter).
