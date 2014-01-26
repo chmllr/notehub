@@ -48,4 +48,11 @@ function onLoad() {
     elem.innerHTML = md2html(child.value);
     show(elem);
   }
+
+  if(window.innerHeight >= document.body.clientHeight) {
+    var links = $("links");
+    links.style.position = "fixed";
+    links.style.bottom = 0;
+  }
+
 }
