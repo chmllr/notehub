@@ -40,6 +40,11 @@
     (if-not (get-setting :dev-mode) (include-js "/js/google-analytics.js"))]
    [:body {:onload "onLoad()"} content]))
 
+(defn sanitize
+  "Breakes all usages of <script> & <iframe>"
+  [input]
+  (sreplace input #"(</?(iframe|script).*?>|javascript:)" ""))
+
 ; Sets a custom message for each needed HTTP status.
 ; The message to be assigned is extracted with a dynamically generated key
 (doseq [code [400 403 404 500]]
@@ -102,9 +107,10 @@
 (defpage "/:year/:month/:day/:title" {:keys [year month day title] :as params}
   (let [noteID (api/build-key [year month day] title)]
     (when (storage/note-exists? noteID)
-      (let [note (api/get-note noteID)]
+      (let [note (api/get-note noteID)
+            sanitized-note (sanitize (:note note))]
         (layout (:title note)
-                (md-node :article.bottom-space (:note note))
+                (md-node :article.bottom-space sanitized-note)
                 (let [urls {:short-url (api/url (storage/create-short-url noteID params))
                             :notehub "/"}
                       links (map #(link-to

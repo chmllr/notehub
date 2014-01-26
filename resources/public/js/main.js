@@ -51,8 +51,10 @@ function onLoad() {
 
   if(window.innerHeight >= document.body.clientHeight) {
     var links = $("links");
-    links.style.position = "fixed";
-    links.style.bottom = 0;
+    if(links) {
+      links.style.position = "fixed";
+      links.style.bottom = 0;
+    }
   }
 
 }
