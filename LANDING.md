@@ -13,7 +13,6 @@
 Send your feedback and comments directly to [@gravitydenier](http://twitter.com/gravitydenier) or open an [issue](https://github.com/chmllr/NoteHub/issues) on GitHub.
 
 ## Features
-- **API**: Integrate the publishing functionality into your editor using the official [NoteHub API](/api).
 - **Color Themes**: specify the color scheme by appending the corresponding parameter to the URL:
     - [Dark](http://notehub.org/2012/6/16/how-notehub-is-built?theme=dark)
     - [Solarized-Dark](http://notehub.org/2012/6/16/how-notehub-is-built?theme=solarized-dark)
@@ -23,3 +22,4 @@ Send your feedback and comments directly to [@gravitydenier](http://twitter.com/
 - **Editing**: if you set a password during publishing, you can edit your note any time later.
 - **Statistics**: a rudimentary statistics available (date of publishing & view counter).
 - **Export**: the original markdown content can be displayed in plain text format.
+- **API**: Integrate the publishing functionality into your editor using the official [NoteHub API](/api).
