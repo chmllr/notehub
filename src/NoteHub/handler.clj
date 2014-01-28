@@ -45,20 +45,6 @@
   [(keyword (str (name cls) ".markdown")) opts
    [:textarea input]]))
 
-#_ (
-
-    ; ######## OLD CODE START
-
-(ns NoteHub.views.pages
-  (:require )
-  (:use
-
-
-   [noir.response :only [redirect status content-type]]
-   [noir.core :only [defpage defpartial]]
-   [noir.statuses]
-   [noir.util.crypt :only [encrypt]]))
-
 (when-not (storage/valid-publisher? "NoteHub")
   (storage/register-publisher "NoteHub"))
 
@@ -67,21 +53,8 @@
   [input]
   (sreplace input #"(</?(iframe|script).*?>|javascript:)" ""))
 
-; Sets a custom message for each needed HTTP status.
-; The message to be assigned is extracted with a dynamically generated key
-(doseq [code [400 403 404 500]]
-  (set-page! code
-             (let [message (get-message (keyword (str "status-" code)))]
-               (layout message
-                       [:article [:h1 message]]))))
-
-(defn- response
-  "shortcut for rendering an HTTP status"
-  [code]
-  (status code (get-page code)))
-
 ; input form for the markdown text with a preview area
-(defpartial input-form [form-url command fields content passwd-msg]
+(defn input-form [form-url command fields content passwd-msg]
   (let [css-class (when (= :publish command) :hidden)]
     (layout (get-message :new-note)
             [:article#preview ""]
@@ -99,9 +72,34 @@
                        (submit-button {:class "button ui-elem"
                                        :id :publish-button} (get-message command))])])))
 
-(defn generate-session []
-  (encrypt (str (rand-int Integer/MAX_VALUE))))
 
+#_ (
+
+    ; ######## OLD CODE START
+
+(ns NoteHub.views.pages
+  (:require )
+  (:use
+
+
+   [noir.response :only [redirect status content-type]]
+   [noir.core :only [defpage defpartial]]
+   [noir.statuses]
+   [noir.util.crypt :only [encrypt]]))
+
+; Sets a custom message for each needed HTTP status.
+; The message to be assigned is extracted with a dynamically generated key
+(doseq [code [400 403 404 500]]
+  (set-page! code
+             (let [message (get-message (keyword (str "status-" code)))]
+               (layout message
+                       [:article [:h1 message]]))))
+
+
+(defn- response
+  "shortcut for rendering an HTTP status"
+  [code]
+  (status code (get-page code)))
 
 ; Routes
 ; ======
@@ -118,24 +116,6 @@
                    {:style "font-size: 1em"}
                    (slurp "LANDING.md"))
           (md-node :div.centered.helvetica (get-message :footer))))
-
-(defpage "/:year/:month/:day/:title" {:keys [year month day title] :as params}
-  (let [noteID (api/build-key [year month day] title)]
-    (when (storage/note-exists? noteID)
-      (let [note (api/get-note noteID)
-            sanitized-note (sanitize (:note note))]
-        (layout (:title note)
-                (md-node :article.bottom-space sanitized-note)
-                (let [urls {:short-url (api/url (storage/create-short-url noteID params))
-                            :notehub "/"}
-                      links (map #(link-to
-                                   (if (urls %)
-                                     (urls %)
-                                     (str (:longURL note) "/" (name %)))
-                                   (get-message %))
-                                 [:notehub :stats :edit :export :short-url])
-                      links (interpose [:span.middot "&middot;"] links)]
-                  [:div#links links]))))))
 
 (defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
   (when-let [md-text (:note (api/get-note (api/build-key [year month day] title)))]
@@ -221,6 +201,26 @@
   (context "/api" [] api-routes)
   (GET "/" [] "Hello World")
 
+  (GET "/:year/:month/:day/:title" [year month day title :as params]
+  (let [params (assoc (:query-params params)
+                 :year year :month month :day day :title title)
+        noteID (api/build-key [year month day] title)]
+    (when (storage/note-exists? noteID)
+      (let [note (api/get-note noteID)
+            sanitized-note (sanitize (:note note))]
+        (layout (:title note)
+                (md-node :article.bottom-space sanitized-note)
+                (let [urls {:short-url (api/url (storage/create-short-url noteID params))
+                            :notehub "/"}
+                      links (map #(link-to
+                                   (if (urls %)
+                                     (urls %)
+                                     (str (:longURL note) "/" (name %)))
+                                   (get-message %))
+                                 [:notehub :stats :edit :export :short-url])
+                      links (interpose [:span.middot "&middot;"] links)]
+                  [:div#links links]))))))
+
   (GET "/:short-url" [short-url]
   (when-let [params (storage/resolve-url short-url)]
     (let [{:keys [year month day title]} params
@@ -229,7 +229,7 @@
           long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
       (redirect long-url))))
 
-  (route/resources "/resources")
+  (route/resources "/")
   (route/not-found "Not Found"))
 
 (def app

@@ -113,7 +113,7 @@
   "Creates a short url for the given request metadata or extracts
   one if it was already created"
   [noteID params]
-  (let [key (str (into (sorted-map) params))]
+  (let [key (str (into (sorted-map) (clojure.walk/keywordize-keys params)))]
     (if (short-url-exists? key)
       (redis :hget :short-url key)
       (let [hash-stream (partition 5 (repeatedly #(rand-int 36)))
