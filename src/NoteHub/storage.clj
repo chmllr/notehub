@@ -38,16 +38,6 @@
 (defn get-psk [pid]
   (redis :hget :publisher-key pid))
 
-(defn create-session []
-  (let [token (sign (str (rand-int Integer/MAX_VALUE)))]
-    (redis :sadd :sessions token)
-    token))
-
-(defn invalidate-session [token]
-  (let [was-valid (redis :sismember :sessions token)]
-    (redis :srem :sessions token)
-    (= 1 was-valid)))
-
 (defn edit-note [noteID text]
   (redis :hset :edited noteID (get-current-date))
   (redis :hset :note noteID text))

@@ -72,66 +72,14 @@
                        (submit-button {:class "button ui-elem"
                                        :id :publish-button} (get-message command))])])))
 
-
-#_ (
-
-    ; ######## OLD CODE START
-
-(ns NoteHub.views.pages
-  (:require )
-  (:use
-
-
-   [noir.response :only [redirect status content-type]]
-   [noir.core :only [defpage defpartial]]
-   [noir.statuses]
-   [noir.util.crypt :only [encrypt]]))
-
-; Sets a custom message for each needed HTTP status.
-; The message to be assigned is extracted with a dynamically generated key
-(doseq [code [400 403 404 500]]
-  (set-page! code
-             (let [message (get-message (keyword (str "status-" code)))]
-               (layout message
-                       [:article [:h1 message]]))))
-
-
+; TODO: make sure the status is really set to the response!!!!
 (defn- response
-  "shortcut for rendering an HTTP status"
+  "Sets a custom message for each needed HTTP status.
+  The message to be assigned is extracted with a dynamically generated key"
   [code]
-  (status code (get-page code)))
-
-; Routes
-; ======
-
-(defpage [:post "/post-note"] {:keys [session note signature password version]}
-  (if (= signature (api/get-signature session note))
-    (let [pid "NoteHub"
-          psk (storage/get-psk pid)]
-      (if (storage/valid-publisher? pid)
-        (let [resp (api/post-note note pid (api/get-signature pid psk note) {:password password})]
-          (if (and
-               (storage/invalidate-session session)
-               (get-in resp [:status :success]))
-            (redirect (:longURL resp))
-            (response 400)))
-        (response 500)))
-    (response 400)))
-
-(defpage [:post "/update-note"] {:keys [noteID note password version]}
-  (let [pid "NoteHub"
-        psk (storage/get-psk pid)]
-    (if (storage/valid-publisher? pid)
-      (let [resp (api/update-note noteID note pid
-                                  (api/get-signature pid psk noteID note password)
-                                  password)]
-        (if (get-in resp [:status :success])
-          (redirect (:longURL resp))
-          (response 403)))
-      (response 500))))
-
-; ###### END OLD CODE
-)
+  (let [message (get-message (keyword (str "status-" code)))]
+    (layout message
+            [:article [:h1 message]])))
 
 (defn redirect [url]
   {:status 302
@@ -199,7 +147,7 @@
 
   (GET "/new" []
        (input-form "/post-note" :publish
-                   (html (hidden-field :session (storage/create-session))
+                   (html (hidden-field :session (storage/sign (str (rand-int Integer/MAX_VALUE))))
                          (hidden-field {:id :signature} :signature))
                    (get-message :loading) :set-passwd))
 
@@ -230,6 +178,31 @@
                core-url (api/url year month day title)
                long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
            (redirect long-url))))
+
+
+  (POST "/post-note" [session note signature password version]
+        (if (= signature (storage/sign session note))
+          (let [pid "NoteHub"
+                psk (storage/get-psk pid)]
+            (if (storage/valid-publisher? pid)
+              (let [resp (api/post-note note pid (storage/sign pid psk note) {:password password})]
+                (if (get-in resp [:status :success])
+                  (redirect (:longURL resp))
+                  (response 400)))
+              (response 500)))
+          (response 400)))
+
+  (POST "/update-note" [noteID note password version]
+        (let [pid "NoteHub"
+              psk (storage/get-psk pid)]
+          (if (storage/valid-publisher? pid)
+            (let [resp (api/update-note noteID note pid
+                                        (storage/sign pid psk noteID note password)
+                                        password)]
+              (if (get-in resp [:status :success])
+                (redirect (:longURL resp))
+                (response 403)))
+            (response 500))))
 
   (route/resources "/")
   (route/not-found "Not Found"))

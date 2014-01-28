@@ -55,15 +55,6 @@
              "update")))
     (testing "of the note access"
       (is (not= (get-note (build-key date test-title)) "any text")))
-    (testing "session management"
-      (let [s1 (create-session)
-            s2 (create-session)
-            s3 (create-session)]
-        (is (invalidate-session s1))
-        (is (not (invalidate-session (str s1 s2))))
-        (is (invalidate-session s2))
-        (is (not (invalidate-session "wrongtoken")))
-        (is (invalidate-session s3))))
     (testing "of note existence"
       (is (note-exists? (build-key date test-title)))
       (is (short-url-exists? test-short-url))
