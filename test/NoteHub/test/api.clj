@@ -1,9 +1,9 @@
-(ns NoteHub.test.api
+(ns notehub.test.api
   (:require
    [cheshire.core :refer :all]
-   [NoteHub.storage :as storage])
-  (:use [NoteHub.api]
-        [noir.util.test]
+   [notehub.storage :as storage])
+  (:use [notehub.api]
+        [notehub.handler]
         [clojure.test]))
 
 (def note "hello world!\nThis is a _test_ note!")
@@ -14,6 +14,15 @@
 (defn substring? [a b] (not (= nil (re-matches (re-pattern (str "(?s).*" a ".*")) b))))
 
 (defmacro isnt [arg] `(is (not ~arg)))
+
+(defn send-request
+  ([resource] (send-request resource {}))
+  ([resource params]
+  (let [[method url] (if (vector? resource) resource [:get resource])]
+    (app-routes {:request-method method :uri url :params params}))))
+
+(defn has-status [input status]
+  (= status (:status input)))
 
 (defn register-publisher-fixture [f]
   (def psk (storage/register-publisher pid))
@@ -37,8 +46,8 @@
         (isnt (storage/valid-publisher? pid2))))
     (testing "note publishing & retrieval"
       (isnt (:success (:status (get-note "some note id"))))
-      (is (= "note is empty" (:message (:status (post-note "" pid (get-signature pid psk ""))))))
-      (let [post-response (post-note note pid (get-signature pid psk note))
+      (is (= "note is empty" (:message (:status (post-note "" pid (storage/sign pid psk ""))))))
+      (let [post-response (post-note note pid (storage/sign pid psk note))
             get-response (get-note (:noteID post-response))]
         (is (:success (:status post-response)))
         (is (:success (:status get-response)))
@@ -48,8 +57,10 @@
         (is (storage/note-exists? (:noteID post-response)))
         (let [su (last (clojure.string/split (:shortURL get-response) #"/"))]
           (is (= su (storage/create-short-url (:noteID post-response) (storage/resolve-url su)))))
-        (let [resp (send-request
+        (let [_ (println "DEBUG I" (clojure.string/replace (:shortURL get-response) domain ""))
+              resp (send-request
                                 (clojure.string/replace (:shortURL get-response) domain ""))
+              _ (println "DEBUG II" ((:headers resp) "Location"))
               resp (send-request ((:headers resp) "Location"))]
         (is (substring? "hello world"(:body resp))))
         (is (= (:publisher get-response) pid))
@@ -58,38 +69,38 @@
         (isnt (get-in get-response [:statistics :edited]))
         (is (= "3" (get-in (get-note (:noteID post-response)) [:statistics :views])))))
     (testing "creation with wrong signature"
-      (let [response (post-note note pid (get-signature pid2 psk note))]
+      (let [response (post-note note pid (storage/sign pid2 psk note))]
         (isnt (:success (:status response)))
         (is (= "signature invalid" (:message (:status response)))))
-      (let [response (post-note note pid (get-signature pid2 psk "any note"))]
+      (let [response (post-note note pid (storage/sign pid2 psk "any note"))]
         (isnt (:success (:status response)))
         (is (= "signature invalid" (:message (:status response)))))
-      (isnt (:success (:status (post-note note pid (get-signature pid "random_psk" note)))))
-      (is (:success (:status (post-note note pid (get-signature pid psk note)))))
+      (isnt (:success (:status (post-note note pid (storage/sign pid "random_psk" note)))))
+      (is (:success (:status (post-note note pid (storage/sign pid psk note)))))
       (let [randomPID "randomPID"
             psk2 (storage/register-publisher randomPID)
             _ (storage/revoke-publisher randomPID)
-            response (post-note note randomPID (get-signature randomPID psk2 note))]
+            response (post-note note randomPID (storage/sign randomPID psk2 note))]
         (isnt (:success (:status response)))
         (is (= (:message (:status response)) "pid invalid"))))
     (testing "note update"
-      (let [post-response (post-note note pid (get-signature pid psk note) {:password "passwd"})
+      (let [post-response (post-note note pid (storage/sign pid psk note) {:password "passwd"})
             note-id (:noteID post-response)
             new-note "a new note!"]
         (is (:success (:status post-response)))
         (is (:success (:status (get-note note-id))))
         (is (= note (:note (get-note note-id))))
-        (let [update-response (update-note note-id new-note pid (get-signature pid psk new-note) "passwd")]
+        (let [update-response (update-note note-id new-note pid (storage/sign pid psk new-note) "passwd")]
           (isnt (:success (:status update-response)))
           (is (= "signature invalid" (:message (:status update-response)))))
         (is (= note (:note (get-note note-id))))
         (let [update-response (update-note note-id new-note pid
-                                           (get-signature pid psk note-id new-note "passwd") "passwd")]
+                                           (storage/sign pid psk note-id new-note "passwd") "passwd")]
           (is (= { :success true } (:status update-response)))
           (isnt (= nil (get-in (get-note note-id) [:statistics :edited])))
           (is (= new-note (:note (get-note note-id)))))
         (let [update-response (update-note note-id "aaa" pid
-                                           (get-signature pid psk note-id "aaa" "pass") "pass")]
+                                           (storage/sign pid psk note-id "aaa" "pass") "pass")]
           (isnt (:success (:status update-response)))
           (is (= "password invalid" (:message (:status update-response)))))
         (is (= new-note (:note (get-note note-id))))
@@ -100,7 +111,7 @@
     (let [response (send-request [:post "/api/note"]
                                  {:note note
                                   :pid pid
-                                  :signature (get-signature pid psk note)
+                                  :signature (storage/sign pid psk note)
                                   :version "1.0"})
           body (parse-string (:body response))
           noteID (body "noteID")]
@@ -118,7 +129,7 @@
     (let [response (send-request [:post "/api/note"]
                                  {:note note
                                   :pid pid
-                                  :signature (get-signature pid psk note)
+                                  :signature (storage/sign pid psk note)
                                   :version "1.0"
                                   :theme "dark"
                                   :text-font "Helvetica"})
@@ -140,7 +151,7 @@
   (let [response (send-request [:post "/api/note"]
                                {:note note
                                 :pid pid
-                                :signature (get-signature pid psk note)
+                                :signature (storage/sign pid psk note)
                                 :version "1.0"
                                 :password "qwerty"})
         body (parse-string (:body response))
@@ -156,7 +167,7 @@
                                    {:noteID noteID
                                     :note "WRONG pass"
                                     :pid pid
-                                    :signature (get-signature pid psk noteID "WRONG pass" "qwerty1")
+                                    :signature (storage/sign pid psk noteID "WRONG pass" "qwerty1")
                                     :password "qwerty1"
                                     :version "1.0"})
             body (parse-string (:body response))]
@@ -172,7 +183,7 @@
                                         {:noteID noteID
                                          :note "UPDATED CONTENT"
                                          :pid pid
-                                         :signature (get-signature pid psk noteID "UPDATED CONTENT" "qwerty")
+                                         :signature (storage/sign pid psk noteID "UPDATED CONTENT" "qwerty")
                                          :password "qwerty"
                                          :version "1.0"}))) ["status" "success"]))
       (isnt (= nil (((parse-string

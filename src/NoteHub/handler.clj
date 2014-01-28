@@ -1,28 +1,24 @@
-(ns NoteHub.views.pages
-  (:require [hiccup.util :as util]
-            [NoteHub.api :as api]
-            [NoteHub.storage :as storage]
-            [cheshire.core :refer :all])
-  (:use
-   [NoteHub.settings]
-   [clojure.string :rename {replace sreplace}
-    :only [escape split replace blank? split-lines lower-case]]
-   [clojure.core.incubator :only [-?>]]
-   [noir.util.crypt :only [encrypt]]
-   [hiccup.form]
-   [hiccup.core]
-   [hiccup.element]
-   [hiccup.util :only [escape-html]]
-   [hiccup.page :only [include-js html5]]
-   [noir.response :only [redirect status content-type]]
-   [noir.core :only [defpage defpartial]]
-   [noir.statuses]))
+(ns notehub.handler
+  (:use compojure.core
+        [notehub.settings]
+        [clojure.string :rename {replace sreplace}
+         :only [escape split replace blank? split-lines lower-case]]
+        [clojure.core.incubator :only [-?>]]
+        [hiccup.form]
+        [hiccup.core]
+        [hiccup.element]
+        [hiccup.util :only [escape-html]]
+        [hiccup.page :only [include-js html5]])
+  (:require [compojure.handler :as handler]
+            [compojure.route :as route]
+            [hiccup.util :as util]
+            [notehub.api :as api]
+            [notehub.storage :as storage]
+            [cheshire.core :refer :all]))
 
-(when-not (storage/valid-publisher? "NoteHub")
-  (storage/register-publisher "NoteHub"))
 
 ; Creates the main html layout
-(defpartial layout
+(defn layout
   [title & content]
   (html5
    [:head
@@ -39,6 +35,32 @@
     ; google analytics code should appear in prod mode only
     (if-not (get-setting :dev-mode) (include-js "/js/google-analytics.js"))]
    [:body {:onload "onLoad()"} content]))
+
+
+(defn md-node
+  "Returns an HTML element with a textarea inside
+  containing the markdown text (to keep all chars unescaped)"
+  ([cls input] (md-node cls {} input))
+  ([cls opts input]
+  [(keyword (str (name cls) ".markdown")) opts
+   [:textarea input]]))
+
+#_ (
+
+    ; ######## OLD CODE START
+
+(ns NoteHub.views.pages
+  (:require )
+  (:use
+
+
+   [noir.response :only [redirect status content-type]]
+   [noir.core :only [defpage defpartial]]
+   [noir.statuses]
+   [noir.util.crypt :only [encrypt]]))
+
+(when-not (storage/valid-publisher? "NoteHub")
+  (storage/register-publisher "NoteHub"))
 
 (defn sanitize
   "Breakes all usages of <script> & <iframe>"
@@ -80,13 +102,6 @@
 (defn generate-session []
   (encrypt (str (rand-int Integer/MAX_VALUE))))
 
-(defn md-node
-  "Returns an HTML element with a textarea inside
-  containing the markdown text (to keep all chars unescaped)"
-  ([cls input] (md-node cls {} input))
-  ([cls opts input]
-  [(keyword (str (name cls) ".markdown")) opts
-   [:textarea input]]))
 
 ; Routes
 ; ======
@@ -135,13 +150,6 @@
                  [:tr [:td (str (get-message %) ":")] [:td (% stats)]])
               [:published :edited :publisher :views])])))
 
-(defpage "/:short-url" {:keys [short-url]}
-  (when-let [params (storage/resolve-url short-url)]
-    (let [{:keys [year month day title]} params
-          rest-params (dissoc params :year :month :day :title)
-          core-url (api/url year month day title)
-          long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
-      (redirect long-url))))
 
 (defpage "/:year/:month/:day/:title/edit" {:keys [year month day title]}
   (let [noteID (api/build-key [year month day] title)]
@@ -181,23 +189,48 @@
           (response 403)))
       (response 500))))
 
-; Here lives the API
+; ###### END OLD CODE
+)
 
-(defpage "/api" args
-  (layout (get-message :api-title)
-          (md-node :article (slurp "API.md"))))
+(defn redirect [url]
+      {:status 302
+       :headers {"Location" (str url)}
+       :body ""})
 
-(defpage [:get "/api/note"] {:keys [version noteID]}
-  (generate-string (api/get-note noteID)))
+(defroutes api-routes
 
-(defpage [:post "/api/note"] {:keys [version note pid signature password] :as params}
-  (generate-string
-   (api/post-note
-    note
-    pid
-    signature
-    {:params (dissoc params :version :note :pid :signature :password)
-     :password password})))
+  (GET "/" [] (layout (get-message :api-title)
+               (md-node :article (slurp "API.md"))))
 
-(defpage [:put "/api/note"] {:keys [version noteID note pid signature password]}
-  (generate-string (api/update-note noteID note pid signature password)))
+  (GET "/note" [version noteID]
+       (generate-string (api/get-note noteID)))
+
+  (POST "/note" {params :params}
+        (generate-string
+         (api/post-note
+          (:note params)
+          (:pid params)
+          (:signature params)
+          {:params (dissoc params :version :note :pid :signature :password)
+           :password (:password params)})))
+
+  (PUT "/note" [version noteID note pid signature password]
+       (generate-string (api/update-note noteID note pid signature password))))
+
+(defroutes app-routes
+  (context "/api" [] api-routes)
+  (GET "/" [] "Hello World")
+
+  (GET "/:short-url" [short-url]
+  (when-let [params (storage/resolve-url short-url)]
+    (let [{:keys [year month day title]} params
+          rest-params (dissoc params :year :month :day :title)
+          core-url (api/url year month day title)
+          long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
+      (redirect long-url))))
+
+  (route/resources "/resources")
+  (route/not-found "Not Found"))
+
+(def app
+  (handler/site app-routes))

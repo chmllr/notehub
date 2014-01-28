@@ -1,14 +1,14 @@
-(ns NoteHub.settings
+(ns notehub.settings
   (:refer-clojure :exclude [replace reverse])
   (:use [clojure.string]))
 
-; Loads and parses any file with each line consisting a key and 
+; Loads and parses any file with each line consisting a key and
 ; a value separated by a "=", and returns a corresponding key-value map.
 (defn- get-pairs-map [file]
   (let [file-content (slurp file)
-        pairs (map #(map trim (split % #"=" 2)) 
+        pairs (map #(map trim (split % #"=" 2))
                    (remove blank? (split-lines file-content)))]
-    (apply hash-map 
+    (apply hash-map
            (mapcat #(list (keyword (first %)) (second %)) pairs))))
 
 ; Loads the setting file to a map
@@ -24,7 +24,7 @@
   (messages-map key))
 
 (defn get-setting
-  "Takes a settings key, a converter function and a default value, and returns a corresponding 
+  "Takes a settings key, a converter function and a default value, and returns a corresponding
   setting value. The default value is returned back when no setting value was found.
   The converter function can be provided to convert the setting from string to a needed type.
   This function is not applied to the specified default value!
@@ -33,10 +33,10 @@
   (let [converter (first more)
         default (second more)
         value (settings-map key)
-        ; Through this hack we can read security-critical settings from (previously 
+        ; Through this hack we can read security-critical settings from (previously
         ; set) shell variables without commiting their content to CVS
         value (if value value
-                (System/getenv 
+                (System/getenv
                   (upper-case
                     (replace (name key) #"-" ""))))]
     (if value

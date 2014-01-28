@@ -1,4 +1,11 @@
-(ns NoteHub.test.views.pages
+(ns notehub.test.handler
+  (:use clojure.test
+        ring.mock.request
+        notehub.handler))
+
+#_(
+
+   (ns NoteHub.test.views.pages
   (:use [NoteHub.views.pages]
         [NoteHub.api :only [build-key get-signature get-date url]]
         [noir.util.test]
@@ -112,7 +119,22 @@
       (is (has-status (send-request [:post "/post-note"]) 400)))
     (testing "valid accesses"
       ;(is (has-status (send-request "/new") 200) "accessing /new")
+      (is (has-status (send-request "/api") 200) "accessing API")
       (is (has-status (send-request (url 2012 6 3 "some-title")) 200) "accessing test note")
       (is (has-status (send-request (url 2012 6 3 "some-title" "export")) 200) "accessing test note's export")
       (is (has-status (send-request (url 2012 6 3 "some-title" "stats")) 200) "accessing test note's stats")
       (is (has-status (send-request "/") 200) "accessing landing page"))))
+
+
+   )
+
+
+(deftest test-app
+  (testing "main route"
+    (let [response (app (request :get "/"))]
+      (is (= (:status response) 200))
+      (is (= (:body response) "Hello World"))))
+
+  (testing "not-found route"
+    (let [response (app (request :get "/invalid"))]
+      (is (= (:status response) 404)))))

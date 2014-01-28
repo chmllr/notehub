@@ -1,15 +1,15 @@
-(ns NoteHub.api
+(ns notehub.api
   (:import
    [java.util Calendar])
   (:use
-   [NoteHub.settings]
+   [notehub.settings]
    [ring.util.codec :only [url-encode]]
    [clojure.string :rename {replace sreplace}
     :only [replace blank? lower-case split-lines split]])
   (:require
    [ring.util.codec]
    [hiccup.util :as util]
-   [NoteHub.storage :as storage]))
+   [notehub.storage :as storage]))
 
 (def version "1.1")
 
@@ -60,15 +60,6 @@
         (str domain "/" (storage/create-short-url token {:year year :month month :day day :title title}))
         (str domain (url year month day title))))))
 
-(let [md5Instance (java.security.MessageDigest/getInstance "MD5")]
-  (defn get-signature
-    "Returns the MD5 hash for the concatenation of all passed parameters"
-    [& args]
-    (let [input (sreplace (apply str args) #"[\r\n]" "")]
-      (do (.reset md5Instance)
-          (.update md5Instance (.getBytes input))
-          (.toString (new java.math.BigInteger 1 (.digest md5Instance)) 16)))))
-
 (defn get-note [noteID]
   (if (storage/note-exists? noteID)
     (let [note (storage/get-note noteID)]
@@ -87,7 +78,7 @@
    ;(log "post-note: %s" {:pid pid :signature signature :password password :note note})
    (let [errors (filter identity
                         [(when-not (storage/valid-publisher? pid) "pid invalid")
-                         (when-not (= signature (get-signature pid (storage/get-psk pid) note))
+                         (when-not (= signature (storage/sign pid (storage/get-psk pid) note))
                            "signature invalid")
                          (when (blank? note) "note is empty")])]
      (if (empty? errors)
@@ -121,7 +112,7 @@
   ;(log "update-note: %s" {:pid pid :noteID noteID :signature signature :password password :note note})
   (let [errors (filter identity
                          [(when-not (storage/valid-publisher? pid) "pid invalid")
-                          (when-not (= signature (get-signature pid (storage/get-psk pid) noteID note password))
+                          (when-not (= signature (storage/sign pid (storage/get-psk pid) noteID note password))
                             "signature invalid")
                           (when (blank? note) "note is empty")
                           (when-not (storage/valid-password? noteID password) "password invalid")])]

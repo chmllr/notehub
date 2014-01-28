@@ -1,10 +1,18 @@
-(ns NoteHub.storage
-  (:use [NoteHub.settings]
-        [clojure.string :only (blank?)]
-        [noir.util.crypt :only [encrypt]])
+(ns notehub.storage
+  (:use [notehub.settings]
+        [clojure.string :only (blank? replace) :rename {replace sreplace}])
   (:require [taoensso.carmine :as car :refer (wcar)]))
 
 (def conn {:pool {} :spec {:uri (get-setting :db-url)}})
+
+(let [md5Instance (java.security.MessageDigest/getInstance "MD5")]
+  (defn sign
+    "Returns the MD5 hash for the concatenation of all passed parameters"
+    [& args]
+    (let [input (sreplace (apply str args) #"[\r\n]" "")]
+      (do (.reset md5Instance)
+          (.update md5Instance (.getBytes input))
+          (.toString (new java.math.BigInteger 1 (.digest md5Instance)) 16)))))
 
 (defmacro redis [cmd & body]
   `(car/wcar conn
@@ -20,7 +28,7 @@
 (defn register-publisher [pid]
   "Returns nil if given PID exists or a PSK otherwise"
   (when (not (valid-publisher? pid))
-    (let [psk (encrypt (str (rand-int Integer/MAX_VALUE) pid))]
+    (let [psk (sign (str (rand-int Integer/MAX_VALUE) pid))]
       (redis :hset :publisher-key pid psk)
       psk)))
 
@@ -31,7 +39,7 @@
   (redis :hget :publisher-key pid))
 
 (defn create-session []
-  (let [token (encrypt (str (rand-int Integer/MAX_VALUE)))]
+  (let [token (sign (str (rand-int Integer/MAX_VALUE)))]
     (redis :sadd :sessions token)
     token))
 

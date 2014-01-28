@@ -1,7 +1,6 @@
-(ns NoteHub.test.storage
-  (:use [NoteHub.storage]
-        [NoteHub.api :only [build-key]]
-        [NoteHub.views.pages]
+(ns notehub.test.storage
+  (:use [notehub.storage]
+        [notehub.api :only [build-key]]
         [clojure.test])
   (:require [taoensso.carmine :as car :refer (wcar)]))
 
