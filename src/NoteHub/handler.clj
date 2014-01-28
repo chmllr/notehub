@@ -104,45 +104,6 @@
 ; Routes
 ; ======
 
-(defpage "/" {}
-  (layout (get-message :page-title)
-          [:div#hero
-           [:h1 (get-message :name)]
-           [:h2 (get-message :title)]
-           [:br]
-           [:a.landing-button {:href "/new" :style "color: white"} (get-message :new-page)]]
-          [:div#dashed-line]
-          (md-node :article.helvetica.bottom-space
-                   {:style "font-size: 1em"}
-                   (slurp "LANDING.md"))
-          (md-node :div.centered.helvetica (get-message :footer))))
-
-(defpage "/:year/:month/:day/:title/export" {:keys [year month day title]}
-  (when-let [md-text (:note (api/get-note (api/build-key [year month day] title)))]
-    (content-type "text/plain; charset=utf-8" md-text)))
-
-(defpage "/:year/:month/:day/:title/stats" {:keys [year month day title]}
-  (when-let [stats (:statistics (api/get-note (api/build-key [year month day] title)))]
-    (layout (get-message :statistics)
-            [:table#stats.helvetica.central-element
-             (map
-              #(when (% stats)
-                 [:tr [:td (str (get-message %) ":")] [:td (% stats)]])
-              [:published :edited :publisher :views])])))
-
-
-(defpage "/:year/:month/:day/:title/edit" {:keys [year month day title]}
-  (let [noteID (api/build-key [year month day] title)]
-    (input-form "/update-note" :update
-                (html (hidden-field :noteID noteID))
-                (:note (api/get-note noteID)) :enter-passwd)))
-
-(defpage "/new" {}
-  (input-form "/post-note" :publish
-              (html (hidden-field :session (storage/create-session))
-                    (hidden-field {:id :signature} :signature))
-              (get-message :loading) :set-passwd))
-
 (defpage [:post "/post-note"] {:keys [session note signature password version]}
   (if (= signature (api/get-signature session note))
     (let [pid "NoteHub"
@@ -173,9 +134,13 @@
 )
 
 (defn redirect [url]
-      {:status 302
-       :headers {"Location" (str url)}
-       :body ""})
+  {:status 302
+   :headers {"Location" (str url)}
+   :body ""})
+
+(defn return-content-type [ctype content]
+  {:headers {"Content-Type" ctype}
+   :body content})
 
 (defroutes api-routes
 
@@ -199,35 +164,72 @@
 
 (defroutes app-routes
   (context "/api" [] api-routes)
-  (GET "/" [] "Hello World")
+
+  (GET "/" []
+       (layout (get-message :page-title)
+               [:div#hero
+                [:h1 (get-message :name)]
+                [:h2 (get-message :title)]
+                [:br]
+                [:a.landing-button {:href "/new" :style "color: white"} (get-message :new-page)]]
+               [:div#dashed-line]
+               (md-node :article.helvetica.bottom-space
+                        {:style "font-size: 1em"}
+                        (slurp "LANDING.md"))
+               (md-node :div.centered.helvetica (get-message :footer))))
+
+  (GET "/:year/:month/:day/:title/export" [year month day title]
+       (when-let [md-text (:note (api/get-note (api/build-key [year month day] title)))]
+         (return-content-type "text/plain; charset=utf-8" md-text)))
+
+  (GET "/:year/:month/:day/:title/stats" [year month day title]
+       (when-let [stats (:statistics (api/get-note (api/build-key [year month day] title)))]
+         (layout (get-message :statistics)
+                 [:table#stats.helvetica.central-element
+                  (map
+                   #(when (% stats)
+                      [:tr [:td (str (get-message %) ":")] [:td (% stats)]])
+                   [:published :edited :publisher :views])])))
+
+  (GET "/:year/:month/:day/:title/edit" [year month day title]
+       (let [noteID (api/build-key [year month day] title)]
+         (input-form "/update-note" :update
+                     (html (hidden-field :noteID noteID))
+                     (:note (api/get-note noteID)) :enter-passwd)))
+
+  (GET "/new" []
+       (input-form "/post-note" :publish
+                   (html (hidden-field :session (storage/create-session))
+                         (hidden-field {:id :signature} :signature))
+                   (get-message :loading) :set-passwd))
 
   (GET "/:year/:month/:day/:title" [year month day title :as params]
-  (let [params (assoc (:query-params params)
-                 :year year :month month :day day :title title)
-        noteID (api/build-key [year month day] title)]
-    (when (storage/note-exists? noteID)
-      (let [note (api/get-note noteID)
-            sanitized-note (sanitize (:note note))]
-        (layout (:title note)
-                (md-node :article.bottom-space sanitized-note)
-                (let [urls {:short-url (api/url (storage/create-short-url noteID params))
-                            :notehub "/"}
-                      links (map #(link-to
-                                   (if (urls %)
-                                     (urls %)
-                                     (str (:longURL note) "/" (name %)))
-                                   (get-message %))
-                                 [:notehub :stats :edit :export :short-url])
-                      links (interpose [:span.middot "&middot;"] links)]
-                  [:div#links links]))))))
+       (let [params (assoc (:query-params params)
+                      :year year :month month :day day :title title)
+             noteID (api/build-key [year month day] title)]
+         (when (storage/note-exists? noteID)
+           (let [note (api/get-note noteID)
+                 sanitized-note (sanitize (:note note))]
+             (layout (:title note)
+                     (md-node :article.bottom-space sanitized-note)
+                     (let [urls {:short-url (api/url (storage/create-short-url noteID params))
+                                 :notehub "/"}
+                           links (map #(link-to
+                                        (if (urls %)
+                                          (urls %)
+                                          (str (:longURL note) "/" (name %)))
+                                        (get-message %))
+                                      [:notehub :stats :edit :export :short-url])
+                           links (interpose [:span.middot "&middot;"] links)]
+                       [:div#links links]))))))
 
   (GET "/:short-url" [short-url]
-  (when-let [params (storage/resolve-url short-url)]
-    (let [{:keys [year month day title]} params
-          rest-params (dissoc params :year :month :day :title)
-          core-url (api/url year month day title)
-          long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
-      (redirect long-url))))
+       (when-let [params (storage/resolve-url short-url)]
+         (let [{:keys [year month day title]} params
+               rest-params (dissoc params :year :month :day :title)
+               core-url (api/url year month day title)
+               long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
+           (redirect long-url))))
 
   (route/resources "/")
   (route/not-found "Not Found"))

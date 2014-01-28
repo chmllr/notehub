@@ -3,6 +3,12 @@
         ring.mock.request
         notehub.handler))
 
+(defn substring? [a b] (not (= nil (re-matches (re-pattern (str "(?s).*" a ".*")) b))))
+(def date [2012 6 3])
+(def test-title "some-title")
+(def test-note "# This is a test note.\nHello _world_. Motörhead, тест.")
+
+
 #_(
 
    (ns NoteHub.test.views.pages
@@ -12,10 +18,6 @@
         [NoteHub.storage]
         [clojure.test]))
 
-(defn substring? [a b] (not (= nil (re-matches (re-pattern (str "(?s).*" a ".*")) b))))
-(def date [2012 6 3])
-(def test-title "some-title")
-(def test-note "# This is a test note.\nHello _world_. Motörhead, тест.")
 
 (defn create-testnote-fixture [f]
   (add-note (build-key date test-title) test-note "testPID")
@@ -133,7 +135,7 @@
   (testing "main route"
     (let [response (app (request :get "/"))]
       (is (= (:status response) 200))
-      (is (= (:body response) "Hello World"))))
+      (is (substring? "free and hassle-free" (:body response)))))
 
   (testing "not-found route"
     (let [response (app (request :get "/invalid"))]
