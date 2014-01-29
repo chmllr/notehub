@@ -37,9 +37,8 @@
   (print-str year month day title))
 
 (defn derive-title [md-text]
-  (apply str
-         (remove #{\# \_ \*}
-                 (first (split-lines md-text)))))
+   (sreplace (first (split-lines md-text))
+             #"(#+|_|\*+|<.*?>)" ""))
 
 (defn get-date
   "Returns today's date"
