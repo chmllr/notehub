@@ -1,1 +1,1 @@
-web: lein ring server
+web: lein ring server-headless $PORT
