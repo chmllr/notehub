@@ -42,8 +42,8 @@
   containing the markdown text (to keep all chars unescaped)"
   ([cls input] (md-node cls {} input))
   ([cls opts input]
-  [(keyword (str (name cls) ".markdown")) opts
-   [:textarea input]]))
+   [(keyword (str (name cls) ".markdown")) opts
+    [:textarea input]]))
 
 (when-not (storage/valid-publisher? "NoteHub")
   (storage/register-publisher "NoteHub"))
@@ -77,9 +77,10 @@
   "Sets a custom message for each needed HTTP status.
   The message to be assigned is extracted with a dynamically generated key"
   [code]
-  (let [message (get-message (keyword (str "status-" code)))]
-    (layout message
-            [:article [:h1 message]])))
+  {:status code
+   :body (let [message (get-message (keyword (str "status-" code)))]
+           (layout message
+                   [:article [:h1 message]]))})
 
 (defn redirect [url]
   {:status 302
@@ -93,7 +94,7 @@
 (defroutes api-routes
 
   (GET "/" [] (layout (get-message :api-title)
-               (md-node :article (slurp "API.md"))))
+                      (md-node :article (slurp "API.md"))))
 
   (GET "/note" [version noteID]
        (generate-string (api/get-note noteID)))
@@ -205,7 +206,7 @@
             (response 500))))
 
   (route/resources "/")
-  (route/not-found "Not Found"))
+  (route/not-found (response 404)))
 
 (def app
   (handler/site app-routes))
