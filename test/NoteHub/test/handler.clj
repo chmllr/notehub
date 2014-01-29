@@ -1,23 +1,14 @@
 (ns notehub.test.handler
   (:use clojure.test
+        [notehub.api :only [build-key get-date url]]
+        notehub.storage
         ring.mock.request
+        notehub.test.api
         notehub.handler))
 
-(defn substring? [a b] (not (= nil (re-matches (re-pattern (str "(?s).*" a ".*")) b))))
 (def date [2012 6 3])
 (def test-title "some-title")
 (def test-note "# This is a test note.\nHello _world_. Motörhead, тест.")
-
-
-#_(
-
-   (ns NoteHub.test.views.pages
-  (:use [NoteHub.views.pages]
-        [NoteHub.api :only [build-key get-signature get-date url]]
-        [noir.util.test]
-        [NoteHub.storage]
-        [clojure.test]))
-
 
 (defn create-testnote-fixture [f]
   (add-note (build-key date test-title) test-note "testPID")
@@ -35,10 +26,10 @@
 
 (deftest export-test
   (testing "Markdown export"
-    (is (has-body (send-request (url 2012 6 3 "some-title" "export")) test-note))))
+    (is (= (:body (send-request (url 2012 6 3 "some-title" "export"))) test-note))))
 
 (deftest note-creation
-  (let [session-key (create-session)
+  (let [session-key "somemd5hash"
         date (get-date)
         title "this-is-a-test-note"
         [year month day] date]
@@ -47,7 +38,7 @@
                   [:post "/post-note"]
                   {:session session-key
                    :note test-note
-                   :signature (get-signature session-key test-note)})]
+                   :signature (sign session-key test-note)})]
         (is (has-status resp 302))
         (is (note-exists? (build-key date title)))
         (is (substring? "Hello _world_"
@@ -57,7 +48,7 @@
               (not (note-exists? (build-key date title)))))))))
 
 (deftest note-creation-utf
-  (let [session-key (create-session)
+  (let [session-key "somemd5hash"
         date (get-date)
         title "радуга"
         note "# Радуга\nкаждый охотник желает знать, где сидят фазаны."
@@ -68,7 +59,7 @@
               [:post "/post-note"]
               {:session session-key
                :note note
-               :signature (get-signature session-key note)}) 302))
+               :signature (sign session-key note)}) 302))
       (is (note-exists? (build-key date title)))
       (is (substring? "знать" ((send-request (url year month day title)) :body)))
       (is (do
@@ -76,11 +67,11 @@
             (not (note-exists? (build-key date title))))))))
 
 (deftest note-update
-  (let [session-key (create-session)
+  (let [session-key "somemd5hash"
         date (get-date)
         title "this-is-a-test-note"
         [year month day] date
-        hash (get-signature session-key test-note)]
+        hash (sign session-key test-note)]
     (testing "Note update"
       (is (has-status
             (send-request
@@ -126,9 +117,6 @@
       (is (has-status (send-request (url 2012 6 3 "some-title" "export")) 200) "accessing test note's export")
       (is (has-status (send-request (url 2012 6 3 "some-title" "stats")) 200) "accessing test note's stats")
       (is (has-status (send-request "/") 200) "accessing landing page"))))
-
-
-   )
 
 
 (deftest test-app
