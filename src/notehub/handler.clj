@@ -90,25 +90,27 @@
   {:headers {"Content-Type" ctype}
    :body content})
 
+(defn version-manager [f params]
+  (generate-string
+   (if-let [version (:version params)]
+     (f (if (and (:noteID params) (< (Float/parseFloat version) 1.3))
+          (assoc params :noteID (sreplace (params :noteID) #" " "/"))
+          params))
+     (api/create-response false "API version expected"))))
+
 (defroutes api-routes
 
   (GET "/" [] (layout (get-message :api-title)
                       (md-node :article (slurp "API.md"))))
 
-  (GET "/note" [version noteID]
-       (generate-string (api/get-note noteID)))
+  (GET "/note" {params :params}
+       (version-manager api/get-note params))
 
   (POST "/note" {params :params}
-        (generate-string
-         (api/post-note
-          (:note params)
-          (:pid params)
-          (:signature params)
-          {:params (dissoc params :version :note :pid :signature :password)
-           :password (:password params)})))
+        (version-manager api/post-note params))
 
-  (PUT "/note" [version noteID note pid signature password]
-       (generate-string (api/update-note noteID note pid signature password))))
+  (PUT "/note" {params :params}
+       (version-manager api/update-note params)))
 
 (defroutes app-routes
   (context "/api" [] api-routes)
@@ -127,11 +129,11 @@
                (md-node :div.centered.helvetica (get-message :footer))))
 
   (GET "/:year/:month/:day/:title/export" [year month day title]
-       (when-let [md-text (:note (api/get-note (api/build-key [year month day] title)))]
+       (when-let [md-text (:note (api/get-note {:noteID (api/build-key year month day title)}))]
          (return-content-type "text/plain; charset=utf-8" md-text)))
 
   (GET "/:year/:month/:day/:title/stats" [year month day title]
-       (when-let [stats (:statistics (api/get-note (api/build-key [year month day] title)))]
+       (when-let [stats (:statistics (api/get-note {:noteID (api/build-key year month day title)}))]
          (layout (get-message :statistics)
                  [:table#stats.helvetica.central-element
                   (map
@@ -140,10 +142,10 @@
                    [:published :edited :publisher :views])])))
 
   (GET "/:year/:month/:day/:title/edit" [year month day title]
-       (let [noteID (api/build-key [year month day] title)]
+       (let [noteID (api/build-key year month day title)]
          (input-form "/update-note" :update
                      (html (hidden-field :noteID noteID))
-                     (:note (api/get-note noteID)) :enter-passwd)))
+                     (:note (api/get-note {:noteID noteID})) :enter-passwd)))
 
   (GET "/new" []
        (input-form "/post-note" :publish
@@ -154,9 +156,9 @@
   (GET "/:year/:month/:day/:title" [year month day title :as params]
        (let [params (assoc (:query-params params)
                       :year year :month month :day day :title title)
-             noteID (api/build-key [year month day] title)]
+             noteID (api/build-key year month day title)]
          (when (storage/note-exists? noteID)
-           (let [note (api/get-note noteID)
+           (let [note (api/get-note {:noteID noteID})
                  sanitized-note (sanitize (:note note))]
              (layout (:title note)
                      (md-node :article.bottom-space sanitized-note)
@@ -180,25 +182,28 @@
            (redirect long-url))))
 
 
-  (POST "/post-note" [session note signature password version]
+  (POST "/post-note" [session note signature password]
         (if (= signature (storage/sign session note))
           (let [pid "NoteHub"
-                psk (storage/get-psk pid)]
+                psk (storage/get-psk pid)
+                params {:session session :note note :signature signature
+                        :password password :pid pid}]
             (if (storage/valid-publisher? pid)
-              (let [resp (api/post-note note pid (storage/sign pid psk note) {:password password})]
+              (let [resp (api/post-note (assoc params :signature (storage/sign pid psk note)))]
                 (if (get-in resp [:status :success])
                   (redirect (:longURL resp))
                   (response 400)))
               (response 500)))
           (response 400)))
 
-  (POST "/update-note" [noteID note password version]
+  (POST "/update-note" [noteID note password]
         (let [pid "NoteHub"
-              psk (storage/get-psk pid)]
+              psk (storage/get-psk pid)
+              params {:noteID noteID :note note :password password :pid pid}]
           (if (storage/valid-publisher? pid)
-            (let [resp (api/update-note noteID note pid
-                                        (storage/sign pid psk noteID note password)
-                                        password)]
+            (let [resp (api/update-note (assoc params
+                                          :signature
+                                          (storage/sign pid psk noteID note password)))]
               (if (get-in resp [:status :success])
                 (redirect (:longURL resp))
                 (response 403)))

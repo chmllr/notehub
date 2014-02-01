@@ -9,7 +9,8 @@
 (def note "hello world!\nThis is a _test_ note!")
 (def pid "somePlugin")
 (def pid2 "somePlugin2")
-(def note-title (str (apply print-str (get-date)) " hello-world"))
+(def note-title (let [[y m d] (get-date)]
+                  (apply str (interpose "/" [y m d "hello-world"]))))
 (def note-url (str (apply str domain "/" (interpose "/" (get-date))) "/hello-world"))
 (defn substring? [a b] (not (= nil (re-matches (re-pattern (str "(?s).*" a ".*")) b))))
 
@@ -45,10 +46,10 @@
         (isnt (storage/valid-publisher? "any_PID"))
         (isnt (storage/valid-publisher? pid2))))
     (testing "note publishing & retrieval"
-      (isnt (:success (:status (get-note "some note id"))))
-      (is (= "note is empty" (:message (:status (post-note "" pid (storage/sign pid psk ""))))))
-      (let [post-response (post-note note pid (storage/sign pid psk note))
-            get-response (get-note (:noteID post-response))]
+      (isnt (:success (:status (get-note {:noteID "some note id"}))))
+      (is (= "note is empty" (:message (:status (post-note {:note "" :pid pid :signature (storage/sign pid psk "")})))))
+      (let [post-response (post-note {:note note :pid pid :signature (storage/sign pid psk note)})
+            get-response (get-note post-response)]
         (is (:success (:status post-response)))
         (is (:success (:status get-response)))
         (is (= note (:note get-response)))
@@ -65,44 +66,47 @@
         (is (= (:title get-response) (derive-title note)))
         (is (= "1" (get-in get-response [:statistics :views])))
         (isnt (get-in get-response [:statistics :edited]))
-        (is (= "3" (get-in (get-note (:noteID post-response)) [:statistics :views])))))
+        (is (= "3" (get-in (get-note post-response) [:statistics :views])))))
     (testing "creation with wrong signature"
-      (let [response (post-note note pid (storage/sign pid2 psk note))]
+      (let [response (post-note {:note note :pid pid :signature (storage/sign pid2 psk note)})]
         (isnt (:success (:status response)))
         (is (= "signature invalid" (:message (:status response)))))
-      (let [response (post-note note pid (storage/sign pid2 psk "any note"))]
+      (let [response (post-note {:note note :pid pid :signature (storage/sign pid2 psk "any note")})]
         (isnt (:success (:status response)))
         (is (= "signature invalid" (:message (:status response)))))
-      (isnt (:success (:status (post-note note pid (storage/sign pid "random_psk" note)))))
-      (is (:success (:status (post-note note pid (storage/sign pid psk note)))))
+      (isnt (:success (:status (post-note {:note note :pid pid :signature (storage/sign pid "random_psk" note)}))))
+      (is (:success (:status (post-note {:note note :pid pid :signature (storage/sign pid psk note)}))))
       (let [randomPID "randomPID"
             psk2 (storage/register-publisher randomPID)
             _ (storage/revoke-publisher randomPID)
-            response (post-note note randomPID (storage/sign randomPID psk2 note))]
+            response (post-note {:note note :pid randomPID :signature (storage/sign randomPID psk2 note)})]
         (isnt (:success (:status response)))
         (is (= (:message (:status response)) "pid invalid"))))
     (testing "note update"
-      (let [post-response (post-note note pid (storage/sign pid psk note) {:password "passwd"})
+      (let [post-response (post-note {:note note :pid pid :signature (storage/sign pid psk note) :password "passwd"})
             note-id (:noteID post-response)
             new-note "a new note!"]
         (is (:success (:status post-response)))
-        (is (:success (:status (get-note note-id))))
-        (is (= note (:note (get-note note-id))))
-        (let [update-response (update-note note-id new-note pid (storage/sign pid psk new-note) "passwd")]
+        (is (:success (:status (get-note {:noteID note-id}))))
+        (is (= note (:note (get-note {:noteID note-id}))))
+        (let [update-response (update-note {:noteID note-id :note new-note :pid pid
+                                            :signature (storage/sign pid psk new-note) :password "passwd"})]
           (isnt (:success (:status update-response)))
           (is (= "signature invalid" (:message (:status update-response)))))
-        (is (= note (:note (get-note note-id))))
-        (let [update-response (update-note note-id new-note pid
-                                           (storage/sign pid psk note-id new-note "passwd") "passwd")]
+        (is (= note (:note (get-note {:noteID note-id}))))
+        (let [update-response (update-note {:noteID note-id :note new-note :pid pid
+                                           :signature (storage/sign pid psk note-id new-note "passwd")
+                                                       :password "passwd"})]
           (is (= { :success true } (:status update-response)))
-          (isnt (= nil (get-in (get-note note-id) [:statistics :edited])))
-          (is (= new-note (:note (get-note note-id)))))
-        (let [update-response (update-note note-id "aaa" pid
-                                           (storage/sign pid psk note-id "aaa" "pass") "pass")]
+          (isnt (= nil (get-in (get-note {:noteID note-id}) [:statistics :edited])))
+          (is (= new-note (:note (get-note {:noteID note-id})))))
+        (let [update-response (update-note {:noteID note-id :note "aaa" :pid pid
+                                           :signature (storage/sign pid psk note-id "aaa" "pass")
+                                            :password "pass"})]
           (isnt (:success (:status update-response)))
           (is (= "password invalid" (:message (:status update-response)))))
-        (is (= new-note (:note (get-note note-id))))
-        (is (= new-note (:note (get-note note-id))))))))
+        (is (= new-note (:note (get-note {:noteID note-id}))))
+        (is (= new-note (:note (get-note {:noteID note-id}))))))))
 
 (deftest api-note-creation
   (testing "Note creation"

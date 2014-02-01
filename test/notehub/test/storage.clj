@@ -1,9 +1,9 @@
 (ns notehub.test.storage
   (:use [notehub.storage]
-        [notehub.api :only [build-key]]
         [clojure.test])
   (:require [taoensso.carmine :as car :refer (wcar)]))
 
+(defn build-key [[y m d] t] (notehub.api/build-key y m d t))
 (def date [2012 06 03])
 (def test-title "Some title.")
 (def test-note "This is a test note.")

@@ -1,11 +1,12 @@
 (ns notehub.test.handler
   (:use clojure.test
-        [notehub.api :only [build-key get-date url]]
+        [notehub.api :only [get-date url]]
         notehub.storage
         ring.mock.request
         notehub.test.api
         notehub.handler))
 
+(defn build-key [[y m d] t] (notehub.api/build-key y m d t))
 (def date [2012 6 3])
 (def test-title "some-title")
 (def test-note "# This is a test note.\nHello _world_. Motörhead, тест.")
