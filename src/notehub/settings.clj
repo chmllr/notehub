@@ -1,6 +1,7 @@
 (ns notehub.settings
-  (:refer-clojure :exclude [replace reverse])
-  (:use [clojure.string]))
+  (:use [clojure.string
+         :rename {replace sreplace}
+         :only [blank? trim split split-lines replace upper-case]]))
 
 ; Loads and parses any file with each line consisting a key and
 ; a value separated by a "=", and returns a corresponding key-value map.
@@ -37,8 +38,8 @@
         ; set) shell variables without commiting their content to CVS
         value (if value value
                 (System/getenv
-                  (upper-case
-                    (replace (name key) #"-" ""))))]
+                 (upper-case
+                  (sreplace (name key) #"-" ""))))]
     (if value
       (if (fn? converter) (converter value) value)
       default)))

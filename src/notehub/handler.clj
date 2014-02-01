@@ -1,8 +1,7 @@
 (ns notehub.handler
   (:use compojure.core
         [notehub.settings]
-        [clojure.string :rename {replace sreplace}
-         :only [escape split replace blank? split-lines lower-case]]
+        [clojure.string :rename {replace sreplace} :only [replace]]
         [clojure.core.incubator :only [-?>]]
         [hiccup.form]
         [hiccup.core]

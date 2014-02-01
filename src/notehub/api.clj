@@ -5,7 +5,7 @@
    [notehub.settings]
    [ring.util.codec :only [url-encode]]
    [clojure.string :rename {replace sreplace}
-    :only [replace blank? lower-case split-lines split]])
+    :only [replace blank? trim lower-case split-lines split]])
   (:require
    [ring.util.codec]
    [hiccup.util :as util]
@@ -84,12 +84,10 @@
        (let [[year month day] (map str (get-date))
              password (opts :password)
              params (opts :params {})
-             untrimmed-line (filter #(or (= \- %) (Character/isLetterOrDigit %))
-                                    (-> note split-lines first (sreplace " " "-") lower-case))
-             trim (fn [s] (apply str (drop-while #(= \- %) s)))
-             title-uncut (-> untrimmed-line trim reverse trim reverse)
+             raw-title (filter #(or (= \- %) (Character/isLetterOrDigit %))
+                               (-> note derive-title trim (sreplace " " "-") lower-case))
              max-length (get-setting :max-title-length #(Integer/parseInt %) 80)
-             proposed-title (apply str (take max-length title-uncut))
+             proposed-title (apply str (take max-length raw-title))
              date [year month day]
              title (first (drop-while #(storage/note-exists? (build-key date %))
                                       (cons proposed-title
