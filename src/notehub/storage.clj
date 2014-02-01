@@ -79,9 +79,6 @@
 (defn short-url-exists? [url]
   (= 1 (redis :hexists :short-url url)))
 
-(defn get-short-url [noteID]
-  (redis :hget :short-url noteID))
-
 (defn resolve-url [url]
   (let [value (redis :hget :short-url url)]
     (when value ; TODO: necessary?
