@@ -11,7 +11,7 @@
    [hiccup.util :as util]
    [notehub.storage :as storage]))
 
-(def version "1.2")
+(def version "1.3")
 
 (def domain
   (get-setting
