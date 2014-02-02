@@ -19,8 +19,8 @@
 (defn send-request
   ([resource] (send-request resource {}))
   ([resource params]
-  (let [[method url] (if (vector? resource) resource [:get resource])]
-    (app-routes {:request-method method :uri url :params params}))))
+   (let [[method url] (if (vector? resource) resource [:get resource])]
+     (app-routes {:request-method method :uri url :params params}))))
 
 (defn has-status [input status]
   (= status (:status input)))
@@ -59,9 +59,9 @@
         (let [su (last (clojure.string/split (:shortURL get-response) #"/"))]
           (is (= su (storage/create-short-url (:noteID post-response) (storage/resolve-url su)))))
         (let [resp (send-request
-                                (clojure.string/replace (:shortURL get-response) domain ""))
+                    (clojure.string/replace (:shortURL get-response) domain ""))
               resp (send-request ((:headers resp) "Location"))]
-        (is (substring? "hello world"(:body resp))))
+          (is (substring? "hello world"(:body resp))))
         (is (= (:publisher get-response) pid))
         (is (= (:title get-response) (derive-title note)))
         (is (= "1" (get-in get-response [:statistics :views])))
@@ -95,13 +95,13 @@
           (is (= "signature invalid" (:message (:status update-response)))))
         (is (= note (:note (get-note {:noteID note-id}))))
         (let [update-response (update-note {:noteID note-id :note new-note :pid pid
-                                           :signature (storage/sign pid psk note-id new-note "passwd")
-                                                       :password "passwd"})]
+                                            :signature (storage/sign pid psk note-id new-note "passwd")
+                                            :password "passwd"})]
           (is (= { :success true } (:status update-response)))
           (isnt (= nil (get-in (get-note {:noteID note-id}) [:statistics :edited])))
           (is (= new-note (:note (get-note {:noteID note-id})))))
         (let [update-response (update-note {:noteID note-id :note "aaa" :pid pid
-                                           :signature (storage/sign pid psk note-id "aaa" "pass")
+                                            :signature (storage/sign pid psk note-id "aaa" "pass")
                                             :password "pass"})]
           (isnt (:success (:status update-response)))
           (is (= "password invalid" (:message (:status update-response)))))
@@ -121,6 +121,14 @@
       (is (get-in body ["status" "success"]))
       (is (= note ((parse-string
                     (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
+      (is (= "API version expected" ((parse-string
+                                      (:body (send-request [:get "/api/note"] {:noteID noteID}))) "message")))
+      (is (= note ((parse-string
+                    (:body (send-request [:get "/api/note"] {:version "1.1"
+                                                             :noteID (clojure.string/replace noteID #"/" " ")}))) "note")))
+      (isnt (= note ((parse-string
+                    (:body (send-request [:get "/api/note"] {:version "1.3"
+                                                             :noteID (clojure.string/replace noteID #"/" " ")}))) "note")))
       (is (do
             (storage/delete-note noteID)
             (not (storage/note-exists? noteID)))))))

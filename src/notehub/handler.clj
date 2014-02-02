@@ -90,27 +90,19 @@
   {:headers {"Content-Type" ctype}
    :body content})
 
-(defn version-manager [f params]
-  (generate-string
-   (if-let [version (:version params)]
-     (f (if (and (:noteID params) (< (Float/parseFloat version) 1.3))
-          (assoc params :noteID (sreplace (params :noteID) #" " "/"))
-          params))
-     (api/create-response false "API version expected"))))
-
 (defroutes api-routes
 
   (GET "/" [] (layout (get-message :api-title)
                       (md-node :article (slurp "API.md"))))
 
   (GET "/note" {params :params}
-       (version-manager api/get-note params))
+       (generate-string (api/version-manager api/get-note params)))
 
   (POST "/note" {params :params}
-        (version-manager api/post-note params))
+        (generate-string (api/version-manager api/post-note params)))
 
   (PUT "/note" {params :params}
-       (version-manager api/update-note params)))
+       (generate-string (api/version-manager api/update-note params))))
 
 (defroutes app-routes
   (context "/api" [] api-routes)

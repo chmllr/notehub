@@ -46,7 +46,7 @@
   (map #(+ (second %) (.get (Calendar/getInstance) (first %)))
        {Calendar/YEAR 0, Calendar/MONTH 1, Calendar/DAY_OF_MONTH 0}))
 
-(defn create-response
+(defn- create-response
   ([success] {:success success})
   ([success message & params]
    (assoc (create-response success) :message (apply format message params))))
@@ -58,6 +58,13 @@
       (if description
         (str domain "/" (storage/create-short-url token {:year year :month month :day day :title title}))
         (str domain (url year month day title))))))
+
+(defn version-manager [f params]
+  (if-let [version (:version params)]
+    (f (if (and (:noteID params) (< (Double/parseDouble version) 1.3))
+         (assoc params :noteID (sreplace (params :noteID) #" " "/"))
+         params))
+    (create-response false "API version expected")))
 
 (defn get-note [{:keys [noteID]}]
   (if (storage/note-exists? noteID)
