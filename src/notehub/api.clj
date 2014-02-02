@@ -64,7 +64,7 @@
     (f (if (and (:noteID params) (< (Double/parseDouble version) 1.3))
          (assoc params :noteID (sreplace (params :noteID) #" " "/"))
          params))
-    (create-response false "API version expected")))
+    {:status (create-response false "API version expected")}))
 
 (defn get-note [{:keys [noteID]}]
   (if (storage/note-exists? noteID)
@@ -76,7 +76,7 @@
        :statistics (storage/get-note-statistics noteID)
        :status (create-response true)
        :publisher (storage/get-publisher noteID)})
-    (create-response false "noteID '%s' unknown" noteID)))
+    {:status (create-response false "noteID '%s' unknown" noteID)}))
 
 (defn post-note
   [{:keys [note pid signature password] :as params}]

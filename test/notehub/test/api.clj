@@ -66,6 +66,7 @@
         (is (= (:title get-response) (derive-title note)))
         (is (= "1" (get-in get-response [:statistics :views])))
         (isnt (get-in get-response [:statistics :edited]))
+        (is (= "noteID 'randomString' unknown"(get-in (parse-string (:body (send-request "/api/note" {:version "1.3" :noteID "randomString"}))) ["status" "message"])))
         (is (= "3" (get-in (get-note post-response) [:statistics :views])))))
     (testing "creation with wrong signature"
       (let [response (post-note {:note note :pid pid :signature (storage/sign pid2 psk note)})]
@@ -121,8 +122,8 @@
       (is (get-in body ["status" "success"]))
       (is (= note ((parse-string
                     (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
-      (is (= "API version expected" ((parse-string
-                                      (:body (send-request [:get "/api/note"] {:noteID noteID}))) "message")))
+      (is (= "API version expected" (get-in (parse-string
+                                      (:body (send-request [:get "/api/note"] {:noteID noteID}))) ["status" "message"])))
       (is (= note ((parse-string
                     (:body (send-request [:get "/api/note"] {:version "1.1"
                                                              :noteID (clojure.string/replace noteID #"/" " ")}))) "note")))
