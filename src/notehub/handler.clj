@@ -15,7 +15,6 @@
             [notehub.storage :as storage]
             [cheshire.core :refer :all]))
 
-
 ; Creates the main html layout
 (defn layout
   [title & content]
@@ -34,7 +33,6 @@
     ; google analytics code should appear in prod mode only
     (if-not (get-setting :dev-mode) (include-js "/js/google-analytics.js"))]
    [:body {:onload "onLoad()"} content]))
-
 
 (defn md-node
   "Returns an HTML element with a textarea inside
@@ -91,7 +89,6 @@
    :body content})
 
 (defroutes api-routes
-
   (GET "/" [] (layout (get-message :api-title)
                       (md-node :article (slurp "API.md"))))
 
@@ -205,4 +202,12 @@
   (route/not-found (response 404)))
 
 (def app
-  (handler/site app-routes))
+  (let [handler (handler/site app-routes)]
+     (fn [request]
+       (if (get-setting :dev-mode)
+         (handler request)
+         (try (handler request)
+           (catch Exception e
+             (do
+               ;TODO (log e)
+               (response 500))))))))
