@@ -126,7 +126,8 @@
          (let [stats (:statistics resp)
                statistics (get-message :statistics)]
            (layout statistics
-                   [:h2.central-element statistics ": " (api/derive-title (:note resp))]
+                   [:h2.central-element (api/derive-title (:note resp))]
+                   [:h3.central-element.helvetica statistics]
                    [:table#stats.helvetica.central-element
                     (map
                      #(when (% stats)
