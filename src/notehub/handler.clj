@@ -122,13 +122,16 @@
          (return-content-type "text/plain; charset=utf-8" md-text)))
 
   (GET "/:year/:month/:day/:title/stats" [year month day title]
-       (when-let [stats (:statistics (api/get-note {:noteID (api/build-key year month day title)}))]
-         (layout (get-message :statistics)
-                 [:table#stats.helvetica.central-element
-                  (map
-                   #(when (% stats)
-                      [:tr [:td (str (get-message %) ":")] [:td (% stats)]])
-                   [:published :edited :publisher :views])])))
+       (when-let [resp (api/get-note {:noteID (api/build-key year month day title)})]
+         (let [stats (:statistics resp)
+               statistics (get-message :statistics)]
+           (layout statistics
+                   [:h2.central-element statistics ": " (api/derive-title (:note resp))]
+                   [:table#stats.helvetica.central-element
+                    (map
+                     #(when (% stats)
+                        [:tr [:td (str (get-message %) ":")] [:td (% stats)]])
+                     [:published :edited :publisher :views])]))))
 
   (GET "/:year/:month/:day/:title/edit" [year month day title]
        (let [noteID (api/build-key year month day title)]
