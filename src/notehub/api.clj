@@ -61,9 +61,18 @@
 
 (defn version-manager [f params]
   (if-let [version (:version params)]
-    (f (if (and (:noteID params) (< (Double/parseDouble version) 1.3))
-         (assoc params :noteID (sreplace (params :noteID) #" " "/"))
-         params))
+    (if (and (:noteID params) (< (Double/parseDouble version) 1.3))
+      (let [resp (f (assoc params
+                           :noteID (sreplace (params :noteID) #" " "/")
+                           :noteID* (params :noteID)))
+            server-message (get-in resp [:status :message])]
+        (assoc-in resp [:status :message]
+                  (str 
+                    server-message
+                    (when server-message "; ") 
+                    "this API version is deprecated and "
+                    "will be disabled by the end of June 2014!")))
+      (f params))
     {:status (create-response false "API version expected")}))
 
 (defn get-note [{:keys [noteID]}]
@@ -109,11 +118,12 @@
        {:status (create-response false (first errors))})))
 
 
-(defn update-note [{:keys [noteID note pid signature password]}]
+(defn update-note [{:keys [noteID note pid signature password noteID*]}]
   ;(log "update-note: %s" {:pid pid :noteID noteID :signature signature :password password :note note})
   (let [errors (filter identity
                          [(when-not (storage/valid-publisher? pid) "pid invalid")
-                          (when-not (= signature (storage/sign pid (storage/get-psk pid) noteID note password))
+                          ; TODO: noteID* is a hack introduced by backwards-comp. to older APIs
+                          (when-not (= signature (storage/sign pid (storage/get-psk pid) (or noteID* noteID) note password))
                             "signature invalid")
                           (when (blank? note) "note is empty")
                           (when-not (storage/valid-password? noteID password) "password invalid")])]

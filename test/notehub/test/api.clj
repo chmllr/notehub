@@ -66,7 +66,11 @@
         (is (= (:title get-response) (derive-title note)))
         (is (= "1" (get-in get-response [:statistics :views])))
         (isnt (get-in get-response [:statistics :edited]))
-        (is (= "noteID 'randomString' unknown"(get-in (parse-string (:body (send-request "/api/note" {:version "1.3" :noteID "randomString"}))) ["status" "message"])))
+        (is (= "noteID 'randomString' unknown"
+               (get-in 
+                 (parse-string 
+                   (:body (send-request "/api/note" {:version "1.3" :noteID "randomString"})))
+                 ["status" "message"])))
         (is (= "3" (get-in (get-note post-response) [:statistics :views])))))
     (testing "creation with wrong signature"
       (let [response (post-note {:note note :pid pid :signature (storage/sign pid2 psk note)})]
@@ -166,11 +170,12 @@
                                 :version "1.0"
                                 :password "qwerty"})
         body (parse-string (:body response))
-        noteID (body "noteID")]
+        origID (body "noteID")
+        noteID (clojure.string/replace origID #"/" " ")] 
     (testing "Note update"
       (is (has-status response 200))
       (is (get-in body ["status" "success"]))
-      (is (storage/note-exists? noteID))
+      (is (storage/note-exists? origID))
       (is (substring? "_test_ note"
                       ((parse-string
                         (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
@@ -184,7 +189,8 @@
             body (parse-string (:body response))]
         (is (has-status response 200))
         (isnt (get-in body ["status" "success"]))
-        (is (= "password invalid" (get-in body ["status" "message"])))
+        (is (= "password invalid; this API version is deprecated and will be disabled by the end of June 2014!"
+               (get-in body ["status" "message"])))
         (isnt (get-in body ["statistics" "edited"]))
         (is (substring? "_test_ note"
                         ((parse-string
