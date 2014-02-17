@@ -12,7 +12,10 @@
     (let [input (sreplace (apply str args) #"[\r\n]" "")]
       (do (.reset md5Instance)
           (.update md5Instance (.getBytes input))
-          (.toString (new java.math.BigInteger 1 (.digest md5Instance)) 16)))))
+          (apply str
+                 (map #(let [c (Integer/toHexString (bit-and 0xff %))]
+                         (if (= 1 (count c)) (str "0" c) c))
+                      (.digest md5Instance)))))))
 
 (defmacro redis [cmd & body]
   `(car/wcar conn

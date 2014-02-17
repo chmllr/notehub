@@ -15,6 +15,8 @@
                :header-font "Anton"})
 (def test-short-url "")
 
+(deftest signature
+  (is (= "07e1c0d9533b5168e18a99f4540448af" (sign "wwq123456"))))
 
 (deftest storage
   (testing "Storage"
