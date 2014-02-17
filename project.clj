@@ -3,7 +3,7 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [hiccup "1.0.0"]
                  [cheshire "5.3.1"]
-                 [ring/ring-core "1.2.1"]
+                 [ring/ring-core "1.2.0"]
                  [com.taoensso/carmine "2.4.4"]
                  [compojure "1.1.6"]]
   :min-lein-version "2.0.0"
