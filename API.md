@@ -1,4 +1,3 @@
-
 # NoteHub API
 
 **Version 1.3, status: released.**
@@ -72,7 +71,7 @@ Parameter    | Explanation                              | Type
 `note`       | Text to publish                          | **required**
 `pid`        | Publisher ID                             | **required**
 `signature`  | Signature                                | **required**
-`password`   | MD5 hash of a plain password for editing | *optional*
+`password`   | Secret token (plain or hashed)           | *optional*
 `version`    | Used API version                         | **required**
 `theme`      | Theme name                               | *optional*
 `text-font`  | Text font name                           | *optional*
@@ -82,7 +81,7 @@ The Signature is the MD5 hash of the following string concatenation:
 
     pid + psk + note
 
-The signature serves as a proof, that the request is authentic and will be issued by the publisher corresponding to the provided PID.
+The signature serves as a proof, that the request is authentic and will be issued by the publisher corresponding to the provided PID. Please note, that _all_ of the values used in the signature computation, should be identical to the values passed with the request itself.
 
 The parameters specifying the theme name and fonts are optional and only impact the URLs returned back.
 
@@ -110,19 +109,20 @@ To update a note, an `PUT` request must be issued to the following URL:
 
 with the following parameters:
 
-Parameter    | Explanation                                       | Type
----          | ---                                               | ---
-`noteID`     | Note-ID                                           | **required**
-`note`       | New text                                          | **required**
-`pid`        | Publisher ID                                      | **required**
-`signature`  | Signature                                         | **required**
-`password`   | MD5 hash of the plain password used for publishing| **required**
-`version`    | Used API version                                  | **required**
+Parameter    | Explanation                    | Type
+---          | ---                            | ---
+`noteID`     | Note-ID                        | **required**
+`note`       | New text                       | **required**
+`pid`        | Publisher ID                   | **required**
+`signature`  | Signature                      | **required**
+`password`   | Secret token (plain or hashed) | **required**
+`version`    | Used API version               | **required**
 
 The Signature is the MD5 hash of the following string concatenation:
 
     pid + psk + noteID + note + password
 
+Please note, that all of the values used in the signature computation, should be identical to the values passed with the request itself.
 
 The response of the server will contain the fields `longURL`, `shortURL`, `status`.
 
