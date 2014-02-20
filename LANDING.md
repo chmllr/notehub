@@ -16,9 +16,9 @@ Send your feedback and comments directly to [@gravitydenier](http://twitter.com/
 - **API**: Integrate the publishing functionality into your editor using the official [NoteHub API](/api).
 
 ## Changelog
- - Februare 2014: a simple JS-client for API testing [added](/api-test.html).
+ - February 2014: a simple JS-client for API testing [added](/api-test.html).
  - January 2014:
    - Mobile friendly styling added.
    - NoteHub API [introduced](/api).
-   - NoteHub 2.0 released: new theme, more performance, extended markdown.
+   - NoteHub 2.0 released: new theme, better performance, extended markdown.
  - September 2013: Solarized color theme [added](https://github.com/chmllr/NoteHub/pull/4) (thanks Brandon!) ([Demo](http://notehub.org/2012/6/16/how-notehub-is-built?theme=solarized-dark)).
