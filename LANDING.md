@@ -16,6 +16,7 @@ Send your feedback and comments directly to [@gravitydenier](http://twitter.com/
 - **API**: Integrate the publishing functionality into your editor using the official [NoteHub API](/api).
 
 ## Changelog
+ - Februare 2014: a simple JS-client for API testing [added](/api-test.html).
  - January 2014:
    - Mobile friendly styling added.
    - NoteHub API [introduced](/api).

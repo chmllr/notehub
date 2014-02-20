@@ -89,9 +89,6 @@
    :body content})
 
 (defroutes api-routes
-  (GET "/" [] (layout (get-message :api-title)
-                      (md-node :article (slurp "API.md"))))
-
   (GET "/note" {params :params}
        (generate-string (api/version-manager api/get-note params)))
 
@@ -102,7 +99,11 @@
        (generate-string (api/version-manager api/update-note params))))
 
 (defroutes app-routes
-  (context "/api" [] api-routes)
+  (GET "/api" [] (layout (get-message :api-title)
+                      (md-node :article (slurp "API.md"))))
+
+  (context "/api" []
+           #(ring.util.response/content-type (api-routes %) "application/json"))
 
   (GET "/" []
        (layout (get-message :page-title)
