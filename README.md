@@ -7,6 +7,8 @@ NoteHub's persistence layer is based on the key-value store [redis](http://redis
 Currently, NoteHub is hosted for free on [Heroku](http://heroku.com).
 Send your feedback and comments directly to [@gravitydenier](http://twitter.com/gravitydenier) or open an [issue](https://github.com/chmllr/NoteHub/issues) on GitHub.
 
+NoteHub supports an [API](https://github.com/chmllr/NoteHub/blob/master/API.md) and can be integrated as a publishing platform.
+
 ## How to Use?
 First, create [a new page](http://notehub.org/new) using the [Markdown syntax](http://daringfireball.net/projects/markdown/).
 When the note is published, you'll see a subtle panel at the bottom of the screen.
