@@ -1,23 +1,23 @@
 (ns notehub.api
   (:import
-   [java.util Calendar])
+    [java.util Calendar])
   (:use
-   [notehub.settings]
-   [ring.util.codec :only [url-encode]]
-   [clojure.string :rename {replace sreplace}
-    :only [replace blank? trim lower-case split-lines split]])
+    [notehub.settings]
+    [ring.util.codec :only [url-encode]]
+    [clojure.string :rename {replace sreplace}
+     :only [replace blank? trim lower-case split-lines split]])
   (:require
-   [ring.util.codec]
-   [hiccup.util :as util]
-   [notehub.storage :as storage]))
+    [ring.util.codec]
+    [hiccup.util :as util]
+    [notehub.storage :as storage]))
 
-(def version "1.3")
+(def version "1.4")
 
 (def domain
   (get-setting
-   (if (get-setting :dev-mode)
-     :dev-domain
-     :prod-domain)))
+    (if (get-setting :dev-mode)
+      :dev-domain
+      :prod-domain)))
 
 (defn log
   "Logs args to the server stdout"
@@ -37,8 +37,8 @@
   (apply str (interpose "/" [year month day title])))
 
 (defn derive-title [md-text]
-   (sreplace (first (split-lines md-text))
-             #"(#+|_|\*+|<.*?>)" ""))
+  (sreplace (first (split-lines md-text))
+            #"(#+|_|\*+|<.*?>)" ""))
 
 (defn get-date
   "Returns today's date"
@@ -60,19 +60,28 @@
         (str domain (url year month day title))))))
 
 (defn version-manager [f params]
-  (if-let [version (:version params)]
-    (if (and (:noteID params) (< (Double/parseDouble version) 1.3))
-      (let [resp (f (assoc params
-                           :noteID (sreplace (params :noteID) #" " "/")
-                           :noteID* (params :noteID)))
-            server-message (get-in resp [:status :message])]
-        (assoc-in resp [:status :message]
-                  (str 
-                    server-message
-                    (when server-message "; ") 
-                    "this API version is deprecated and "
-                    "will be disabled by the end of June 2014!")))
-      (f params))
+  (if-let [req-version (:version params)]
+    (let [req-version (Double/parseDouble req-version)
+          version (Double/parseDouble version)]
+      (if (< req-version version)
+        (let [args params
+              args (if (and (:noteID args) (< req-version 1.3))
+                     (assoc args
+                            :noteID (sreplace (args :noteID) #" " "/")
+                            :noteID* (args :noteID))
+                     args)
+              args (if (and (:note args) (< req-version 1.4))
+                     (assoc args :note* (sreplace (args :note) #"[\n\r]" ""))
+                     args)
+              resp (f args)
+              server-message (get-in resp [:status :message])]
+          (assoc-in resp [:status :message]
+                    (str 
+                      server-message
+                      (when server-message "; ") 
+                      "this API version is deprecated and "
+                      "will be disabled by the end of June 2014!")))
+        (f params)))
     {:status (create-response false "API version expected")}))
 
 (defn get-note [{:keys [noteID]}]
@@ -88,45 +97,48 @@
     {:status (create-response false "noteID '%s' unknown" noteID)}))
 
 (defn post-note
-  [{:keys [note pid signature password] :as params}]
-   ;(log "post-note: %s" {:pid pid :signature signature :password password :note note})
-   (let [errors (filter identity
-                        [(when-not (storage/valid-publisher? pid) "pid invalid")
-                         (when-not (= signature (storage/sign pid (storage/get-psk pid) note))
-                           "signature invalid")
-                         (when (blank? note) "note is empty")])]
-     (if (empty? errors)
-       (let [[year month day] (map str (get-date))
-             params (dissoc params :note :pid :signature :password :version)
-             raw-title (filter #(or (= \- %) (Character/isLetterOrDigit %))
-                               (-> note derive-title trim (sreplace " " "-") lower-case))
-             max-length (get-setting :max-title-length #(Integer/parseInt %) 80)
-             proposed-title (apply str (take max-length raw-title))
-             title (first (drop-while #(storage/note-exists? (build-key year month day %))
-                                      (cons proposed-title
-                                            (map #(str proposed-title "-" (+ 2 %)) (range)))))
-             noteID (build-key year month day title)
-             new-params (assoc params :year year :month month :day day :title title)
-             short-url (get-path (storage/create-short-url noteID new-params) :url)
-             long-url (get-path noteID)]
-         (do
-           (storage/add-note noteID note pid password)
-           {:noteID noteID
-            :longURL (if (empty? params) long-url (str (util/url long-url params)))
-            :shortURL short-url
-            :status (create-response true)}))
-       {:status (create-response false (first errors))})))
+  [{:keys [note pid signature password note*] :as params}]
+  ;(log "post-note: %s" {:pid pid :signature signature :password password :note note})
+  (let [errors (filter identity
+                       [(when-not (storage/valid-publisher? pid) "pid invalid")
+                        ; TODO: remove note* after June 2014
+                        (when-not (= signature (storage/sign pid (storage/get-psk pid) (or note* note)))
+                          "signature invalid")
+                        (when (blank? note) "note is empty")])]
+    (if (empty? errors)
+      (let [[year month day] (map str (get-date))
+            params (dissoc params :note :pid :signature :password :version)
+            raw-title (filter #(or (= \- %) (Character/isLetterOrDigit %))
+                              (-> note derive-title trim (sreplace " " "-") lower-case))
+            max-length (get-setting :max-title-length #(Integer/parseInt %) 80)
+            proposed-title (apply str (take max-length raw-title))
+            title (first (drop-while #(storage/note-exists? (build-key year month day %))
+                                     (cons proposed-title
+                                           (map #(str proposed-title "-" (+ 2 %)) (range)))))
+            noteID (build-key year month day title)
+            new-params (assoc params :year year :month month :day day :title title)
+            short-url (get-path (storage/create-short-url noteID new-params) :url)
+            long-url (get-path noteID)]
+        (do
+          (storage/add-note noteID note pid password)
+          {:noteID noteID
+           :longURL (if (empty? params) long-url (str (util/url long-url params)))
+           :shortURL short-url
+           :status (create-response true)}))
+      {:status (create-response false (first errors))})))
 
 
-(defn update-note [{:keys [noteID note pid signature password noteID*]}]
+(defn update-note [{:keys [noteID note pid signature password noteID* note*]}]
   ;(log "update-note: %s" {:pid pid :noteID noteID :signature signature :password password :note note})
   (let [errors (filter identity
-                         [(when-not (storage/valid-publisher? pid) "pid invalid")
-                          ; TODO: noteID* is a hack introduced by backwards-comp. to older APIs
-                          (when-not (= signature (storage/sign pid (storage/get-psk pid) (or noteID* noteID) note password))
-                            "signature invalid")
-                          (when (blank? note) "note is empty")
-                          (when-not (storage/valid-password? noteID password) "password invalid")])]
+                       [(when-not (storage/valid-publisher? pid) "pid invalid")
+                        ; TODO: noteID* is a hack introduced by backwards-comp. to older APIs
+                        (when-not (= signature (storage/sign pid (storage/get-psk pid) (or noteID* noteID) 
+                                                             ; TODO: remove note* after June 2014
+                                                             (or note* note) password))
+                          "signature invalid")
+                        (when (blank? note) "note is empty")
+                        (when-not (storage/valid-password? noteID password) "password invalid")])]
     (if (empty? errors)
       (do
         (storage/edit-note noteID note)

@@ -69,7 +69,7 @@
         (is (= "noteID 'randomString' unknown"
                (get-in 
                  (parse-string 
-                   (:body (send-request "/api/note" {:version "1.3" :noteID "randomString"})))
+                   (:body (send-request "/api/note" {:version "1.4" :noteID "randomString"})))
                  ["status" "message"])))
         (is (= "3" (get-in (get-note post-response) [:statistics :views])))))
     (testing "creation with wrong signature"
@@ -119,7 +119,7 @@
                                  {:note note
                                   :pid pid
                                   :signature (storage/sign pid psk note)
-                                  :version "1.0"})
+                                  :version "1.4"})
           body (parse-string (:body response))
           noteID (body "noteID")]
       (is (has-status response 200))
@@ -132,7 +132,7 @@
                     (:body (send-request [:get "/api/note"] {:version "1.1"
                                                              :noteID (clojure.string/replace noteID #"/" " ")}))) "note")))
       (isnt (= note ((parse-string
-                    (:body (send-request [:get "/api/note"] {:version "1.3"
+                    (:body (send-request [:get "/api/note"] {:version "1.4"
                                                              :noteID (clojure.string/replace noteID #"/" " ")}))) "note")))
       (is (do
             (storage/delete-note noteID)
@@ -145,7 +145,7 @@
                                  {:note note
                                   :pid pid
                                   :signature (storage/sign pid psk note)
-                                  :version "1.0"
+                                  :version "1.4"
                                   :theme "dark"
                                   :text-font "Helvetica"})
           body (parse-string (:body response))
@@ -167,7 +167,7 @@
                                {:note note
                                 :pid pid
                                 :signature (storage/sign pid psk note)
-                                :version "1.0"
+                                :version "1.4"
                                 :password "qwerty"})
         body (parse-string (:body response))
         origID (body "noteID")

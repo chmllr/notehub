@@ -1,9 +1,10 @@
 # NoteHub API
 
-**Version 1.3, status: released.**
+**Version 1.4, status: released.**
 
 ## Changelog
 
+- **V1.4**: Bugfix: no whitespace elimination from the note text is needed now for the signature compuation.
 - **V1.3**: New note ID format.
 - **V1.2**: Theme & fonts can be specified during the publishing.
 - **V1.1**: fields `publisher` and `title` in the response to the note retrieval.
