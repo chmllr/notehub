@@ -85,6 +85,7 @@ The Signature is the MD5 hash of the following string concatenation:
     pid + psk + note
 
 The signature serves as a proof, that the request is authentic and will be issued by the publisher corresponding to the provided PID. Please note, that _all_ of the values used in the signature computation, should be identical to the values passed with the request itself.
+Ensure, that your note contains only `\\n` symbols as line breaks!
 
 The parameters specifying the theme name and fonts are optional and only impact the URLs returned back.
 
@@ -126,6 +127,7 @@ The Signature is the MD5 hash of the following string concatenation:
     pid + psk + noteID + note + password
 
 Please note, that all of the values used in the signature computation, should be identical to the values passed with the request itself.
+Ensure, that your note contains only `\\n` symbols as line breaks!
 
 The response of the server will contain the fields `longURL`, `shortURL`, `status`.
 

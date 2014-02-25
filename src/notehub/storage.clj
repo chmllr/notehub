@@ -9,7 +9,7 @@
   (defn sign
     "Returns the MD5 hash for the concatenation of all passed parameters"
     [& args]
-    (let [input (apply str args)]
+    (let [input (sreplace (apply str args) #"\r*" "")]
       (do (.reset md5Instance)
           (.update md5Instance (.getBytes input))
           (apply str
