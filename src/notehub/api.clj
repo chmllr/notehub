@@ -107,7 +107,7 @@
                         (when (blank? note) "note is empty")])]
     (if (empty? errors)
       (let [[year month day] (map str (get-date))
-            params (dissoc params :note :pid :signature :password :version :session)
+            params (select-keys params [:text-font :header-font :theme])
             raw-title (filter #(or (= \- %) (Character/isLetterOrDigit %))
                               (-> note derive-title trim (sreplace " " "-") lower-case))
             max-length (get-setting :max-title-length #(Integer/parseInt %) 80)
