@@ -1,5 +1,6 @@
 (ns notehub.storage
   (:use [notehub.settings]
+        [zeus.core]
         [clojure.string :only (blank? replace) :rename {replace sreplace}])
   (:require [taoensso.carmine :as car :refer (wcar)]))
 
@@ -43,12 +44,12 @@
 
 (defn edit-note [noteID text]
   (redis :hset :edited noteID (get-current-date))
-  (redis :hset :note noteID text))
+  (redis :hset :note noteID (zip text)))
 
 (defn add-note
   ([noteID text pid] (add-note noteID text pid nil))
   ([noteID text pid passwd]
-   (redis :hset :note noteID text)
+   (redis :hset :note noteID (zip text))
    (redis :hset :published noteID (get-current-date))
    (redis :hset :publisher noteID pid)
    (when (not (blank? passwd))
@@ -77,7 +78,7 @@
   (when (note-exists? noteID)
     (do
       (redis :hincrby :views noteID 1)
-      (redis :hget :note noteID))))
+      (unzip (redis :hget :note noteID)))))
 
 (defn short-url-exists? [url]
   (= 1 (redis :hexists :short-url url)))
