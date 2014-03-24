@@ -42,9 +42,6 @@
    [(keyword (str (name cls) ".markdown")) opts
     [:textarea input]]))
 
-(when-not (storage/valid-publisher? "NoteHub")
-  (storage/register-publisher "NoteHub"))
-
 (defn sanitize
   "Breakes all usages of <script> & <iframe>"
   [input]

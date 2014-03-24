@@ -36,6 +36,9 @@
       (redis :hset :publisher-key pid psk)
       psk)))
 
+#_ (when-not (valid-publisher? "NoteHub")
+  (register-publisher "NoteHub"))
+
 (defn revoke-publisher [pid]
   (redis :hdel :publisher-key pid))
 
