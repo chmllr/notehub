@@ -128,9 +128,12 @@
                    [:h3.central-element.helvetica statistics]
                    [:table#stats.helvetica.central-element
                     (map
-                     #(when (% stats)
-                        [:tr [:td (str (get-message %) ":")] [:td (% stats)]])
-                     [:published :edited :publisher :views])]))))
+                      #(when-let [v (% stats)]
+                         [:tr
+                          [:td (str (get-message %) ":")]
+                          [:td (if (or (= % :published) (= % :edited))
+                                 (str (java.util.Date. (Long/parseLong v))) v)]])
+                      [:published :edited :publisher :views])]))))
 
   (GET "/:year/:month/:day/:title/edit" [year month day title]
        (let [noteID (api/build-key year month day title)]

@@ -21,10 +21,10 @@
 (defmacro redis [cmd & body]
   `(car/wcar conn
              (~(symbol "car" (name cmd))
-               ~@body)))
+                       ~@body)))
 
 (defn get-current-date []
-  (str (java.util.Date.)))
+  (.getTime (java.util.Date.)))
 
 (defn valid-publisher? [pid]
   (= 1 (redis :hexists :publisher-key pid)))
@@ -39,7 +39,7 @@
 ; This was uncommented, because the DB isn't 
 ; available on heroku at compile time
 #_ (when-not (valid-publisher? "NoteHub")
-  (register-publisher "NoteHub"))
+     (register-publisher "NoteHub"))
 
 (defn revoke-publisher [pid]
   (redis :hdel :publisher-key pid))
@@ -119,8 +119,8 @@
                                     ; and the rest to chars
                                     (map #(char (+ (if (< 9 %) 87 48) %)) hash)))
             url (first
-                 (remove short-url-exists?
-                         (map hash-to-string hash-stream)))]
+                  (remove short-url-exists?
+                          (map hash-to-string hash-stream)))]
         ; we create two mappings: key params -> short url and back,
         ; s.t. we can later easily check whether a short url already exists
         (redis :hset :short-url url key)
