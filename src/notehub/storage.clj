@@ -36,10 +36,9 @@
       (redis :hset :publisher-key pid psk)
       psk)))
 
-; This was uncommented, because the DB isn't 
-; available on heroku at compile time
-#_ (when-not (valid-publisher? "NoteHub")
-     (register-publisher "NoteHub"))
+(when (and (get-setting :dev-mode)
+           (not (valid-publisher? "NoteHub"))
+           (register-publisher "NoteHub")))
 
 (defn revoke-publisher [pid]
   (redis :hdel :publisher-key pid))

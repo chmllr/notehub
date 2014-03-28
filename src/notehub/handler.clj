@@ -93,14 +93,14 @@
               (response 500)))
           (response 400)))
 
-  (POST "/update-note" [note-id note password]
+  (POST "/update-note" [noteID note password]
         (let [pid "NoteHub"
               psk (storage/get-psk pid)
-              params {:noteID note-id :note note :password password :pid pid}]
+              params {:noteID noteID :note note :password password :pid pid}]
           (if (storage/valid-publisher? pid)
             (let [resp (api/update-note (assoc params
-                                          :signature
-                                          (storage/sign pid psk note-id note password)))]
+                                               :signature
+                                               (storage/sign pid psk noteID note password)))]
               (if (get-in resp [:status :success])
                 (redirect (:longURL resp))
                 (response 403)))
