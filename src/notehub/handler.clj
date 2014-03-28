@@ -61,10 +61,14 @@
   (GET "/:year/:month/:day/:title/edit" [year month day title]
        (note-update-page year month day title))
 
-  (GET "/new" [] new-note-page)
+  (GET "/new" [] (new-note-page (storage/sign (str (rand-int Integer/MAX_VALUE)))))
 
   (GET "/:year/:month/:day/:title" [year month day title :as params]
-       (note-page year month day title params))
+       (let [params (assoc (:query-params params)
+                           :year year :month month :day day :title title)
+             note-id (api/build-key year month day title)]
+         (when (storage/note-exists? note-id)
+           (note-page note-id (storage/create-short-url note-id params)))))
 
   (GET "/:short-url" [short-url]
        (when-let [params (storage/resolve-url short-url)]
@@ -89,14 +93,14 @@
               (response 500)))
           (response 400)))
 
-  (POST "/update-note" [noteID note password]
+  (POST "/update-note" [note-id note password]
         (let [pid "NoteHub"
               psk (storage/get-psk pid)
-              params {:noteID noteID :note note :password password :pid pid}]
+              params {:noteID note-id :note note :password password :pid pid}]
           (if (storage/valid-publisher? pid)
             (let [resp (api/update-note (assoc params
                                           :signature
-                                          (storage/sign pid psk noteID note password)))]
+                                          (storage/sign pid psk note-id note password)))]
               (if (get-in resp [:status :success])
                 (redirect (:longURL resp))
                 (response 403)))
