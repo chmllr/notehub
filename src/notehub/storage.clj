@@ -1,5 +1,5 @@
 (ns notehub.storage
-  (:use [notehub.settings]
+  (:use [iokv.core]
         [zeus.core]
         [clojure.string :only (blank? replace) :rename {replace sreplace}])
   (:require [taoensso.carmine :as car :refer (wcar)]))

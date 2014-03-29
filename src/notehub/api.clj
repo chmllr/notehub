@@ -2,7 +2,7 @@
   (:import
     [java.util Calendar])
   (:use
-    [notehub.settings]
+    [iokv.core]
     [ring.util.codec :only [url-encode]]
     [clojure.string :rename {replace sreplace}
      :only [replace blank? trim lower-case split-lines split]])

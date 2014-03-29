@@ -1,13 +1,16 @@
 (ns notehub.views
-  (:use [notehub.settings]
-        [clojure.string :rename {replace sreplace} :only [replace]]
-        [clojure.core.incubator :only [-?>]]
-        [hiccup.form]
-        [hiccup.core]
-        [hiccup.element]
-        [hiccup.util :only [escape-html]]
-        [hiccup.page :only [include-js html5]])
+  (:use 
+    iokv.core
+    [clojure.string :rename {replace sreplace} :only [replace]]
+    [clojure.core.incubator :only [-?>]]
+    [hiccup.form]
+    [hiccup.core]
+    [hiccup.element]
+    [hiccup.util :only [escape-html]]
+    [hiccup.page :only [include-js html5]])
   (:require [notehub.api :as api]))
+
+(def get-message (get-map "messages"))
 
 ; Creates the main html layout
 (defn layout

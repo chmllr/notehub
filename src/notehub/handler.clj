@@ -1,9 +1,10 @@
 (ns notehub.handler
-  (:use compojure.core
-        [notehub.views]
-        [notehub.settings]
-        [clojure.string :rename {replace sreplace} :only [replace]]
-        [clojure.core.incubator :only [-?>]])
+  (:use 
+    compojure.core
+    iokv.core
+    notehub.views
+    [clojure.string :rename {replace sreplace} :only [replace]]
+    [clojure.core.incubator :only [-?>]])
   (:require 
     [hiccup.util :as util]
     [compojure.handler :as handler]

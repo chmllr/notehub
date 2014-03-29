@@ -3,6 +3,7 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [hiccup "1.0.0"]
                  [zeus "0.1.0"]
+                 [iokv "0.1.1"]
                  [cheshire "5.3.1"]
                  [ring/ring-core "1.2.0"]
                  [com.taoensso/carmine "2.4.4"]
