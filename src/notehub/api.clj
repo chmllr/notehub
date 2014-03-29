@@ -87,6 +87,7 @@
 (defn get-note [{:keys [noteID]}]
   (if (storage/note-exists? noteID)
     (let [note (storage/get-note noteID)]
+      (storage/increment-note-view noteID)
       {:note note
        :title (derive-title note)
        :longURL (get-path noteID)

@@ -6,12 +6,16 @@
     [clojure.string :rename {replace sreplace} :only [replace]]
     [clojure.core.incubator :only [-?>]])
   (:require 
+    [clojure.core.cache :as cache]
     [hiccup.util :as util]
     [compojure.handler :as handler]
     [compojure.route :as route]
     [notehub.api :as api]
     [notehub.storage :as storage]
     [cheshire.core :refer :all]))
+
+; note page cache
+(def C (atom (cache/lru-cache-factory {})))
 
 ; TODO: make sure the status is really set to the response!!!!
 (defn- response
@@ -56,7 +60,10 @@
          (return-content-type "text/plain; charset=utf-8" md-text)))
 
   (GET "/:year/:month/:day/:title/stats" [year month day title]
-       (when-let [resp (api/get-note {:noteID (api/build-key year month day title)})]
+       (let [note-id (api/build-key year month day title)
+             resp {:statistics (storage/get-note-statistics note-id)
+                   :note (storage/get-note note-id)
+                   :noteID note-id}]
          (statistics-page resp)))
 
   (GET "/:year/:month/:day/:title/edit" [year month day title]
@@ -69,7 +76,13 @@
                            :year year :month month :day day :title title)
              note-id (api/build-key year month day title)]
          (when (storage/note-exists? note-id)
-           (note-page note-id (storage/create-short-url note-id params)))))
+           (if (cache/has? @C note-id)
+             (do
+               (swap! C cache/hit note-id)
+               (storage/increment-note-view note-id))
+             (swap! C cache/miss note-id
+                    (note-page note-id (storage/create-short-url note-id params))))
+           (cache/lookup @C note-id))))
 
   (GET "/:short-url" [short-url]
        (when-let [params (storage/resolve-url short-url)]
@@ -103,7 +116,9 @@
                                                :signature
                                                (storage/sign pid psk noteID note password)))]
               (if (get-in resp [:status :success])
-                (redirect (:longURL resp))
+                (do
+                  (swap! C cache/evict noteID)
+                  (redirect (:longURL resp)))
                 (response 403)))
             (response 500))))
 

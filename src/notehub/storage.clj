@@ -80,9 +80,10 @@
 
 (defn get-note [noteID]
   (when (note-exists? noteID)
-    (do
-      (redis :hincrby :views noteID 1)
-      (unzip (redis :hget :note noteID)))))
+    (unzip (redis :hget :note noteID))))
+
+(defn increment-note-view [noteID]
+  (redis :hincrby :views noteID 1))
 
 (defn short-url-exists? [url]
   (= 1 (redis :hexists :short-url url)))

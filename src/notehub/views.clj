@@ -8,7 +8,8 @@
     [hiccup.element]
     [hiccup.util :only [escape-html]]
     [hiccup.page :only [include-js html5]])
-  (:require [notehub.api :as api]))
+  (:require
+    [notehub.api :as api]))
 
 (def get-message (get-map "messages"))
 

@@ -1,6 +1,7 @@
 (defproject NoteHub "2.0.0"
   :description "A free and anonymous hosting for markdown pages."
-  :dependencies [[org.clojure/clojure "1.5.1"]
+  :dependencies [[org.clojure/clojure "1.6.0"]
+                 [org.clojure/core.cache "0.6.3"]
                  [hiccup "1.0.0"]
                  [zeus "0.1.0"]
                  [iokv "0.1.1"]

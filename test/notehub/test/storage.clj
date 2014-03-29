@@ -32,38 +32,39 @@
         (is (= metadata (resolve-url url)))
         (delete-short-url url)
         (is (not (short-url-exists? url))))))
-    (testing "of correct note creation"
-      (is (= (do
-               (add-note (build-key date test-title) test-note "testPID")
-               (is (= 2 (redis :scard (str (build-key date test-title) :urls))))
-               (create-short-url (build-key date test-title) metadata)
-               (is (= 3 (redis :scard (str (build-key date test-title) :urls))))
-               (get-note (build-key date test-title)))
-             test-note))
-      (is (= "1" (get-note-views (build-key date test-title))))
-      (is (= (do
-               (get-note (build-key date test-title))
-               (get-note-views (build-key date test-title)))
-             "2")))
-    (testing "of note update"
-      (is (= (do
-               (add-note (build-key date test-title) test-note "testPID" "12345qwert")
-               (get-note (build-key date test-title)))
-             test-note))
-      (is (valid-password? (build-key date test-title) "12345qwert"))
-      (is (= (do
-               (edit-note (build-key date test-title) "update")
-               (get-note (build-key date test-title)))
-             "update")))
-    (testing "of the note access"
-      (is (not= (get-note (build-key date test-title)) "any text")))
-    (testing "of note existence"
-      (is (note-exists? (build-key date test-title)))
-      (is (short-url-exists? test-short-url))
-      (is (= 3 (redis :scard (str (build-key date test-title) :urls))))
-      (delete-note (build-key date test-title))
-      (is (not (short-url-exists? test-short-url)))
-      (is (not (note-exists? (build-key date test-title))))
-      (is (= 0 (redis :scard (str (build-key date test-title) :urls))))
-      (is (not (note-exists? (build-key [2013 06 03] test-title))))
-      (is (not (note-exists? (build-key date "some title"))))))
+  (testing "of correct note creation"
+    (is (= (let [note-id (build-key date test-title)]
+             (add-note note-id test-note "testPID")
+             (is (= 2 (redis :scard (str note-id :urls))))
+             (create-short-url note-id metadata)
+             (is (= 3 (redis :scard (str note-id :urls))))
+             (increment-note-view note-id)
+             (get-note note-id))
+           test-note))
+    (is (= "1" (get-note-views (build-key date test-title))))
+    (is (= (do
+             (increment-note-view (build-key date test-title))
+             (get-note-views (build-key date test-title)))
+           "2")))
+  (testing "of note update"
+    (is (= (do
+             (add-note (build-key date test-title) test-note "testPID" "12345qwert")
+             (get-note (build-key date test-title)))
+           test-note))
+    (is (valid-password? (build-key date test-title) "12345qwert"))
+    (is (= (do
+             (edit-note (build-key date test-title) "update")
+             (get-note (build-key date test-title)))
+           "update")))
+  (testing "of the note access"
+    (is (not= (get-note (build-key date test-title)) "any text")))
+  (testing "of note existence"
+    (is (note-exists? (build-key date test-title)))
+    (is (short-url-exists? test-short-url))
+    (is (= 3 (redis :scard (str (build-key date test-title) :urls))))
+    (delete-note (build-key date test-title))
+    (is (not (short-url-exists? test-short-url)))
+    (is (not (note-exists? (build-key date test-title))))
+    (is (= 0 (redis :scard (str (build-key date test-title) :urls))))
+    (is (not (note-exists? (build-key [2013 06 03] test-title))))
+    (is (not (note-exists? (build-key date "some title"))))))
