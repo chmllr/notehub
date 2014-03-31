@@ -8,7 +8,7 @@ status-400 = Bad Request
 status-403 = Forbidden
 status-500 = Internal Server Error
 
-footer = Created by [@gravitydenier](http://twitter.com/gravitydenier) &clubs; Available on [GitHub](https://github.com/chmllr/NoteHub)
+footer = Created by [@gravitydenier](http://twitter.com/gravitydenier) <br> Available on [GitHub](https://github.com/chmllr/NoteHub)
 
 loading = Loading...
 set-passwd = Password for editing
