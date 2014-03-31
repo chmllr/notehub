@@ -131,3 +131,16 @@
         ; we save all short urls of a note for removal later
         (redis :sadd (str noteID :urls) url)
         url))))
+
+(defn gc [password]
+  (when (= password (get-setting :admin-pw))
+    (let [N 30
+          timestamp (- (get-current-date) (* N 24 60 60 1000))
+          all-notes (map first (partition 2 (redis :hgetall :note)))
+          old-notes (filter #(< (Long/parseLong (redis :hget :published %)) timestamp) all-notes)
+          unpopular-notes (filter #(< (try (Long/parseLong (redis :hget :views %))
+                                          (catch Exception a 0)) N) old-notes)]
+      (println "timestamp:" (str (java.util.Date. timestamp)))
+      (println (count unpopular-notes) "deleted")
+      (doseq [note-id unpopular-notes]
+        (delete-note note-id)))))

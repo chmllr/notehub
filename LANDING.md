@@ -9,8 +9,11 @@
 - **Statistics**: a rudimentary statistics available (date of publishing & view counter).
 - **Export**: the original markdown content can be displayed in plain text format.
 - **API**: Integrate the publishing functionality into your editor using the official [NoteHub API](/api).
+- **Expiration**: All notes with less than 30 views in 30 days from publishing will expire.
+
 
 ## Changelog
+ - March 2014: all notes with __less than 30 views in 30 days from publishing__ will expire now
  - February 2014: a simple JS-client for API testing [added](/api-test.html).
  - January 2014:
    - Mobile friendly styling added.
