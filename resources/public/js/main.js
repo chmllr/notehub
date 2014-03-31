@@ -49,7 +49,7 @@ function onLoad() {
 
   var links = $("links");
   if(links){
-    if(window.innerHeight >= document.body.clientHeight) {
+    if(window.innerHeight * 0.85 >= document.body.clientHeight) {
       links.style.position = "fixed";
       links.style.bottom = 0;
     }
