@@ -3,7 +3,7 @@
     - [Dark](/2014/3/31/demo-note?theme=dark)
     - [Solarized-Dark](/2014/3/31/demo-note?theme=solarized-dark)
     - [Solarized-Light](/2014/3/31/demo-note?theme=solarized-light)
-- **Fonts**: specify a font (also one of the [Google Web Fonts](http://www.google.com/webfonts/)) for headers and for the text by appending parameters to the note [URL](/q9pqq).
+- **Fonts**: specify a font (also one of the [Google Web Fonts](http://www.google.com/webfonts/)) for headers and for the text by appending parameters to the note [URL](/8m4l9).
 - **Short URLs**: every page (including theme & font options) has its own short url.
 - **Editing**: if you set a password during publishing, you can edit your note any time later.
 - **Statistics**: a rudimentary statistics available (date of publishing & view counter).
