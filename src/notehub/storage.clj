@@ -98,10 +98,13 @@
     (redis :hdel :short-url params)
     (redis :hdel :short-url url)))
 
+(defn get-short-urls [noteID]
+  (redis :smembers (str noteID :urls)))
+
 (defn delete-note [noteID]
   (doseq [kw [:password :views :note :published :edited :publisher]]
     (redis :hdel kw noteID))
-  (doseq [url (redis :smembers (str noteID :urls))]
+  (doseq [url (get-short-urls noteID)]
     (delete-short-url url))
   (redis :del (str noteID :urls)))
 

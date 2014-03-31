@@ -124,7 +124,7 @@
   (testing "main route"
     (let [response (app (request :get "/"))]
       (is (= (:status response) 200))
-      (is (substring? "free and hassle-free" (:body response)))))
+      (is (substring? "Free and Hassle-free" (:body response)))))
 
   (testing "not-found route"
     (let [response (app (request :get "/invalid"))]

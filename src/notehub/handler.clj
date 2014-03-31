@@ -74,15 +74,16 @@
   (GET "/:year/:month/:day/:title" [year month day title :as params]
        (let [params (assoc (:query-params params)
                            :year year :month month :day day :title title)
-             note-id (api/build-key year month day title)]
+             note-id (api/build-key year month day title)
+             short-url (storage/create-short-url note-id params)]
          (when (storage/note-exists? note-id)
-           (if (cache/has? @C note-id)
+           (if (cache/has? @C short-url)
              (do
-               (swap! C cache/hit note-id)
+               (swap! C cache/hit short-url)
                (storage/increment-note-view note-id))
-             (swap! C cache/miss note-id
-                    (note-page note-id (storage/create-short-url note-id params))))
-           (cache/lookup @C note-id))))
+             (swap! C cache/miss short-url
+                    (note-page note-id short-url)))
+           (cache/lookup @C short-url))))
 
   (GET "/:short-url" [short-url]
        (when-let [params (storage/resolve-url short-url)]
@@ -117,7 +118,8 @@
                                                (storage/sign pid psk noteID note password)))]
               (if (get-in resp [:status :success])
                 (do
-                  (swap! C cache/evict noteID)
+                  (doseq [url (storage/get-short-urls noteID)]
+                    (swap! C cache/evict url))
                   (redirect (:longURL resp)))
                 (response 403)))
             (response 500))))
