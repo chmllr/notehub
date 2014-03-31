@@ -139,8 +139,9 @@
           all-notes (map first (partition 2 (redis :hgetall :note)))
           old-notes (filter #(< (Long/parseLong (redis :hget :published %)) timestamp) all-notes)
           unpopular-notes (filter #(< (try (Long/parseLong (redis :hget :views %))
-                                          (catch Exception a 0)) N) old-notes)]
+                                           (catch Exception a 0)) N) old-notes)]
       (println "timestamp:" (str (java.util.Date. timestamp)))
-      (println (count unpopular-notes) "deleted")
       (doseq [note-id unpopular-notes]
-        (delete-note note-id)))))
+        (do (println "deleting" note-id)
+            (delete-note note-id)))
+      (println (count unpopular-notes) "deleted"))))
