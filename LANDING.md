@@ -1,6 +1,6 @@
 ## Features
-- **Color Themes**: specify the color scheme in the URL: [default](/2014/3/31/demo-note), [dark](/2014/3/31/demo-note?theme=dark), [solarized](/2014/3/31/demo-note?theme=solarized-light), [solarized dark](/2014/3/31/demo-note?theme=solarized-dark).
-- **Fonts**: specify a font (e.g., [Google Web Fonts](http://www.google.com/webfonts/)) for headers and boy text in the URL like [this](/8m4l9) or [this](/2014/3/31/demo-note?text-font=Helvetica&header-font=Courier).
+- **Themes**: specify the color scheme in the URL: [default](/2014/3/31/demo-note), [dark](/2014/3/31/demo-note?theme=dark), [solarized](/2014/3/31/demo-note?theme=solarized-light), [solarized dark](/2014/3/31/demo-note?theme=solarized-dark).
+- **Fonts**: specify a font (e.g., [Google Web Fonts](http://www.google.com/webfonts/)) for headers and body text in the URL like [this](/8m4l9) or [this](/2014/3/31/demo-note?text-font=Helvetica&header-font=Courier).
 - **Short URLs**: every page (including theme & font options) has its own short url.
 - **Editing**: if you set a password during publishing, you can edit your note any time later.
 - **Statistics**: page view counter, publishing and editing date.
