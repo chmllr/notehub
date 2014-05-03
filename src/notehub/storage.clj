@@ -132,7 +132,7 @@
         (redis :sadd (str noteID :urls) url)
         url))))
 
-(defn gc [password]
+(defn gc [password dry]
   (when (= password (get-setting :admin-pw))
     (let [N 30
           timestamp (- (get-current-date) (* N 24 60 60 1000))
@@ -142,6 +142,6 @@
                                            (catch Exception a 0)) N) old-notes)]
       (println "timestamp:" (str (java.util.Date. timestamp)))
       (doseq [note-id unpopular-notes]
-        (do (println "deleting" note-id)
-            (delete-note note-id)))
+        (do (println (if dry "to be deleted" "deleting") note-id)
+            (when-not dry (delete-note note-id))))
       (println (count unpopular-notes) "deleted"))))
