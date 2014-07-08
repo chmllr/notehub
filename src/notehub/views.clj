@@ -9,6 +9,7 @@
     [hiccup.util :only [escape-html]]
     [hiccup.page :only [include-js html5]])
   (:require
+    [me.raynes.cegdown :as md]
     [notehub.api :as api]))
 
 (def get-message (get-map "messages"))
@@ -31,14 +32,6 @@
      ; google analytics code should appear in prod mode only
      (if-not (get-setting :dev-mode) (include-js "/js/google-analytics.js"))]
     [:body {:onload "onLoad()"} content]))
-
-(defn md-node
-  "Returns an HTML element with a textarea inside
-  containing the markdown text (to keep all chars unescaped)"
-  ([cls input] (md-node cls {} input))
-  ([cls opts input]
-   [(keyword (str (name cls) ".markdown")) opts
-    [:textarea input]]))
 
 (defn- sanitize
   "Breakes all usages of <script> & <iframe>"
@@ -72,10 +65,10 @@
            [:br]
            [:a.landing-button {:href "/new" :style "color: white"} (get-message :new-page)]]
           [:div#dashed-line]
-          (md-node :article.helvetica.bottom-space
+          [:article.helvetica.bottom-space
                    {:style "font-size: 1em"}
-                   (slurp "LANDING.md"))
-          (md-node :div.centered.helvetica (get-message :footer))))
+                   (md/to-html (slurp "LANDING.md"))]
+          [:div.centered.helvetica (md/to-html (get-message :footer))]))
 
 
 (defn statistics-page [resp]
@@ -109,7 +102,7 @@
   (let [note (api/get-note {:noteID note-id})
         sanitized-note (sanitize (:note note))]
     (layout (:title note)
-            (md-node :article.bottom-space sanitized-note)
+            [:article.bottom-space (md/to-html sanitized-note)]
             (let [urls {:short-url (api/url short-url)
                         :notehub "/"}
                   links (map #(link-to

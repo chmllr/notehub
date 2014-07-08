@@ -39,14 +39,6 @@ function onLoad() {
     if(iosDetected) $note.className += " ui-border"; else $note.focus();
   }
 
-  var mdDocs = document.getElementsByClassName("markdown");
-  for(var i = 0; i < mdDocs.length; i++){
-    var elem = mdDocs[i];
-    var child = elem.childNodes[0];
-    elem.innerHTML = md2html(child.value);
-    show(elem);
-  }
-
   var links = $("links");
   if(links){
     if(window.innerHeight * 0.85 >= document.body.clientHeight) {

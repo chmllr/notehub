@@ -4,6 +4,7 @@
                  [org.clojure/core.cache "0.6.3"]
                  [hiccup "1.0.0"]
                  [zeus "0.1.0"]
+                 [me.raynes/cegdown "0.1.1"]
                  [iokv "0.1.1"]
                  [cheshire "5.3.1"]
                  [ring/ring-core "1.2.0"]

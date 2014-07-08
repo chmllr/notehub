@@ -42,7 +42,7 @@
                    :signature (sign session-key test-note)})]
         (is (has-status resp 302))
         (is (note-exists? (build-key date title)))
-        (is (substring? "Hello _world_"
+        (is (substring? "Hello <em>world</em>"
                         ((send-request (url year month day title)) :body)))
         (is (do
               (delete-note (build-key date title))
