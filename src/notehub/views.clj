@@ -16,7 +16,7 @@
 
 ; Creates the main html layout
 (defn layout
-  [title & content]
+  [js? title & content]
   (html5
     [:head
      [:title (print-str (get-message :name) "&mdash;" title)]
@@ -25,10 +25,12 @@
      [:link {:rel "stylesheet/less" :type "text/css" :href "/styles/main.less"}]
      (html
        (include-js "/js/less.js")
-       (include-js "/js/themes.js")
-       (include-js "/js/md5.js")
-       (include-js "/js/marked.js")
-       (include-js "/js/main.js"))
+       (include-js "/js/themes.js"))
+     (when (= :js js?)
+       (html
+         (include-js "/js/md5.js")
+         (include-js "/js/marked.js")
+         (include-js "/js/main.js")))
      ; google analytics code should appear in prod mode only
      (if-not (get-setting :dev-mode) (include-js "/js/google-analytics.js"))]
     [:body {:onload "onLoad()"} content]))
@@ -41,7 +43,7 @@
 ; input form for the markdown text with a preview area
 (defn- input-form [form-url command fields content passwd-msg]
   (let [css-class (when (= :publish command) :hidden)]
-    (layout (get-message :new-note)
+    (layout :js (get-message :new-page)
             [:article#preview ""]
             [:div#dashed-line {:class css-class}]
             [:div.central-element.helvetica {:style "margin-bottom: 3em"}
@@ -58,7 +60,7 @@
                                        :id :publish-button} (get-message command))])])))
 
 (def landing-page
-  (layout (get-message :page-title)
+  (layout :no-js (get-message :page-title)
           [:div#hero
            [:h1 (get-message :name)]
            [:h2 (get-message :title)]
@@ -74,7 +76,7 @@
 (defn statistics-page [resp]
   (let [stats (:statistics resp)
         title (get-message :statistics)]
-    (layout title
+    (layout :no-js title
             [:h2.central-element (api/derive-title (:note resp))]
             [:h3.central-element.helvetica title]
             [:table#stats.helvetica.central-element
@@ -101,7 +103,7 @@
 (defn note-page [note-id short-url]
   (let [note (api/get-note {:noteID note-id})
         sanitized-note (sanitize (:note note))]
-    (layout (:title note)
+    (layout :no-js (:title note)
             [:article.bottom-space (md/to-html sanitized-note)]
             (let [urls {:short-url (api/url short-url)
                         :notehub "/"}

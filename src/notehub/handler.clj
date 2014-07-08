@@ -25,7 +25,7 @@
   [code]
   {:status code
    :body (let [message (get-message (keyword (str "status-" code)))]
-           (layout message
+           (layout :no-js message
                    [:article [:h1 message]]))})
 
 (defn redirect [url]
@@ -48,7 +48,7 @@
        (generate-string (api/version-manager api/update-note params))))
 
 (defroutes app-routes
-  (GET "/api" [] (layout (get-message :api-title)
+  (GET "/api" [] (layout :no-js (get-message :api-title)
                       [:article (md/to-html (slurp "API.md"))]))
 
   (context "/api" []

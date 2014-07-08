@@ -1,3 +1,6 @@
+var $ = function(id){ return document.getElementById(id); }
+var show = function(elem) { elem.style.display = "block" }
+
 var themes = {
   "dark": {
     background: {
@@ -103,3 +106,17 @@ fileref.setAttribute("href", fontURL)
 document.getElementsByTagName("head")[0].appendChild(fileref)
 
 less.modifyVars(vars);
+
+function showLinks(){
+  var links = $("links");
+  if(links){
+    if(window.innerHeight * 0.85 >= document.body.clientHeight) {
+      links.style.position = "fixed";
+      links.style.bottom = 0;
+    }
+    show(links);
+  }
+}
+
+// for the case if main.js is not loaded
+var onLoad = showLinks;

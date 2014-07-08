@@ -38,14 +38,5 @@ function onLoad() {
     }
     if(iosDetected) $note.className += " ui-border"; else $note.focus();
   }
-
-  var links = $("links");
-  if(links){
-    if(window.innerHeight * 0.85 >= document.body.clientHeight) {
-      links.style.position = "fixed";
-      links.style.bottom = 0;
-    }
-    show(links);
-  }
-
+  showLinks();
 }
