@@ -6,7 +6,6 @@
     [clojure.string :rename {replace sreplace} :only [replace]]
     [clojure.core.incubator :only [-?>]])
   (:require 
-    [me.raynes.cegdown :as md]
     [clojure.core.cache :as cache]
     [hiccup.util :as util]
     [compojure.handler :as handler]
@@ -49,7 +48,7 @@
 
 (defroutes app-routes
   (GET "/api" [] (layout :no-js (get-message :api-title)
-                      [:article (md/to-html (slurp "API.md"))]))
+                      [:article (md-to-html (slurp "API.md"))]))
 
   (context "/api" []
            #(ring.util.response/content-type (api-routes %) "application/json"))

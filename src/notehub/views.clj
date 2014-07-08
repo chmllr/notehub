@@ -9,10 +9,16 @@
     [hiccup.util :only [escape-html]]
     [hiccup.page :only [include-js html5]])
   (:require
-    [me.raynes.cegdown :as md]
-    [notehub.api :as api]))
+    [notehub.api :as api])
+  (:import (org.pegdown PegDownProcessor Extensions)))
 
 (def get-message (get-map "messages"))
+
+(def md-processor
+  (PegDownProcessor. Extensions/TABLES))
+
+(defn md-to-html [md-text]
+  (.markdownToHtml md-processor md-text))
 
 ; Creates the main html layout
 (defn layout
@@ -69,8 +75,8 @@
           [:div#dashed-line]
           [:article.helvetica.bottom-space
                    {:style "font-size: 1em"}
-                   (md/to-html (slurp "LANDING.md"))]
-          [:div.centered.helvetica (md/to-html (get-message :footer))]))
+                   (md-to-html (slurp "LANDING.md"))]
+          [:div.centered.helvetica (md-to-html (get-message :footer))]))
 
 
 (defn statistics-page [resp]
@@ -104,7 +110,7 @@
   (let [note (api/get-note {:noteID note-id})
         sanitized-note (sanitize (:note note))]
     (layout :no-js (:title note)
-            [:article.bottom-space (md/to-html sanitized-note)]
+            [:article.bottom-space (md-to-html sanitized-note)]
             (let [urls {:short-url (api/url short-url)
                         :notehub "/"}
                   links (map #(link-to
