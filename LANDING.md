@@ -9,6 +9,7 @@
 - **API**: Integrate the publishing functionality into your editor using the official [NoteHub API](/api).
 
 ## Changelog
+ - July 2014: deprecated all API versions less than 1.4
  - March 2014: all notes with __less than 30 views after the first 30 days__ will expire.
  - February 2014: a simple JS-client for API testing [added](/api-test.html).
  - January 2014:

@@ -125,15 +125,15 @@
       (is (has-status response 200))
       (is (get-in body ["status" "success"]))
       (is (= note ((parse-string
-                    (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
+                    (:body (send-request [:get "/api/note"] {:version "1.4" :noteID noteID}))) "note")))
+      (is (= "Deprecated API version" (get-in (parse-string
+                                      (:body (send-request [:get "/api/note"] {:version "1.3" :noteID noteID}))) ["status" "message"])))
       (is (= "API version expected" (get-in (parse-string
                                       (:body (send-request [:get "/api/note"] {:noteID noteID}))) ["status" "message"])))
       (is (= note ((parse-string
-                    (:body (send-request [:get "/api/note"] {:version "1.1"
-                                                             :noteID (clojure.string/replace noteID #"/" " ")}))) "note")))
+                    (:body (send-request [:get "/api/note"] {:version "1.4" :noteID noteID}))) "note")))
       (isnt (= note ((parse-string
-                    (:body (send-request [:get "/api/note"] {:version "1.4"
-                                                             :noteID (clojure.string/replace noteID #"/" " ")}))) "note")))
+                    (:body (send-request [:get "/api/note"] {:version "1.3" :noteID noteID}))) "note")))
       (is (do
             (storage/delete-note noteID)
             (not (storage/note-exists? noteID)))))))
@@ -170,31 +170,29 @@
                                 :version "1.4"
                                 :password "qwerty"})
         body (parse-string (:body response))
-        origID (body "noteID")
-        noteID (clojure.string/replace origID #"/" " ")] 
+        noteID (body "noteID")] 
     (testing "Note update"
       (is (has-status response 200))
       (is (get-in body ["status" "success"]))
-      (is (storage/note-exists? origID))
+      (is (storage/note-exists? noteID))
       (is (substring? "_test_ note"
                       ((parse-string
-                        (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
+                        (:body (send-request [:get "/api/note"] {:version "1.4" :noteID noteID}))) "note")))
       (let [response (send-request [:put "/api/note"]
                                    {:noteID noteID
                                     :note "WRONG pass"
                                     :pid pid
                                     :signature (storage/sign pid psk noteID "WRONG pass" "qwerty1")
                                     :password "qwerty1"
-                                    :version "1.0"})
+                                    :version "1.4"})
             body (parse-string (:body response))]
         (is (has-status response 200))
         (isnt (get-in body ["status" "success"]))
-        (is (= "password invalid; this API version is deprecated and will be disabled by the end of June 2014!"
-               (get-in body ["status" "message"])))
+        (is (= "password invalid" (get-in body ["status" "message"])))
         (isnt (get-in body ["statistics" "edited"]))
         (is (substring? "_test_ note"
                         ((parse-string
-                          (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note"))))
+                          (:body (send-request [:get "/api/note"] {:version "1.4" :noteID noteID}))) "note"))))
       (is (get-in (parse-string
                    (:body (send-request [:put "/api/note"]
                                         {:noteID noteID
@@ -202,13 +200,14 @@
                                          :pid pid
                                          :signature (storage/sign pid psk noteID "UPDATED CONTENT" "qwerty")
                                          :password "qwerty"
-                                         :version "1.0"}))) ["status" "success"]))
+                                         :version "1.4"}))) ["status" "success"]))
       (isnt (= nil (((parse-string
-                      (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID})))
+                      (:body (send-request [:get "/api/note"] {:version "1.4" :noteID noteID})))
                      "statistics") "edited")))
-      (is (substring? "UPDATED CONTENT"
+      (let [resp (send-request [:get "/api/note"] {:version "1.4" :noteID noteID})]
+        (is (substring? "UPDATED CONTENT"
                       ((parse-string
-                        (:body (send-request [:get "/api/note"] {:version "1.0" :noteID noteID}))) "note")))
+                        (:body resp)) "note"))))
       (is (do
             (storage/delete-note noteID)
             (not (storage/note-exists? noteID)))))))

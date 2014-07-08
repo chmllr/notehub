@@ -133,6 +133,7 @@
         url))))
 
 (defn gc [password dry]
+  (println (get-setting :admin-pw))
   (when (= password (get-setting :admin-pw))
     (let [N 30
           timestamp (- (get-current-date) (* N 24 60 60 1000))
