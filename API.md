@@ -21,7 +21,7 @@ All API requests must be issued with one special parameter `version` denoting th
 Once you obtained your PSK, you can test the API [here](http://notehub.org/api-test.html).
 
 ## <a name="registration"></a>NoteHub API Access Request
-To register as a publisher and gain access to NoteHub API, please [send](mailto:notehub@icloud.com?subject=NoteHub API Access Request&body=Please add [a] desired PID as a 16 char string [b] your contact information, [c] short usage explanation and [d] the URL of the resource or it's website.) an email with the following information about you: the desired PID, your contact information, a short description of what you want to do and an URL of the resource where the API will be used or its website.
+To register as a publisher and gain access to NoteHub API, please <a href="mailto:notehub@icloud.com?subject=NoteHub API Access Request&body=Please add [a] desired PID as a 16 char string [b] your contact information, [c] short usage explanation and [d] the URL of the resource or it's website.">send</a> an email with the following information about you: the desired PID, your contact information, a short description of what you want to do and an URL of the resource where the API will be used or its website.
 
 ## Note Retrieval
 
