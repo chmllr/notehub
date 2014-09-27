@@ -18,7 +18,7 @@ A PID is a string chosen by the publisher and cannot be longer than 16 character
 
 All API requests must be issued with one special parameter `version` denoting the expected version of the API as  a string, e.g. `1.0` (see examples below). You should always put the version of this document as a `version` parameter.
 
-Once you obtained your PSK, you can test the API [here](http://notehub.org/api-test.html).
+Once you obtained your PSK, you can test the API [here](http://www.notehub.org/api-test.html).
 
 ## <a name="registration"></a>NoteHub API Access Request
 To register as a publisher and gain access to NoteHub API, please <a href="mailto:notehub@icloud.com?subject=NoteHub API Access Request&body=Please add [a] desired PID as a 16 char string [b] your contact information, [c] short usage explanation and [d] the URL of the resource or it's website.">send</a> an email with the following information about you: the desired PID, your contact information, a short description of what you want to do and an URL of the resource where the API will be used or its website.
@@ -27,7 +27,7 @@ To register as a publisher and gain access to NoteHub API, please <a href="mailt
 
 A simple `GET` request to the following URL:
 
-    http://notehub.org/api/note
+    http://www.notehub.org/api/note
 
 with the following parameters:
 
@@ -43,8 +43,8 @@ Example:
     {
         note: "markdown source",
         title: "Lorem Ipsum.",
-        longURL: "http://notehub.org/2014/1/3/lorem-ipsum",
-        shortURL: "http://notehub.org/0vrcp",
+        longURL: "http://www.notehub.org/2014/1/3/lorem-ipsum",
+        shortURL: "http://www.notehub.org/0vrcp",
         statistics: {
             published: "2014-1-3",
             edited: "2014-1-12",
@@ -65,7 +65,7 @@ The note ID is a string, containing the date of publishing and a few first words
 
 A note must be created by a `POST` request to the following URL:
 
-    http://notehub.org/api/note
+    http://www.notehub.org/api/note
 
 with the following parameters:
 
@@ -95,8 +95,8 @@ Example:
 
     {
         noteID: "2014/1/3/lorem-ipsum",
-        longURL: "http://notehub.org/2014/1/3/lorem-ipsum",
-        shortURL: "http://notehub.org/0vrcp",
+        longURL: "http://www.notehub.org/2014/1/3/lorem-ipsum",
+        shortURL: "http://www.notehub.org/0vrcp",
         status: {
             success: true,
             comment: "some server message"
@@ -109,7 +109,7 @@ The status object serves the same purpose as in the case of note retrieval.
 
 To update a note, an `PUT` request must be issued to the following URL:
 
-    http://notehub.org/api/note
+    http://www.notehub.org/api/note
 
 with the following parameters:
 
@@ -134,8 +134,8 @@ The response of the server will contain the fields `longURL`, `shortURL`, `statu
 Example:
 
     {
-        longURL: "http://notehub.org/2014/1/3/lorem-ipsum",
-        shortURL: "http://notehub.org/0vrcp",
+        longURL: "http://www.notehub.org/2014/1/3/lorem-ipsum",
+        shortURL: "http://www.notehub.org/0vrcp",
         status: {
             success: true,
             comment: "some server message"
