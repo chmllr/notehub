@@ -9,3 +9,5 @@ pom.xml
 .crossover-cljs
 target/
 .nrepl-port
+.idea/
+NoteHub.iml
