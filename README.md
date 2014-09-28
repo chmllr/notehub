@@ -2,7 +2,7 @@
 
 [NoteHub](http://notehub.org) is a free and hassle-free pastebin for one-off markdown publishing.
 
-NoteHub _was_ an one-app-one-language [experiment](http://notehub.org/2012/6/16/how-notehub-is-built) and is was initially implemented entirely in [Clojure](http://clojure.org) (ClojureScript).
+NoteHub _was_ an one-app-one-language [experiment](http://notehub.org/2012/6/16/how-notehub-is-built) and was initially implemented entirely in [Clojure](http://clojure.org) (ClojureScript).
 NoteHub's persistence layer is based on the key-value store [redis](http://redis.io).
 Currently, NoteHub is hosted for free on [Heroku](http://heroku.com).
 Send your feedback and comments directly to [@gravitydenier](http://twitter.com/gravitydenier) or open an [issue](https://github.com/chmllr/NoteHub/issues) on GitHub.
