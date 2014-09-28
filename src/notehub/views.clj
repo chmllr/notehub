@@ -75,7 +75,7 @@
           [:article.helvetica.bottom-space
                    {:style "font-size: 1em"}
                    (md-to-html (slurp "LANDING.md"))]
-          [:div.centered.helvetica (md-to-html (get-message :footer))]))
+          [:div#footer (md-to-html (get-message :footer))]))
 
 
 (defn statistics-page [resp]
@@ -119,4 +119,4 @@
                                 (get-message %))
                              [:notehub :stats :edit :export :short-url])
                   links (interpose [:span.middot "&middot;"] links)]
-              [:div#links links]))))
+              [:div#footer links]))))

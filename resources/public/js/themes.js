@@ -109,16 +109,15 @@ document.getElementsByTagName("head")[0].appendChild(fileref)
 
 less.modifyVars(vars);
 
-function showLinks(){
-  var links = $("links");
-  if(links){
-    if(window.innerHeight * 0.85 >= document.body.clientHeight) {
-      links.style.position = "fixed";
-      links.style.bottom = 0;
-    }
-    show(links);
+function showFooter(){
+  var elem = $("footer");
+  if(!elem) return;
+  if(window.innerHeight * 0.85 >= document.body.clientHeight) {
+      elem.style.position = "fixed";
+      elem.style.bottom = 0;
   }
+  show(elem);
 }
 
 // for the case if main.js is not loaded
-var onLoad = showLinks;
+var onLoad = showFooter;

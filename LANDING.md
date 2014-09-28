@@ -9,13 +9,8 @@
 - **API**: Integrate the publishing functionality into your editor using the official [NoteHub API](/api).
 
 ## Changelog
- - September 2014: text size setting added ([example](http://localhost:8080/2014/3/31/demo-note?text-font=monospace&header-font=Courier&text-size=0.8))
- - July 2014:
-    - deprecated all API versions less than 1.4
-    - performance improvements
- - March 2014: all notes with __less than 30 views after the first 30 days__ will expire.
- - February 2014: a simple JS-client for API testing [added](/api-test.html).
- - January 2014:
-    - Mobile friendly styling added.
-    - NoteHub API [introduced](/api).
-    - NoteHub 2.0 released: new theme, better performance, extended markdown.
+ - **2014-09**: text size setting added ([example](http://localhost:8080/2014/3/31/demo-note?text-font=monospace&header-font=Courier&text-size=0.8))
+ - **2014-07**: deprecated all API versions less than 1.4 &amp; performance improvements.
+ - **2014-03**: all notes with less than 30 views after the first 30 days will expire.
+ - **2014-02**: a simple JS-client for API testing [added](/api-test.html).
+ - **2014-01**: [NoteHub API](/api), mobile friendly styling and more.
