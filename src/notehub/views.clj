@@ -2,7 +2,6 @@
   (:use 
     iokv.core
     [clojure.string :rename {replace sreplace} :only [replace]]
-    [clojure.core.incubator :only [-?>]]
     [hiccup.form]
     [hiccup.core]
     [hiccup.element]
@@ -100,9 +99,9 @@
                 (html (hidden-field :noteID note-id))
                 (:note (api/get-note {:noteID note-id})) :enter-passwd)))
 
-(defn new-note-page [signature]
+(defn new-note-page [session]
   (input-form "/post-note" :publish
-              (html (hidden-field :session signature)
+              (html (hidden-field :session session)
                     (hidden-field {:id :signature} :signature))
               (get-message :loading) :set-passwd))
 

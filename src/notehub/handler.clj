@@ -3,8 +3,7 @@
     compojure.core
     iokv.core
     notehub.views
-    [clojure.string :rename {replace sreplace} :only [replace]]
-    [clojure.core.incubator :only [-?>]])
+    [clojure.string :rename {replace sreplace} :only [replace]])
   (:require 
     [clojure.core.cache :as cache]
     [hiccup.util :as util]

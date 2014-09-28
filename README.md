@@ -25,9 +25,9 @@ and for the text itself:
 
     notehub.org/.../title?header-font=FONT-NAME&text-font=FONT-NAME2
 
-Analogously, you can specify you can change the font size by specifying a scale factor:
+Analogously, you can specify you can change the text size by specifying a scale factor:
 
-    notehub.org/.../title?header-font=FONT-NAME&text-font=FONT-NAME2&font-size=1.5
+    notehub.org/.../title?header-font=FONT-NAME&text-font=FONT-NAME2&text-size=1.5
 
 See an example of the font formatting [here](http://notehub.org/2012/6/16/how-notehub-is-built?header-font=Berkshire+Swash&text-font=Swanky+and+Moo+Moo).
 
