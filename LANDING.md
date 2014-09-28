@@ -9,7 +9,7 @@
 - **API**: Integrate the publishing functionality into your editor using the official [NoteHub API](/api).
 
 ## Changelog
- - September 2014: font size modifications added
+ - September 2014: text size setting added ([example](http://localhost:8080/2014/3/31/demo-note?text-font=monospace&header-font=Courier&text-size=0.8))
  - July 2014:
     - deprecated all API versions less than 1.4
     - performance improvements
