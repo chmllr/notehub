@@ -14,6 +14,9 @@
     [notehub.storage :as storage]
     [cheshire.core :refer :all]))
 
+(defn current-timestamp []
+  (quot (System/currentTimeMillis) 100000000))
+
 ; note page cache
 (def C (atom (cache/lru-cache-factory {})))
 
@@ -69,7 +72,10 @@
   (GET "/:year/:month/:day/:title/edit" [year month day title]
        (note-update-page year month day title))
 
-  (GET "/new" [] (new-note-page (storage/sign (str (rand-int Integer/MAX_VALUE)))))
+  (GET "/new" [] (new-note-page
+                   (str
+                     (current-timestamp)
+                     (storage/sign (rand-int Integer/MAX_VALUE)))))
 
   (GET "/:year/:month/:day/:title" [year month day title :as params]
        (let [params (assoc (:query-params params)
@@ -93,15 +99,19 @@
                long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
            (redirect long-url))))
 
-
   (POST "/post-note" [session note signature password]
-        (if (= signature (storage/sign session note))
+        (if (and session
+                 (.startsWith session
+                              (str (current-timestamp)))
+                 (= signature (storage/sign session note)))
           (let [pid "NoteHub"
                 psk (storage/get-psk pid)
-                params {:session session :note note :signature signature
-                        :password password :pid pid}]
+                params {:note note
+                        :pid pid
+                        :signature (storage/sign pid psk note)
+                        :password password}]
             (if (storage/valid-publisher? pid)
-              (let [resp (api/post-note (assoc params :signature (storage/sign pid psk note)))]
+              (let [resp (api/post-note params)]
                 (if (get-in resp [:status :success])
                   (redirect (:longURL resp))
                   (response 400)))

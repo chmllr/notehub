@@ -10,6 +10,7 @@
 (def date [2012 6 3])
 (def test-title "some-title")
 (def test-note "# This is a test note.\nHello _world_. Motörhead, тест.")
+(def session-key (str (quot (System/currentTimeMillis) 100000000) "somemd5hash"))
 
 (defn create-testnote-fixture [f]
   (add-note (build-key date test-title) test-note "testPID")
@@ -30,8 +31,7 @@
     (is (= (:body (send-request (url 2012 6 3 "some-title" "export"))) test-note))))
 
 (deftest note-creation
-  (let [session-key "somemd5hash"
-        date (get-date)
+  (let [date (get-date)
         title "this-is-a-test-note"
         [year month day] date]
     (testing "Note creation"
@@ -49,8 +49,7 @@
               (not (note-exists? (build-key date title)))))))))
 
 (deftest note-creation-utf
-  (let [session-key "somemd5hash"
-        date (get-date)
+  (let [date (get-date)
         title "радуга"
         note "# Радуга\nкаждый охотник желает знать, где сидят фазаны."
         [year month day] date]
@@ -68,8 +67,7 @@
             (not (note-exists? (build-key date title))))))))
 
 (deftest note-update
-  (let [session-key "somemd5hash"
-        date (get-date)
+  (let [date (get-date)
         title "this-is-a-test-note"
         [year month day] date
         hash (sign session-key test-note)]
