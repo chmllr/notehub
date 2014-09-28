@@ -13,7 +13,7 @@ NoteHub supports an [API](https://github.com/chmllr/NoteHub/blob/master/API.md) 
 First, create [a new page](http://notehub.org/new) using the [Markdown syntax](http://daringfireball.net/projects/markdown/).
 When the note is published, you'll see a subtle panel at the bottom of the screen.
 From this panel you can go to a rudimentary statistics of the article, or you can export the original markdown, or copy the short url of the note.
-Besides this, you also can invert the color scheme by appending to the note url ([example](http://www.notehub.org/8m4l9)):
+Besides this, you also can invert the color scheme by appending to the note url:
 
     notehub.org/.../title?theme=dark
 
@@ -29,7 +29,7 @@ Analogously, you can specify you can change the text size by specifying a scale 
 
     notehub.org/.../title?header-font=FONT-NAME&text-font=FONT-NAME2&text-size=1.5
 
-See an example of the font formatting [here](http://notehub.org/2012/6/16/how-notehub-is-built?header-font=Berkshire+Swash&text-font=Swanky+and+Moo+Moo).
+See an example of the font formatting [here](http://www.notehub.org/8m4l9).
 
 After you've specified this in the url, you can copy the corresponding short url of the article and share it.
 
