@@ -11,6 +11,9 @@
 ## Changelog
  - **2014-09**: text size setting added ([example](/2014/3/31/demo-note?text-font=monospace&header-font=Courier&text-size=0.8))
  - **2014-07**: deprecated all API versions less than 1.4 &amp; performance improvements.
- - **2014-03**: all notes with less than 30 views after the first 30 days will expire.
+ - **2014-03**: note expiration implemented.
  - **2014-02**: a simple JS-client for API testing [added](/api-test.html).
  - **2014-01**: [NoteHub API](/api), mobile friendly styling and more.
+ - **2013-03**: new color themes.
+ - **2012-07**: password protection for note editing added.
+ - **2012-06**: NoteHub released as a result of an [experiment](/2012/6/16/how-notehub-is-built).
