@@ -6,7 +6,7 @@
 
 - **V1.4**: Bugfix: no whitespace elimination from the note text is needed now for the signature compuation.
 - **V1.3**: New note ID format.
-- **V1.2**: Theme & fonts can be specified during the publishing.
+- **V1.2**: Theme & font settings can be specified during the publishing.
 - **V1.1**: fields `publisher` and `title` in the response to the note retrieval.
 - **V1.0**: initial release.
 
@@ -77,6 +77,7 @@ Parameter    | Explanation                              | Type
 `password`   | Secret token (plain or hashed)           | *optional*
 `version`    | Used API version                         | **required**
 `theme`      | Theme name                               | *optional*
+`text-size`  | Text size                                | *optional*
 `text-font`  | Text font name                           | *optional*
 `header-font`| Header font name                         | *optional*
 

@@ -147,6 +147,7 @@
                                   :signature (storage/sign pid psk note)
                                   :version "1.4"
                                   :theme "dark"
+                                  :text-size 1.1
                                   :text-font "Helvetica"})
           body (parse-string (:body response))
           noteID (body "noteID")]
@@ -156,8 +157,9 @@
                         (last (clojure.string/split
                                ((parse-string (:body response)) "shortURL") #"/"))))) "Location")]
         (= url ((parse-string (:body response)) "longURL"))
-        (substring? "theme=dark" url)
-        (substring? "text-font=Felvetica" url))
+        (is (substring? "theme=dark" url))
+        (is (substring? "text-size=1.1" url))
+        (is (substring? "text-font=Helvetica" url)))
       (is (do
             (storage/delete-note noteID)
             (not (storage/note-exists? noteID)))))))
