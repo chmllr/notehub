@@ -5,13 +5,15 @@
     notehub.views
     [clojure.string :rename {replace sreplace} :only [replace]])
   (:require 
+    [ring.adapter.jetty :as jetty]
     [clojure.core.cache :as cache]
     [hiccup.util :as util]
     [compojure.handler :as handler]
     [compojure.route :as route]
     [notehub.api :as api]
     [notehub.storage :as storage]
-    [cheshire.core :refer :all]))
+    [cheshire.core :refer :all])
+  (:gen-class))
 
 (defn current-timestamp []
   (quot (System/currentTimeMillis) 100000000))
@@ -50,7 +52,7 @@
 
 (defroutes app-routes
   (GET "/api" [] (layout :no-js (get-message :api-title)
-                      [:article (md-to-html (slurp "API.md"))]))
+                         [:article (md-to-html (slurp "API.md"))]))
 
   (context "/api" []
            #(ring.util.response/content-type (api-routes %) "application/json"))
@@ -138,11 +140,16 @@
 
 (def app
   (let [handler (handler/site app-routes)]
-     (fn [request]
-       (if (get-setting :dev-mode)
-         (handler request)
-         (try (handler request)
-           (catch Exception e
-             (do
-               ;TODO (log e)
-               (response 500))))))))
+    (fn [request]
+      (if (get-setting :dev-mode)
+        (handler request)
+        (try (handler request)
+             (catch Exception e
+               (do
+                 ;TODO (log e)
+                 (response 500))))))))
+
+(defn -main [& [port]]
+  (jetty/run-jetty #'app
+                   {:port (if port (Integer/parseInt port) 8080)}))
+
