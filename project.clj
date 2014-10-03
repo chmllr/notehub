@@ -12,8 +12,10 @@
                  [compojure "1.2.0"]]
   :main notehub.handler
   :min-lein-version "2.0.0"
-  :plugins [[lein-ring "0.8.10"]]
-  :ring {:handler notehub.handler/app}
+  :plugins [[lein-ring "0.8.12"]]
+  :ring {:handler notehub.handler/app
+         :auto-reload? true
+         :auto-refresh? true}
   :profiles {:uberjar {:aot :all}
              :dev {:dependencies 
                    [[javax.servlet/servlet-api "2.5"]
