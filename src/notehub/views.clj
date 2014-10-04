@@ -7,8 +7,6 @@
     [hiccup.element]
     [hiccup.util :only [escape-html]]
     [hiccup.page :only [include-js html5]])
-  (:require
-    [notehub.api :as api])
   (:import (org.pegdown PegDownProcessor Extensions)))
 
 (def get-message (get-map "messages"))
@@ -52,7 +50,6 @@
             [:div.central-element.helvetica {:style "margin-bottom: 3em"}
              (form-to {:autocomplete :off} [:post form-url]
                       (hidden-field :action command)
-                      (hidden-field :version api/version)
                       (hidden-field :password)
                       fields
                       (text-area {:class :max-width} :note content)
@@ -76,12 +73,11 @@
           [:div#footer (md-to-html (get-message :footer))]))
 
 
-(defn statistics-page [resp]
-  (let [stats (:statistics resp)
-        title (get-message :statistics)]
-    (layout :no-js title
-            [:h2.central-element (api/derive-title (:note resp))]
-            [:h3.central-element.helvetica title]
+(defn statistics-page [note-title stats]
+  (let [page-title (get-message :statistics)]
+    (layout :no-js page-title
+            [:h2.central-element note-title]
+            [:h3.central-element.helvetica page-title]
             [:table#stats.helvetica.central-element
              (map
                #(when-let [v (% stats)]
@@ -91,11 +87,12 @@
                           (str (java.util.Date. (Long/parseLong v))) v)]])
                [:published :edited :publisher :views])])))
 
-(defn note-update-page [year month day title]
-  (let [note-id (api/build-key year month day title)]
-    (input-form "/update-note" :update
-                (html (hidden-field :noteID note-id))
-                (:note (api/get-note {:noteID note-id})) :enter-passwd)))
+(defn note-update-page [note-id note]
+  (input-form "/update-note"
+              :update
+              (html (hidden-field :noteID note-id))
+              note
+              :enter-passwd))
 
 (defn new-note-page [session]
   (input-form "/post-note" :publish
@@ -103,18 +100,13 @@
                     (hidden-field {:id :signature} :signature))
               (get-message :loading) :set-passwd))
 
-(defn note-page [note-id short-url]
-  (let [note (api/get-note {:noteID note-id})
-        sanitized-note (sanitize (:note note))]
-    (layout :no-js (:title note)
-            [:article.bottom-space (md-to-html sanitized-note)]
-            (let [urls {:short-url (api/url short-url)
-                        :notehub "/"}
-                  links (map #(link-to
-                                (if (urls %)
-                                  (urls %)
-                                  (str (:longURL note) "/" (name %)))
-                                (get-message %))
-                             [:notehub :stats :edit :export :short-url])
-                  links (interpose [:span.middot "&middot;"] links)]
-              [:div#footer links]))))
+(defn note-page [note short-url]
+  (layout :no-js (:title note)
+          [:article.bottom-space (md-to-html (sanitize (:note note)))]
+          (let [urls {:short-url short-url
+                      :notehub "/"}
+                links (map #(link-to
+                             (urls % (str (:longURL note) "/" (name %)))
+                             (get-message %))
+                           [:notehub :stats :edit :export :short-url])]
+            [:div#footer (interpose [:span.middot "&middot;"] links)])))

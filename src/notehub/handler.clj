@@ -64,14 +64,15 @@
          (return-content-type "text/plain; charset=utf-8" md-text)))
 
   (GET "/:year/:month/:day/:title/stats" [year month day title]
-       (let [note-id (api/build-key year month day title)
-             resp {:statistics (storage/get-note-statistics note-id)
-                   :note (storage/get-note note-id)
-                   :noteID note-id}]
-         (statistics-page resp)))
+       (let [note-id (api/build-key year month day title)]
+         (statistics-page (api/derive-title (storage/get-note note-id))
+                          (storage/get-note-statistics note-id))))
 
   (GET "/:year/:month/:day/:title/edit" [year month day title]
-       (note-update-page year month day title))
+       (let [note-id (api/build-key year month day title)]
+             (note-update-page
+               note-id
+               (:note (api/get-note {:noteID note-id})))))
 
   (GET "/new" [] (new-note-page
                    (str
@@ -89,7 +90,8 @@
                (swap! C cache/hit short-url)
                (storage/increment-note-view note-id))
              (swap! C cache/miss short-url
-                    (note-page note-id short-url)))
+                    (note-page (api/get-note {:noteID note-id})
+                               (api/url short-url))))
            (cache/lookup @C short-url))))
 
   (GET "/:short-url" [short-url]
