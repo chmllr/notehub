@@ -13,12 +13,6 @@
 
 (def version "1.4")
 
-(def domain
-  (get-setting
-    (if (get-setting :dev-mode)
-      :dev-domain
-      :prod-domain)))
-
 (defn log
   "Logs args to the server stdout"
   [string & args]
@@ -51,13 +45,13 @@
   ([success message & params]
    (assoc (create-response success) :message (apply format message params))))
 
-(defn- get-path [token & [description]]
+(defn- get-path [host-url token & [description]]
   (if (= :url description)
-    (str domain "/" token)
+    (str host-url "/" token)
     (let [[year month day title] (split token #"/")]
       (if description
-        (str domain "/" (storage/create-short-url token {:year year :month month :day day :title title}))
-        (str domain (url year month day title))))))
+        (str host-url "/" (storage/create-short-url token {:year year :month month :day day :title title}))
+        (str host-url (url year month day title))))))
 
 (defn version-manager [f params]
   (if-let [req-version (:version params)]
@@ -68,21 +62,21 @@
         (f params)))
     {:status (create-response false "API version expected")}))
 
-(defn get-note [{:keys [noteID]}]
+(defn get-note [{:keys [noteID hostURL]}]
   (if (storage/note-exists? noteID)
     (let [note (storage/get-note noteID)]
       (storage/increment-note-view noteID)
       {:note note
        :title (derive-title note)
-       :longURL (get-path noteID)
-       :shortURL (get-path noteID :id)
+       :longURL (get-path hostURL noteID)
+       :shortURL (get-path hostURL noteID :id)
        :statistics (storage/get-note-statistics noteID)
        :status (create-response true)
        :publisher (storage/get-publisher noteID)})
     {:status (create-response false "noteID '%s' unknown" noteID)}))
 
 (defn post-note
-  [{:keys [note pid signature password] :as params}]
+  [{:keys [note pid signature password hostURL] :as params}]
   ;(log "post-note: %s" {:pid pid :signature signature :password password :note note})
   (let [errors (filter identity
                        [(when-not (storage/valid-publisher? pid) "pid invalid")
@@ -101,8 +95,8 @@
                                            (map #(str proposed-title "-" (+ 2 %)) (range)))))
             noteID (build-key year month day title)
             new-params (assoc params :year year :month month :day day :title title)
-            short-url (get-path (storage/create-short-url noteID new-params) :url)
-            long-url (get-path noteID)]
+            short-url (get-path hostURL (storage/create-short-url noteID new-params) :url)
+            long-url (get-path hostURL noteID)]
         (do
           (storage/add-note noteID note pid password)
           {:noteID noteID
@@ -112,7 +106,7 @@
       {:status (create-response false (first errors))})))
 
 
-(defn update-note [{:keys [noteID note pid signature password]}]
+(defn update-note [{:keys [noteID note pid signature password hostURL]}]
   ;(log "update-note: %s" {:pid pid :noteID noteID :signature signature :password password :note note})
   (let [errors (filter identity
                        [(when-not (storage/valid-publisher? pid) "pid invalid")
@@ -123,7 +117,7 @@
     (if (empty? errors)
       (do
         (storage/edit-note noteID note)
-        {:longURL (get-path noteID)
-         :shortURL (get-path noteID :id)
+        {:longURL (get-path hostURL noteID)
+         :shortURL (get-path hostURL noteID :id)
          :status (create-response true)})
       {:status (create-response false (first errors))})))

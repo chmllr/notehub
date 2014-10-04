@@ -11,7 +11,7 @@
 (def pid2 "somePlugin2")
 (def note-title (let [[y m d] (get-date)]
                   (apply str (interpose "/" [y m d "hello-world"]))))
-(def note-url (str (apply str domain "/" (interpose "/" (get-date))) "/hello-world"))
+(def note-url (str (apply str "/" (interpose "/" (get-date))) "/hello-world"))
 (defn substring? [a b] (not (= nil (re-matches (re-pattern (str "(?s).*" a ".*")) b))))
 
 (defmacro isnt [arg] `(is (not ~arg)))
@@ -58,8 +58,7 @@
         (is (storage/note-exists? (:noteID post-response)))
         (let [su (last (clojure.string/split (:shortURL get-response) #"/"))]
           (is (= su (storage/create-short-url (:noteID post-response) (storage/resolve-url su)))))
-        (let [resp (send-request
-                    (clojure.string/replace (:shortURL get-response) domain ""))
+        (let [resp (send-request (:shortURL get-response))
               resp (send-request ((:headers resp) "Location"))]
           (is (substring? "hello world"(:body resp))))
         (is (= (:publisher get-response) pid))

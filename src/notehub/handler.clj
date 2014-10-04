@@ -143,13 +143,17 @@
 (def app
   (let [handler (handler/site app-routes)]
     (fn [request]
-      (if (get-setting :dev-mode)
+      (let [{:keys [scheme server-name server-port]} request
+            hostURL (str (name scheme) "://" server-name
+                          (when (not= 80 server-port) (str ":" server-port)))
+            request (assoc-in request [:params :hostURL] hostURL)]
+        (if (get-setting :dev-mode)
         (handler request)
         (try (handler request)
              (catch Exception e
                (do
                  ;TODO (log e)
-                 (response 500))))))))
+                 (response 500)))))))))
 
 (defn -main [& [port]]
   (jetty/run-jetty #'app
