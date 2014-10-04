@@ -27,7 +27,7 @@ To register as a publisher and gain access to NoteHub API, please <a href="mailt
 
 A simple `GET` request to the following URL:
 
-    http://www.notehub.org/api/note
+    https://www.notehub.org/api/note
 
 with the following parameters:
 
@@ -43,8 +43,8 @@ Example:
     {
         note: "markdown source",
         title: "Lorem Ipsum.",
-        longURL: "http://www.notehub.org/2014/1/3/lorem-ipsum",
-        shortURL: "http://www.notehub.org/0vrcp",
+        longURL: "https://www.notehub.org/2014/1/3/lorem-ipsum",
+        shortURL: "https://www.notehub.org/0vrcp",
         statistics: {
             published: "2014-1-3",
             edited: "2014-1-12",
@@ -65,7 +65,7 @@ The note ID is a string, containing the date of publishing and a few first words
 
 A note must be created by a `POST` request to the following URL:
 
-    http://www.notehub.org/api/note
+    https://www.notehub.org/api/note
 
 with the following parameters:
 
@@ -96,8 +96,8 @@ Example:
 
     {
         noteID: "2014/1/3/lorem-ipsum",
-        longURL: "http://www.notehub.org/2014/1/3/lorem-ipsum",
-        shortURL: "http://www.notehub.org/0vrcp",
+        longURL: "https://www.notehub.org/2014/1/3/lorem-ipsum",
+        shortURL: "https://www.notehub.org/0vrcp",
         status: {
             success: true,
             comment: "some server message"
@@ -110,7 +110,7 @@ The status object serves the same purpose as in the case of note retrieval.
 
 To update a note, an `PUT` request must be issued to the following URL:
 
-    http://www.notehub.org/api/note
+    https://www.notehub.org/api/note
 
 with the following parameters:
 
@@ -135,8 +135,8 @@ The response of the server will contain the fields `longURL`, `shortURL`, `statu
 Example:
 
     {
-        longURL: "http://www.notehub.org/2014/1/3/lorem-ipsum",
-        shortURL: "http://www.notehub.org/0vrcp",
+        longURL: "https://www.notehub.org/2014/1/3/lorem-ipsum",
+        shortURL: "https://www.notehub.org/0vrcp",
         status: {
             success: true,
             comment: "some server message"

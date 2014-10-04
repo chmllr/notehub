@@ -84,7 +84,7 @@ var vars = {
   '@link_hover': themes[ui.theme].link.hover
 };
 
-var fontURL = "http://fonts.googleapis.com/" +
+var fontURL = "https://fonts.googleapis.com/" +
     "css?family=PT+Serif:700|Noticia+Text:700%s" +
     "&subset=latin,cyrillic",
     injection = "";
