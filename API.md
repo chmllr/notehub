@@ -78,6 +78,7 @@ Parameter    | Explanation                              | Type
 `version`    | Used API version                         | **required**
 `theme`      | Theme name                               | *optional*
 `text-size`  | Text size                                | *optional*
+`header-size`| Header size                              | *optional*
 `text-font`  | Text font name                           | *optional*
 `header-font`| Header font name                         | *optional*
 
