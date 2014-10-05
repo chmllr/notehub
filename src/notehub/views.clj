@@ -1,5 +1,5 @@
 (ns notehub.views
-  (:use 
+  (:use
     iokv.core
     [clojure.string :rename {replace sreplace} :only [replace]]
     [hiccup.form]
@@ -68,23 +68,24 @@
            [:a.landing-button {:href "/new" :style "color: white"} (get-message :new-page)]]
           [:div#dashed-line]
           [:article.helvetica.bottom-space
-                   {:style "font-size: 1em"}
-                   (md-to-html (slurp "LANDING.md"))]
+           {:style "font-size: 1em"}
+           (md-to-html (slurp "LANDING.md"))]
           [:div#footer (md-to-html (get-message :footer))]))
 
 
-(defn statistics-page [note-title stats]
-  (let [page-title (get-message :statistics)]
+(defn statistics-page [note-title stats publisher]
+  (let [page-title (get-message :statistics)
+        info (assoc stats :publisher publisher)]
     (layout :no-js page-title
             [:h2.central-element note-title]
             [:h3.central-element.helvetica page-title]
             [:table#stats.helvetica.central-element
              (map
-               #(when-let [v (% stats)]
-                  [:tr
-                   [:td (str (get-message %) ":")]
-                   [:td (if (or (= % :published) (= % :edited))
-                          (str (java.util.Date. (Long/parseLong v))) v)]])
+               #(when-let [v (% info)]
+                 [:tr
+                  [:td (str (get-message %) ":")]
+                  [:td (if (or (= % :published) (= % :edited))
+                         (str (java.util.Date. (Long/parseLong v))) v)]])
                [:published :edited :publisher :views])])))
 
 (defn note-update-page [note-id note]

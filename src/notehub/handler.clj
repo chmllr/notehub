@@ -1,10 +1,10 @@
 (ns notehub.handler
-  (:use 
+  (:use
     compojure.core
     iokv.core
     notehub.views
     [clojure.string :rename {replace sreplace} :only [replace]])
-  (:require 
+  (:require
     [ring.adapter.jetty :as jetty]
     [clojure.core.cache :as cache]
     [hiccup.util :as util]
@@ -41,119 +41,120 @@
    :body content})
 
 (defroutes api-routes
-  (GET "/note" {params :params}
-       (generate-string (api/version-manager api/get-note params)))
+           (GET "/note" {params :params}
+                (generate-string (api/version-manager api/get-note params)))
 
-  (POST "/note" {params :params}
-        (generate-string (api/version-manager api/post-note params)))
+           (POST "/note" {params :params}
+                 (generate-string (api/version-manager api/post-note params)))
 
-  (PUT "/note" {params :params}
-       (generate-string (api/version-manager api/update-note params))))
+           (PUT "/note" {params :params}
+                (generate-string (api/version-manager api/update-note params))))
 
 (defroutes app-routes
-  (GET "/api" [] (layout :no-js (get-message :api-title)
-                         [:article (md-to-html (slurp "API.md"))]))
+           (GET "/api" [] (layout :no-js (get-message :api-title)
+                                  [:article (md-to-html (slurp "API.md"))]))
 
-  (context "/api" []
-           #(ring.util.response/content-type (api-routes %) "application/json"))
+           (context "/api" []
+                    #(ring.util.response/content-type (api-routes %) "application/json"))
 
-  (GET "/" [] landing-page)
+           (GET "/" [] landing-page)
 
-  (GET "/:year/:month/:day/:title/export" [year month day title]
-       (when-let [md-text (:note (api/get-note {:noteID (api/build-key year month day title)}))]
-         (return-content-type "text/plain; charset=utf-8" md-text)))
+           (GET "/:year/:month/:day/:title/export" [year month day title]
+                (when-let [md-text (:note (api/get-note {:noteID (api/build-key year month day title)}))]
+                  (return-content-type "text/plain; charset=utf-8" md-text)))
 
-  (GET "/:year/:month/:day/:title/stats" [year month day title]
-       (let [note-id (api/build-key year month day title)]
-         (statistics-page (api/derive-title (storage/get-note note-id))
-                          (storage/get-note-statistics note-id))))
+           (GET "/:year/:month/:day/:title/stats" [year month day title]
+                (let [note-id (api/build-key year month day title)]
+                  (statistics-page (api/derive-title (storage/get-note note-id))
+                                   (storage/get-note-statistics note-id)
+                                   (storage/get-publisher note-id))))
 
-  (GET "/:year/:month/:day/:title/edit" [year month day title]
-       (let [note-id (api/build-key year month day title)]
-             (note-update-page
-               note-id
-               (:note (api/get-note {:noteID note-id})))))
+           (GET "/:year/:month/:day/:title/edit" [year month day title]
+                (let [note-id (api/build-key year month day title)]
+                  (note-update-page
+                    note-id
+                    (:note (api/get-note {:noteID note-id})))))
 
-  (GET "/new" [] (new-note-page
-                   (str
-                     (current-timestamp)
-                     (storage/sign (rand-int Integer/MAX_VALUE)))))
+           (GET "/new" [] (new-note-page
+                            (str
+                              (current-timestamp)
+                              (storage/sign (rand-int Integer/MAX_VALUE)))))
 
-  (GET "/:year/:month/:day/:title" [year month day title :as params]
-       (let [params (assoc (:query-params params)
-                           :year year :month month :day day :title title)
-             note-id (api/build-key year month day title)
-             short-url (storage/create-short-url note-id params)]
-         (when (storage/note-exists? note-id)
-           (if (cache/has? @page-cache short-url)
-             (do
-               (swap! page-cache cache/hit short-url)
-               (storage/increment-note-view note-id))
-             (swap! page-cache cache/miss short-url
-                    (note-page (api/get-note {:noteID note-id})
-                               (api/url short-url))))
-           (cache/lookup @page-cache short-url))))
+           (GET "/:year/:month/:day/:title" [year month day title :as params]
+                (let [params (assoc (:query-params params)
+                               :year year :month month :day day :title title)
+                      note-id (api/build-key year month day title)
+                      short-url (storage/create-short-url note-id params)]
+                  (when (storage/note-exists? note-id)
+                    (if (cache/has? @page-cache short-url)
+                      (do
+                        (swap! page-cache cache/hit short-url)
+                        (storage/increment-note-view note-id))
+                      (swap! page-cache cache/miss short-url
+                             (note-page (api/get-note {:noteID note-id})
+                                        (api/url short-url))))
+                    (cache/lookup @page-cache short-url))))
 
-  (GET "/:short-url" [short-url]
-       (when-let [params (storage/resolve-url short-url)]
-         (let [{:keys [year month day title]} params
-               rest-params (dissoc params :year :month :day :title)
-               core-url (api/url year month day title)
-               long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
-           (redirect long-url))))
+           (GET "/:short-url" [short-url]
+                (when-let [params (storage/resolve-url short-url)]
+                  (let [{:keys [year month day title]} params
+                        rest-params (dissoc params :year :month :day :title)
+                        core-url (api/url year month day title)
+                        long-url (if (empty? rest-params) core-url (util/url core-url rest-params))]
+                    (redirect long-url))))
 
-  (POST "/post-note" [session note signature password]
-        (if (and session
-                 (.startsWith session
-                              (str (current-timestamp)))
-                 (= signature (storage/sign session note)))
-          (let [pid "NoteHub"
-                psk (storage/get-psk pid)
-                params {:note note
-                        :pid pid
-                        :signature (storage/sign pid psk note)
-                        :password password}]
-            (if (storage/valid-publisher? pid)
-              (let [resp (api/post-note params)]
-                (if (get-in resp [:status :success])
-                  (redirect (:longURL resp))
-                  (response 400)))
-              (response 500)))
-          (response 400)))
+           (POST "/post-note" [session note signature password]
+                 (if (and session
+                          (.startsWith session
+                                       (str (current-timestamp)))
+                          (= signature (storage/sign session note)))
+                   (let [pid "NoteHub"
+                         psk (storage/get-psk pid)
+                         params {:note note
+                                 :pid pid
+                                 :signature (storage/sign pid psk note)
+                                 :password password}]
+                     (if (storage/valid-publisher? pid)
+                       (let [resp (api/post-note params)]
+                         (if (get-in resp [:status :success])
+                           (redirect (:longURL resp))
+                           (response 400)))
+                       (response 500)))
+                   (response 400)))
 
-  (POST "/update-note" [noteID note password]
-        (let [pid "NoteHub"
-              psk (storage/get-psk pid)
-              params {:noteID noteID :note note :password password :pid pid}]
-          (if (storage/valid-publisher? pid)
-            (let [resp (api/update-note (assoc params
-                                               :signature
-                                               (storage/sign pid psk noteID note password)))]
-              (if (get-in resp [:status :success])
-                (do
-                  (doseq [url (storage/get-short-urls noteID)]
-                    (swap! page-cache cache/evict url))
-                  (redirect (:longURL resp)))
-                (response 403)))
-            (response 500))))
+           (POST "/update-note" [noteID note password]
+                 (let [pid "NoteHub"
+                       psk (storage/get-psk pid)
+                       params {:noteID noteID :note note :password password :pid pid}]
+                   (if (storage/valid-publisher? pid)
+                     (let [resp (api/update-note (assoc params
+                                                   :signature
+                                                   (storage/sign pid psk noteID note password)))]
+                       (if (get-in resp [:status :success])
+                         (do
+                           (doseq [url (storage/get-short-urls noteID)]
+                             (swap! page-cache cache/evict url))
+                           (redirect (:longURL resp)))
+                         (response 403)))
+                     (response 500))))
 
-  (route/resources "/")
-  (route/not-found (response 404)))
+           (route/resources "/")
+           (route/not-found (response 404)))
 
 (def app
   (let [handler (handler/site app-routes)]
     (fn [request]
       (let [{:keys [server-name server-port]} request
             hostURL (str "https://" server-name
-                          (when (not= 80 server-port) (str ":" server-port)))
+                         (when (not= 80 server-port) (str ":" server-port)))
             request (assoc-in request [:params :hostURL] hostURL)]
         (if (get-setting :dev-mode)
-        (handler request)
-        (try (handler request)
-             (catch Exception e
-               (do
-                 ;TODO (log e)
-                 (response 500)))))))))
+          (handler request)
+          (try (handler request)
+               (catch Exception e
+                 (do
+                   ;TODO (log e)
+                   (response 500)))))))))
 
 (defn -main [& [port]]
   (jetty/run-jetty #'app

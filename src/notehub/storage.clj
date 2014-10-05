@@ -15,13 +15,13 @@
           (.update md5Instance (.getBytes input))
           (apply str
                  (map #(let [c (Integer/toHexString (bit-and 0xff %))]
-                         (if (= 1 (count c)) (str "0" c) c))
+                        (if (= 1 (count c)) (str "0" c) c))
                       (.digest md5Instance)))))))
 
 (defmacro redis [cmd & body]
   `(car/wcar conn
              (~(symbol "car" (name cmd))
-                       ~@body)))
+              ~@body)))
 
 (defn get-current-date []
   (.getTime (java.util.Date.)))
@@ -72,8 +72,7 @@
 (defn get-note-statistics [noteID]
   {:views (get-note-views noteID)
    :published (redis :hget :published noteID)
-   :edited (redis :hget :edited noteID)
-   :publisher (get-publisher noteID)})
+   :edited (redis :hget :edited noteID)})
 
 (defn note-exists? [noteID]
   (= 1 (redis :hexists :note noteID)))
