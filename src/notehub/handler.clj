@@ -143,12 +143,10 @@
 (def app
   (let [handler (handler/site app-routes)]
     (fn [request]
-      (let [{:keys [scheme server-name server-port]} request
-            hostURL (str (name scheme) "://" server-name
+      (let [{:keys [server-name server-port]} request
+            hostURL (str "https://" server-name
                           (when (not= 80 server-port) (str ":" server-port)))
             request (assoc-in request [:params :hostURL] hostURL)]
-        (println (str (java.util.Date.) ":") (request :request-method) (str hostURL (request :uri)) "-"
-                 ((request :headers) "user-agent"))
         (if (get-setting :dev-mode)
         (handler request)
         (try (handler request)
