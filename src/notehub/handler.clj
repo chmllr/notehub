@@ -19,7 +19,7 @@
   (quot (System/currentTimeMillis) 100000000))
 
 ; note page cache
-(def C (atom (cache/lru-cache-factory {})))
+(def page-cache (atom (cache/lru-cache-factory {})))
 
 ; TODO: make sure the status is really set to the response!!!!
 (defn- response
@@ -85,14 +85,14 @@
              note-id (api/build-key year month day title)
              short-url (storage/create-short-url note-id params)]
          (when (storage/note-exists? note-id)
-           (if (cache/has? @C short-url)
+           (if (cache/has? @page-cache short-url)
              (do
-               (swap! C cache/hit short-url)
+               (swap! page-cache cache/hit short-url)
                (storage/increment-note-view note-id))
-             (swap! C cache/miss short-url
+             (swap! page-cache cache/miss short-url
                     (note-page (api/get-note {:noteID note-id})
                                (api/url short-url))))
-           (cache/lookup @C short-url))))
+           (cache/lookup @page-cache short-url))))
 
   (GET "/:short-url" [short-url]
        (when-let [params (storage/resolve-url short-url)]
@@ -132,7 +132,7 @@
               (if (get-in resp [:status :success])
                 (do
                   (doseq [url (storage/get-short-urls noteID)]
-                    (swap! C cache/evict url))
+                    (swap! page-cache cache/evict url))
                   (redirect (:longURL resp)))
                 (response 403)))
             (response 500))))
