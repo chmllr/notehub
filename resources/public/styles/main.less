@@ -13,7 +13,8 @@
 @header_font: 'Noticia Text';
 @text_font: 'Georgia';
 
-@font_size: 1.2em;
+@header_size_factor: 1;
+@text_size_factor: 1;
 
 // mixins
 .helvetica {
@@ -110,6 +111,24 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: bold;
     font-family: @header_font,'Noticia Text','PT Serif','Georgia';
 }
+h1 {
+    font-size: 1.8em * @header_size_factor;
+}
+h2 {
+    font-size: 1.6em * @header_size_factor;
+}
+h3 {
+    font-size: 1.4em * @header_size_factor;
+}
+h4 {
+    font-size: 1.2em * @header_size_factor;
+}
+h5 {
+    font-size: 1.1em * @header_size_factor;
+}
+h6 {
+    font-size: 1em * @header_size_factor;
+}
 #hero h1 {
     font-size: 2.5em;
 }
@@ -124,12 +143,12 @@ article {
     text-align: justify;
 }
 article p {
-    font-size: @font_size;
+    font-size: 1.2em * @text_size_factor;
     line-height: 140%;
 }
 article > h1:first-child {
     text-align: center;
-    font-size: 2em;
+    font-size: 2em * @header_size_factor;
     margin: 2em;
 }
 .centered {
@@ -141,7 +160,7 @@ article > h1:first-child {
 code, pre {
     font-family: monospace;
     background: @background_halftone;
-    font-size: @font_size;
+    font-size: 1.2em * @text_size_factor;
 }
 pre {
     border-radius: 3px;

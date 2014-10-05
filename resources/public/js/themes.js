@@ -98,7 +98,8 @@ if(ui["header-font"] || ui["text-font"]) {
   }, "");
 }
 
-if(ui["text-size"]) vars["@font_size"] = ui["text-size"] + "em";
+if(ui["text-size"]) vars["@text_size_factor"] = ui["text-size"];
+if(ui["header-size"]) vars["@header_size_factor"] = ui["header-size"];
 
 fontURL = fontURL.replace(/%s/, injection);
 var fileref = document.createElement("link")
