@@ -4,11 +4,11 @@
 
 ## Changelog
 
-- **V1.4**: Bugfix: no whitespace elimination from the note text is needed now for the signature compuation.
+- **V1.4**: Bugfix: no whitespace elimination from the note text is needed now for the signature computation.
 - **V1.3**: New note ID format.
 - **V1.2**: Theme & font settings can be specified during the publishing.
-- **V1.1**: fields `publisher` and `title` in the response to the note retrieval.
-- **V1.0**: initial release.
+- **V1.1**: Fields `publisher` and `title` in the response to the note retrieval.
+- **V1.0**: Initial release.
 
 ## Prerequisites
 
@@ -46,8 +46,8 @@ Example:
         longURL: "https://www.notehub.org/2014/1/3/lorem-ipsum",
         shortURL: "https://www.notehub.org/0vrcp",
         statistics: {
-            published: "2014-1-3",
-            edited: "2014-1-12",
+            published: "1396250865735",
+            edited: "1412516289863",
             views: 24
         },
         status: {

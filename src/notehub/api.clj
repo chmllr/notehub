@@ -58,7 +58,7 @@
     (let [req-version (Double/parseDouble req-version)
           version (Double/parseDouble version)]
       (if (< req-version version)
-        {:status (create-response false "Deprecated API version")}   
+        {:status (create-response false "Deprecated API version")}
         (f params)))
     {:status (create-response false "API version expected")}))
 
