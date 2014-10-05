@@ -15,6 +15,8 @@
             :plugins [[lein-ring "0.8.12"]]
             :ring {:handler notehub.handler/app}
             :profiles {:uberjar {:aot :all}
+                       :production {:ring {:auto-reload? false
+                                           :auto-refresh? false}}
                        :dev {:ring {:auto-reload? true
                                     :auto-refresh? true}
                              :dependencies
