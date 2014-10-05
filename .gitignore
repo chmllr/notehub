@@ -1,3 +1,4 @@
+Makefile
 PrivateMakefile
 dump.rdb
 resources/public/cljs
