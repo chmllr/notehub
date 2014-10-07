@@ -61,7 +61,7 @@
 
 (defn valid-password? [noteID passwd]
   (let [stored (redis :hget :password noteID)]
-    (and (not (= 0 stored)) (= stored passwd))))
+    (and (not= 0 stored) (= stored passwd))))
 
 (defn get-note-views [noteID]
   (redis :hget :views noteID))
