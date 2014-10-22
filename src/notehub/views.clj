@@ -12,7 +12,7 @@
 (def get-message (get-map "messages"))
 
 (def md-processor
-  (PegDownProcessor. Extensions/TABLES))
+  (PegDownProcessor. Extensions/ALL))
 
 (defn md-to-html [md-text]
   (.markdownToHtml md-processor md-text))
