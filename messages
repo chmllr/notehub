@@ -8,7 +8,7 @@ status-400 = Bad Request
 status-403 = Forbidden
 status-500 = Internal Server Error
 
-footer = Source code on [GitHub](https://github.com/chmllr/NoteHub) &middot; Hosted on [Heroku](http://heroku.com) &middot; DB on [RedisLabs](http://redislabs.com) &middot; SSL by [CloudFlare](http://cloudflare.com) <br/> Created by [@gravitydenier](http://twitter.com/gravitydenier)
+footer = Source code on [GitHub](https://github.com/chmllr/NoteHub) &middot; Hosted on [Heroku](http://heroku.com) &middot; DB on [RedisLabs](http://redislabs.com) &middot; SSL by [CloudFlare](http://cloudflare.com) <br/> Created by [@exalypse](http://ello.co/exalypse)
 
 loading = Loading...
 set-passwd = Password for editing
