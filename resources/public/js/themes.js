@@ -108,9 +108,8 @@ fileref.setAttribute("type", "text/css")
 fileref.setAttribute("href", fontURL)
 document.getElementsByTagName("head")[0].appendChild(fileref)
 
-less.modifyVars(vars);
-
 function showFooter(){
+  less.modifyVars(vars);
   var elem = $("footer");
   if(!elem) return;
   if(window.innerHeight * 0.85 >= document.body.clientHeight) {
