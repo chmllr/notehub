@@ -39,7 +39,7 @@ var themes = {
     },
     foreground: {
       normal: '#93a1a1',
-      halftone: '#eee8d5'
+      halftone: '#839191'
     },
     link: {
       fresh: '#cb4b16',
