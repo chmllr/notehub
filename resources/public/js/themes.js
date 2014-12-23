@@ -111,7 +111,7 @@ document.getElementsByTagName("head")[0].appendChild(fileref)
 var less = { modifyVars: vars };
 var script = document.createElement("script");
 script.type = "text/javascript";
-script.src = "//cdnjs.cloudflare.com/ajax/libs/less.js/2.1.0/less.min.js";
+script.src = "//cdnjs.cloudflare.com/ajax/libs/less.js/2.1.2/less.min.js";
 document.head.appendChild(script);
 
 function onLoad () {}
