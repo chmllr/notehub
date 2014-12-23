@@ -113,3 +113,5 @@ var script = document.createElement("script");
 script.type = "text/javascript";
 script.src = "//cdnjs.cloudflare.com/ajax/libs/less.js/2.1.0/less.min.js";
 document.head.appendChild(script);
+
+function onLoad () {}
