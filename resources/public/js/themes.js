@@ -112,20 +112,10 @@ function showPage() {
   less = {
     modifyVars: vars
   };
-  putFooter();
   var script = document.createElement("script");
   script.type = "text/javascript";
   script.src = "//cdnjs.cloudflare.com/ajax/libs/less.js/2.1.0/less.min.js";
   document.head.appendChild(script);
-}
-
-function putFooter(){
-  var elem = $("footer");
-  if(!elem) return;
-  if(window.innerHeight * 0.85 >= document.body.clientHeight) {
-      elem.style.position = "fixed";
-      elem.style.bottom = 0;
-  }
 }
 
 // for the case if main.js is not loaded

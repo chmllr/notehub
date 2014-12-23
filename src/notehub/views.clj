@@ -33,7 +33,7 @@
          (include-js "//cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js")
          (include-js "/js/md5.js")
          (include-js "/js/main.js")))]
-    [:body {:style "display: none;" :onload "onLoad()"} content]))
+    [:body {:style "display: none" :onload "onLoad()"} content]))
 
 (defn- sanitize
   "Breakes all usages of <script> & <iframe>"

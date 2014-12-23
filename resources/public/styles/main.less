@@ -100,7 +100,6 @@ html, body {
     color: @foreground;
     margin: 0;
     padding: 0;
-    display: block !important;
 }
 #hero {
     padding-top: 5em;
@@ -141,6 +140,8 @@ article {
     .central-element;
     margin-top: 5em;
     text-align: justify;
+    flex: 1;
+    -webkit-flex: 1;
 }
 article p {
     font-size: 1.2em * @text_size_factor;
@@ -202,4 +203,12 @@ td {
 }
 .middot {
     padding: 0.5em;
+}
+
+body {
+    display: flex !important;
+    display: -webkit-flex !important;
+    min-height: 100vh;
+    flex-direction: column;
+    -webkit-flex-direction: column;
 }
