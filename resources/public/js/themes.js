@@ -75,13 +75,13 @@ if (location.search.length > 0) {
 }
 
 var vars = {
-  '@background': themes[ui.theme].background.normal,
-  '@background_halftone': themes[ui.theme].background.halftone,
-  '@foreground': themes[ui.theme].foreground.normal,
-  '@foreground_halftone': themes[ui.theme].foreground.halftone,
-  '@link_fresh': themes[ui.theme].link.fresh,
-  '@link_visited': themes[ui.theme].link.visited,
-  '@link_hover': themes[ui.theme].link.hover
+  'background': themes[ui.theme].background.normal,
+  'background_halftone': themes[ui.theme].background.halftone,
+  'foreground': themes[ui.theme].foreground.normal,
+  'foreground_halftone': themes[ui.theme].foreground.halftone,
+  'link_fresh': themes[ui.theme].link.fresh,
+  'link_visited': themes[ui.theme].link.visited,
+  'link_hover': themes[ui.theme].link.hover
 };
 
 var fontURL = "https://fonts.googleapis.com/" +
@@ -92,7 +92,7 @@ var fontURL = "https://fonts.googleapis.com/" +
 if(ui["header-font"] || ui["text-font"]) {
   injection = ["header-font", "text-font"].reduce(function(acc, font){
     if(ui[font]) {
-      vars['@' + font.replace(/-/, "_")] = ui[font].replace(/\+/g," ");
+      vars[font.replace(/-/, "_")] = ui[font].replace(/\+/g," ");
       return acc + "|" + ui[font];
     } else return acc;
   }, "");
@@ -108,17 +108,25 @@ fileref.setAttribute("type", "text/css")
 fileref.setAttribute("href", fontURL)
 document.getElementsByTagName("head")[0].appendChild(fileref)
 
-less.modifyVars(vars);
+function showPage() {
+  less = {
+    modifyVars: vars
+  };
+  putFooter();
+  var script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = "//cdnjs.cloudflare.com/ajax/libs/less.js/2.1.0/less.min.js";
+  document.head.appendChild(script);
+}
 
-function showFooter(){
+function putFooter(){
   var elem = $("footer");
   if(!elem) return;
   if(window.innerHeight * 0.85 >= document.body.clientHeight) {
       elem.style.position = "fixed";
       elem.style.bottom = 0;
   }
-  show(elem);
 }
 
 // for the case if main.js is not loaded
-var onLoad = showFooter;
+var onLoad = showPage;

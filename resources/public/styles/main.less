@@ -88,7 +88,6 @@ a:visited {
     font-size: 0.8em;
     padding-bottom: 1em;
     text-align: center;
-    display: none;
     @media screen and (max-width: 767px) {
         font-size: 0.4em;
     }
@@ -101,6 +100,7 @@ html, body {
     color: @foreground;
     margin: 0;
     padding: 0;
+    display: block !important;
 }
 #hero {
     padding-top: 5em;
@@ -179,7 +179,7 @@ textarea {
     font-size: 1em;
     height: 500px;
 }
-.hidden, #links {
+.hidden {
     display: none;
 }
 #dashed-line {

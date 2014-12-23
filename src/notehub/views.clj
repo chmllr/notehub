@@ -27,14 +27,13 @@
      [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0"}]
      [:link {:rel "stylesheet/less" :type "text/css" :href "/styles/main.less"}]
      (html
-       (include-js "/js/less.js")
        (include-js "/js/themes.js"))
      (when (= :js js?)
        (html
+         (include-js "//cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js")
          (include-js "/js/md5.js")
-         (include-js "/js/marked.js")
          (include-js "/js/main.js")))]
-    [:body {:onload "onLoad()"} content]))
+    [:body {:style "display: none;" :onload "onLoad()"} content]))
 
 (defn- sanitize
   "Breakes all usages of <script> & <iframe>"
