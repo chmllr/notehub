@@ -38,5 +38,4 @@ function onLoad() {
     }
     if(iosDetected) $note.className += " ui-border"; else $note.focus();
   }
-  showPage();
 }

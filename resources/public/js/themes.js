@@ -108,15 +108,8 @@ fileref.setAttribute("type", "text/css")
 fileref.setAttribute("href", fontURL)
 document.getElementsByTagName("head")[0].appendChild(fileref)
 
-function showPage() {
-  less = {
-    modifyVars: vars
-  };
-  var script = document.createElement("script");
-  script.type = "text/javascript";
-  script.src = "//cdnjs.cloudflare.com/ajax/libs/less.js/2.1.0/less.min.js";
-  document.head.appendChild(script);
-}
-
-// for the case if main.js is not loaded
-var onLoad = showPage;
+var less = { modifyVars: vars };
+var script = document.createElement("script");
+script.type = "text/javascript";
+script.src = "//cdnjs.cloudflare.com/ajax/libs/less.js/2.1.0/less.min.js";
+document.head.appendChild(script);
