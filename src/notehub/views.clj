@@ -83,16 +83,17 @@
   (let [page-title (get-message :statistics)
         info (assoc stats :publisher publisher)]
     (layout :no-js {} page-title
-            [:h2.central-element note-title]
-            [:h3.central-element.helvetica page-title]
-            [:table#stats.helvetica.central-element
-             (map
-               #(when-let [v (% info)]
-                 [:tr
-                  [:td (str (get-message %) ":")]
-                  [:td (if (or (= % :published) (= % :edited))
-                         (str (java.util.Date. (Long/parseLong v))) v)]])
-               [:published :edited :publisher :views])])))
+            [:div.central-element.helvetica {:style "width: 80%"}
+             [:h2 note-title]
+             [:h3.helvetica page-title]
+             [:table#stats
+              (map
+                #(when-let [v (% info)]
+                   [:tr
+                    [:td (str (get-message %) ":")]
+                    [:td (if (or (= % :published) (= % :edited))
+                           (str (java.util.Date. (Long/parseLong v))) v)]])
+                [:published :edited :publisher :views])]])))
 
 (defn note-update-page [note-id note]
   (input-form "/update-note"
@@ -113,7 +114,7 @@
           (let [urls {:short-url short-url
                       :notehub "/"}
                 links (map #(link-to
-                             (urls % (str (:longURL note) "/" (name %)))
-                             (get-message %))
+                              (urls % (str (:longURL note) "/" (name %)))
+                              (get-message %))
                            [:notehub :stats :edit :export :short-url])]
             [:div#footer (interpose [:span.middot "&middot;"] links)])))
