@@ -109,5 +109,5 @@ fileref.setAttribute("href", fontURL)
 document.getElementsByTagName("head")[0].appendChild(fileref)
 
 function onLoad () {
-    if(ui.theme != "default" || Object.keys(ui) > 1) less.modifyVars(vars);
+    if(ui.theme != "default" || Object.keys(ui).length > 1) less.modifyVars(vars);
 }
