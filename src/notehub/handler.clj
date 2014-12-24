@@ -28,7 +28,7 @@
   [code]
   {:status code
    :body (let [message (get-message (keyword (str "status-" code)))]
-           (layout :no-js message
+           (layout :no-js {} message
                    [:article [:h1 message]]))})
 
 (defn redirect [url]
@@ -51,7 +51,7 @@
                 (generate-string (api/version-manager api/update-note params))))
 
 (defroutes app-routes
-           (GET "/api" [] (layout :no-js (get-message :api-title)
+           (GET "/api" [] (layout :no-js {} (get-message :api-title)
                                   [:article (md-to-html (slurp "API.md"))]))
 
            (context "/api" []
@@ -92,7 +92,8 @@
                         (storage/increment-note-view note-id))
                       (swap! page-cache cache/miss short-url
                              (note-page (api/get-note {:noteID note-id})
-                                        (api/url short-url))))
+                                        (api/url short-url)
+                                        params)))
                     (cache/lookup @page-cache short-url))))
 
            (GET "/:short-url" [short-url]

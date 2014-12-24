@@ -7,6 +7,7 @@
     [hiccup.element]
     [hiccup.util :only [escape-html]]
     [hiccup.page :only [include-js html5]])
+  (:require [notehub.css :as css])
   (:import (org.pegdown PegDownProcessor Extensions)))
 
 (def get-message (get-map "messages"))
@@ -19,22 +20,27 @@
 
 ; Creates the main html layout
 (defn layout
-  [js? title & content]
+  [js? style title & content]
   (html5
     [:head
      [:title (print-str (get-message :name) "&mdash;" title)]
      [:meta {:charset "UTF-8"}]
      [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0"}]
-     [:link {:rel "stylesheet/less" :type "text/css" :href "/styles/main.less"}]
-     (html
-       (include-js "//cdnjs.cloudflare.com/ajax/libs/less.js/2.1.2/less.min.js")
-       (include-js "/js/themes.js"))
-     (when (= :js js?)
+     [:link {:rel "stylesheet" :type "text/css" 
+             :href 
+             (format "https://fonts.googleapis.com/css?family=PT+Serif:700|Noticia+Text:700%s&subset=latin,cyrillic"
+                     (reduce (fn [acc e]
+                               (if-let [font (style e)]
+                                 (str acc "|" (sreplace font #" " "+"))
+                                 "")) "" ["text-font" "header-font"]))}]
+     [:style (css/generate style)]
+     (if (= :js js?)
        (html
          (include-js "//cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js")
          (include-js "/js/md5.js")
-         (include-js "/js/main.js")))]
-    [:body {:onload "onLoad()"} content]))
+         (include-js "/js/publishing.js")
+         [:body {:onload "onLoad()"} content])
+       [:body content])]))
 
 (defn- sanitize
   "Breakes all usages of <script> & <iframe>"
@@ -44,7 +50,7 @@
 ; input form for the markdown text with a preview area
 (defn- input-form [form-url command fields content passwd-msg]
   (let [css-class (when (= :publish command) :hidden)]
-    (layout :js (get-message :new-page)
+    (layout :js {} (get-message :new-page)
             [:article#preview ""]
             [:div#dashed-line {:class css-class}]
             [:div.central-element.helvetica {:style "margin-bottom: 3em"}
@@ -60,7 +66,7 @@
                                        :id :publish-button} (get-message command))])])))
 
 (def landing-page
-  (layout :no-js (get-message :page-title)
+  (layout :no-js {} (get-message :page-title)
           [:div#hero
            [:h1 (get-message :name)]
            [:h2 (get-message :title)]
@@ -76,7 +82,7 @@
 (defn statistics-page [note-title stats publisher]
   (let [page-title (get-message :statistics)
         info (assoc stats :publisher publisher)]
-    (layout :no-js page-title
+    (layout :no-js {} page-title
             [:h2.central-element note-title]
             [:h3.central-element.helvetica page-title]
             [:table#stats.helvetica.central-element
@@ -101,8 +107,8 @@
                     (hidden-field {:id :signature} :signature))
               (get-message :loading) :set-passwd))
 
-(defn note-page [note short-url]
-  (layout :no-js (:title note)
+(defn note-page [note short-url css-params]
+  (layout :no-js css-params (:title note)
           [:article.bottom-space (md-to-html (sanitize (:note note)))]
           (let [urls {:short-url short-url
                       :notehub "/"}

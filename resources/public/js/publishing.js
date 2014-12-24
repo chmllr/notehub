@@ -11,7 +11,7 @@ function md2html(input){
   return marked(input);
 }
 
-function onLoad() {
+function onLoad () {
   $note = $("note");
   $action = $("action");
   $preview = $("preview");

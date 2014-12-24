@@ -4,6 +4,7 @@
                            [org.clojure/core.cache "0.6.4"]
                            [hiccup "1.0.5"]
                            [zeus "0.1.0"]
+                           [garden "1.2.5"]
                            [org.pegdown/pegdown "1.4.2"]
                            [iokv "0.1.1"]
                            [cheshire "5.3.1"]
