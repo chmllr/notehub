@@ -27,6 +27,7 @@
      [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0"}]
      [:link {:rel "stylesheet/less" :type "text/css" :href "/styles/main.less"}]
      (html
+       (include-js "//cdnjs.cloudflare.com/ajax/libs/less.js/2.1.2/less.min.js")
        (include-js "/js/themes.js"))
      (when (= :js js?)
        (html
