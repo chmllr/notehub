@@ -32,7 +32,7 @@
                      (reduce (fn [acc e]
                                (if-let [font (style e)]
                                  (str acc "|" (sreplace font #" " "+"))
-                                 "")) "" ["text-font" "header-font"]))}]
+                                 acc)) "" ["text-font" "header-font"]))}]
      [:style (css/generate style)]
      (if (= :js js?)
        (html
@@ -51,7 +51,7 @@
 (defn- input-form [form-url command fields content passwd-msg]
   (let [css-class (when (= :publish command) :hidden)]
     (layout :js {} (get-message :new-page)
-            [:article#preview ""]
+            [:article#preview {:style "flex: none"} ""]
             [:div#dashed-line {:class css-class}]
             [:div.central-element.helvetica {:style "margin-bottom: 3em"}
              (form-to {:autocomplete :off} [:post form-url]
