@@ -59,6 +59,12 @@
 
            (GET "/" [] landing-page)
 
+           (POST "/propose-title" {body :body}
+                 (let [note (slurp body)]
+                   (return-content-type 
+                     "text/plain; charset=utf-8"
+                     (api/propose-title note))))
+
            (GET "/:year/:month/:day/:title/export" [year month day title]
                 (when-let [md-text (:note (api/get-note {:noteID (api/build-key year month day title)}))]
                   (return-content-type "text/plain; charset=utf-8" md-text)))

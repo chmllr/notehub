@@ -60,10 +60,14 @@
                       fields
                       (text-area :note content)
                       [:fieldset#input-elems {:class css-class}
-                       (text-field {:class "ui-elem" :placeholder (get-message passwd-msg)}
-                                   :plain-password)
+                       (text-field {:class "ui-elem"
+                                    :placeholder (get-message passwd-msg)}
+                                    :plain-password) "&nbsp"
                        (submit-button {:class "button ui-elem"
-                                       :id :publish-button} (get-message command))])])))
+                                       :id :publish-button} (get-message command))
+                       [:br]
+                       [:br]
+                       [:div#proposed-title {:style "color: #aaa; font-size: 0.8em"}]])])))
 
 (def landing-page
   (layout :no-js {} (get-message :page-title)

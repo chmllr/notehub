@@ -75,6 +75,12 @@
        :publisher (storage/get-publisher noteID)})
     {:status (create-response false "noteID '%s' unknown" noteID)}))
 
+(defn propose-title [note]
+  (let [raw-title (filter #(or (= \- %) (Character/isLetterOrDigit %))
+                          (-> note derive-title trim (sreplace " " "-") lower-case))
+        max-length (get-setting :max-title-length #(Integer/parseInt %) 80)]
+    (apply str (take max-length raw-title))))
+
 (defn post-note
   [{:keys [note pid signature password hostURL] :as params}]
   ;(log "post-note: %s" {:pid pid :signature signature :password password :note note})
@@ -86,10 +92,7 @@
     (if (empty? errors)
       (let [[year month day] (map str (get-date))
             params (select-keys params [:text-size :header-size :text-font :header-font :theme])
-            raw-title (filter #(or (= \- %) (Character/isLetterOrDigit %))
-                              (-> note derive-title trim (sreplace " " "-") lower-case))
-            max-length (get-setting :max-title-length #(Integer/parseInt %) 80)
-            proposed-title (apply str (take max-length raw-title))
+            proposed-title (propose-title note)
             title (first (drop-while #(storage/note-exists? (build-key year month day %))
                                      (cons proposed-title
                                            (map #(str proposed-title "-" (+ 2 %)) (range)))))
