@@ -83,8 +83,8 @@
         link-visited (get-in theme [:link :visited])
         link-hover (get-in theme [:link :hover])
         width (px 800)
-        header-font (str "'" (or (params "header-font") "Noticia Text") "'")
-        text-font (str "'" (or (params "text-font") "Georgia") "'")
+        header-font (or (params "header-font") "Noticia Text")
+        text-font (or (params "text-font") "Georgia")
         header-size-factor (Float/parseFloat (or (params "header-size") "1"))
         text-size-factor (Float/parseFloat (or (params "text-size") "1"))
 
@@ -94,9 +94,9 @@
                    :font-family "'Helvetica Neue','Helvetica','Arial','Lucida Grande','sans-serif'"
                    }
         central-element {
-                          :margin-left "auto"
-                          :margin-right "auto"
-                          }
+                         :margin-left "auto"
+                         :margin-right "auto"
+                         }
         thin-border {
                      :border (print-str "1px solid" foreground)
                      }]
@@ -123,8 +123,7 @@
                   :font-size (em 1)
                   :background background
                   }
-       helvetica
-       thin-border]
+       helvetica thin-border]
       [:.landing-button, :textarea, :fieldset { :border "none" }]
       [:.landing-button {
                          :box-shadow "0 2px 5px #aaa"
@@ -201,71 +200,56 @@
                                    :margin (em 2)
                                    }]
 
-      [:.centered {
-                   :text-align "center"
-                   }]
-      [:.bottom-space {
-                       :margin-bottom (em 7)
-                       }]
+      [:.centered { :text-align "center" }]
+      [:.bottom-space { :margin-bottom (em 7) }]
       [:code, :pre {
                     :font-family "monospace"
                     :background background-halftone
                     :font-size (em (* 1.2 text-size-factor))
                     }]
-
-[:pre {
-       :border-radius (px 3)
-       :padding (em 0.5)
-       :border (str "1px dotted" foreground-halftone)
-       }]
-
-["*:focus" {
-            :outline "0px none transparent"
+      
+      [:pre {
+             :border-radius (px 3)
+             :padding (em 0.5)
+             :border (str "1px dotted" foreground-halftone)
+             }]
+      
+      ["*:focus" { :outline "0px none transparent" }]
+      (at-media {:screen true :min-width (px 1024)} [:textarea {:width width}])
+      
+      [:textarea {
+                  :border-radius (px 5)
+                  :font-family "Courier"
+                  :font-size (em 1)
+                  :height (px 500)
+                  }]
+      [:.hidden { :display "none" }]
+      [:#dashed-line {
+                      :border-bottom (str "1px dashed" foreground-halftone)
+                      :margin-top (em 3)
+                      :margin-bottom (em 3)
+                      }]
+      [:table {
+               :width "100%"
+               :border-collapse "collapse"
+               }]
+      [:th {
+            :padding (em 0.3)
+            :background-color background-halftone
             }]
-(at-media {:screen true :min-width (px 1024)} [:textarea {:width width}])
-
-[:textarea {
-            :border-radius (px 5)
-            :font-family "Courier"
-            :font-size (em 1)
-            :height (px 500)
+      [:td {
+            :border-top (str "1px dotted" foreground-halftone)
+            :padding (em 0.3)
+            :line-height (em 2.5)
             }]
-[:.hidden {
-           :display "none"
-           }]
-[:#dashed-line {
-                :border-bottom (str "1px dashed" foreground-halftone)
-                :margin-top (em 3)
-                :margin-bottom (em 3)
-                }]
-[:table {
-         :width "100%"
-         :border-collapse "collapse"
-         }]
-[:th {
-      :padding (em 0.3)
-      :background-color background-halftone
-      }]
-[:td {
-      :border-top (str "1px dotted" foreground-halftone)
-      :padding (em 0.3)
-      :line-height (em 2.5)
-      }]
-[:.middot {
-           :padding (em 0.5)
-           }]
-
-[:body {
-        :display "-webkit-flex"
-        }]
-
-[:body {
-        :display "flex"
-        :min-height "100vh"
-        :flex-direction "column"
-        :-webkit-flex-direction "column"
-        }]
-
-
-))
-)
+      [:.middot { :padding (em 0.5) }]
+      
+      [:body { :display "-webkit-flex" }]
+      
+      [:body {
+              :display "flex"
+              :min-height "100vh"
+              :flex-direction "column"
+              :-webkit-flex-direction "column"
+              }]
+  )))
