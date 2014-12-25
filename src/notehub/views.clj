@@ -37,7 +37,7 @@
      (if (= :js js?)
        (html
          (include-js "//cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js")
-         (include-js "/js/md5.js")
+         (include-js "//cdnjs.cloudflare.com/ajax/libs/blueimp-md5/1.0.1/js/md5.min.js")
          (include-js "/js/publishing.js")
          [:body {:onload "onLoad()"} content])
        [:body content])]))
