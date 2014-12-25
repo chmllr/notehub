@@ -235,6 +235,7 @@
                }]
       [:th {
             :padding (em 0.3)
+            :line-height (em 2.5)
             :background-color background-halftone
             }]
       [:td {
