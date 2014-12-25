@@ -188,8 +188,8 @@
 
       [:.central-element central-element]
 
-      (at-media {:screen true :min-width (px 1024)} [:central-element {:width width}])
-      (at-media {:screen true :max-width (px 1023)} [:central-element {:width "90%"}])
+      (at-media {:screen true :min-width (px 1024)} [:.central-element {:width width}])
+      (at-media {:screen true :max-width (px 1023)} [:.central-element {:width "90%"}])
 
       ["article p" {
                     :font-size (em (* 1.2 text-size-factor))

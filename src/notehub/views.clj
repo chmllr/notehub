@@ -58,7 +58,7 @@
                       (hidden-field :action command)
                       (hidden-field :password)
                       fields
-                      (text-area {:class :max-width} :note content)
+                      (text-area :note content)
                       [:fieldset#input-elems {:class css-class}
                        (text-field {:class "ui-elem" :placeholder (get-message passwd-msg)}
                                    :plain-password)
