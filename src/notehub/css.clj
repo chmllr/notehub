@@ -232,7 +232,8 @@
       [:table {
                :width "100%"
                :border-collapse "collapse"
-               }]
+               }
+       helvetica]
       [:th {
             :padding (em 0.3)
             :line-height (em 2.5)
