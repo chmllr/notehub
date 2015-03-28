@@ -190,10 +190,13 @@
       (at-media {:screen true :min-width (px 1024)} [:.central-element {:width width}])
       (at-media {:screen true :max-width (px 1023)} [:.central-element {:width "90%"}])
 
+      ["article img" { :max-width "100%" }]
+
       ["article p" {
                     :font-size (em (* 1.2 text-size-factor))
                     :line-height "140%"
                     }]
+
       ["article > h1:first-child" {
                                    :text-align "center"
                                    :font-size (em (* 2 header-size-factor))
