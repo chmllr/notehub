@@ -51,7 +51,7 @@
 (defn- input-form [form-url command fields content passwd-msg]
   (let [css-class (when (= :publish command) :hidden)]
     (layout :js {} (get-message :new-page)
-            [:article#preview {:style "flex: none"} ""]
+            [:article#preview {:style "flex: none; -webkit-flex: none"} ""]
             [:div#dashed-line {:class css-class}]
             [:div.central-element.helvetica {:style "margin-bottom: 3em"}
              (form-to {:autocomplete :off} [:post form-url]
