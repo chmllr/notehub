@@ -1,0 +1,23 @@
+{
+  "name": "NoteHub",
+  "version": "3.0.0",
+  "description": "Free Pastebin for One-Off Markdown Publishing",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chmllr/NoteHub.git"
+  },
+  "keywords": [
+    "markdown",
+    "pastebin"
+  ],
+  "author": "Christian Müller <notehub@icloud.com> (http://github.com/chmllr)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chmllr/NoteHub/issues"
+  },
+  "homepage": "https://github.com/chmllr/NoteHub"
+}
