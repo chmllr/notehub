@@ -2,8 +2,9 @@
   "name": "NoteHub",
   "version": "3.0.0",
   "description": "Free Pastebin for One-Off Markdown Publishing",
-  "main": "index.html",
+  "main": "server.js",
   "scripts": {
+    "server": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/chmllr/NoteHub/issues"
   },
-  "homepage": "https://github.com/chmllr/NoteHub"
+  "homepage": "https://github.com/chmllr/NoteHub",
+  "dependencies": {
+    "express": "^4.13.3"
+  }
 }
