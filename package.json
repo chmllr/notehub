@@ -2,7 +2,7 @@
   "name": "NoteHub",
   "version": "3.0.0",
   "description": "Free Pastebin for One-Off Markdown Publishing",
-  "main": "index.js",
+  "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
