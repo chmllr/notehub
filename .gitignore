@@ -1,14 +1,1 @@
-Makefile
-PrivateMakefile
 dump.rdb
-resources/public/cljs
-pom.xml
-*jar
-/lib/
-/classes/
-.lein-*
-.crossover-cljs
-target/
-.nrepl-port
-.idea/
-NoteHub.iml
