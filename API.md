@@ -31,10 +31,10 @@ A simple `GET` request to the following URL:
 
 with the following parameters:
 
-Parameter    | Explanation                              | Type
----          | ---                                      | ---
-`noteID`     | Note-ID                                           | **required**
-`version`    | Used API version                                  | **required**
+Parameter    | Explanation        | Type
+---          | ---                | ---
+`noteID`     | Note-ID            | **required**
+`version`    | Used API version   | **required**
 
 will return a JSON object containing following self explaining fields: `note`, `title`, `longURL`, `shortURL`, `statistics`, `status`, `publisher`.
 

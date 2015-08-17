@@ -1,1 +1,0 @@
-var f = () => console.log("hello world!");

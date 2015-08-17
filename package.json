@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "server": "node server.js",
+    "devser": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,6 +23,8 @@
   },
   "homepage": "https://github.com/chmllr/NoteHub",
   "dependencies": {
-    "express": "^4.13.3"
+    "express": "^4.13.3",
+    "lru-cache": "^2.6.5",
+    "marked": "^0.3.5"
   }
 }
