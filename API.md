@@ -4,7 +4,7 @@
 
 ## Changelog
 
-- **V1.4**: Bugfix: no whitespace elimination from the note text is needed now for the signature computation.
+- **V1.4**: Bugfix: no whitespace elimination from the note text is required now for the signature computation.
 - **V1.3**: New note ID format.
 - **V1.2**: Theme & font settings can be specified during the publishing.
 - **V1.1**: Fields `publisher` and `title` in the response to the note retrieval.
