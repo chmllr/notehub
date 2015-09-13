@@ -28,7 +28,7 @@ var Shortcut = sequelize.define('Shortcut', {
   params: Sequelize.STRING
 });
 
-//Note.hasMany(Shortcut);
+Note.hasMany(Shortcut);
 Shortcut.belongsTo(Note);
 
 sequelize.sync().then(function () {
@@ -56,30 +56,36 @@ sequelize.sync().then(function () {
                     edited: !isNaN(edited[id]) && edited[id] && new Date(edited[id] * 1000) || null,
                     views: views[id],
                   }).then(note => {
-                  
-                  links.forEach(shortcutId => {
-                    client.hget("short-url", shortcutId, function (err, result){
-                      
-                      Shortcut.create({
-                        id: shortcutId,
-                        params: result
-                      }).then(shortcut => {
-                        
-                        debugger
-                        shortcut.setNote(note);
-                        
-                      })
-                      
+
+                    links.forEach(shortcutId => {
+                      client.hget("short-url", shortcutId, function (err, result) {
+
+                        result = result.replace(/:([\w_-]+)\s/g, '"$1":');
+
+                        var obj = {};
+                        try {
+                          obj = JSON.parse(result);
+                          delete obj.title;
+                          delete obj.day;
+                          delete obj.year;
+                          delete obj.month;
+
+                        } catch (e) {
+                          return console.log("PARSE ERROR FOR", result)
+                        }
+
+                        Shortcut.create({
+                          id: shortcutId,
+                          params: Object.keys(obj).length == 0 ? null : JSON.stringify(obj)
+                        }).then(shortcut => {
+
+                          shortcut.setNote(note);
+                          note.addShortcut(shortcut);
+
+                        })
+                      });
                     });
                   });
-                    
-                  });
-
-                  
-
-
-
-
                 })
               });
             });
