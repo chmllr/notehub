@@ -22,6 +22,15 @@ var Note = sequelize.define('Note', {
   views: Sequelize.INTEGER,
 });
 
+var Shortcut = sequelize.define('Shortcut', {
+  id: { type: Sequelize.STRING, unique: true, primaryKey: true },
+  lastResolution: { type: Sequelize.DATE, allowNull: true, defaultValue: null },
+  params: Sequelize.STRING
+});
+
+//Note.hasMany(Shortcut);
+Shortcut.belongsTo(Note);
+
 sequelize.sync().then(function () {
   client.hgetall("note", function (err, notes) {
     console.log("notes retrieved:", Object.keys(notes).length);
@@ -35,17 +44,43 @@ sequelize.sync().then(function () {
             console.log("views retrieved:", Object.keys(views).length);
             client.hgetall("edited", function (err, edited) {
               console.log("edited retrieved:", Object.keys(edited).length);
-              console.log("all infos retrieved");
               Object.keys(notes).forEach(function (id) {
-                Note.create({
-                  id: id,
-                  text: notes[id],
-                  published: published[id] && new Date(published[id] * 1000) || new Date(),
-                  publisher: publisher[id].indexOf("NPY") == -1 && publisher[id] || "NoteHub",
-                  password: password[id] && password[id].length == 32 && password[id],
-                  edited: !isNaN(edited[id]) && edited[id] && new Date(edited[id] * 1000) || null,
-                  views: views[id],
-                });
+                client.smembers(id + ":urls", function (err, links) {
+
+                  Note.create({
+                    id: id,
+                    text: notes[id],
+                    published: published[id] && new Date(published[id] * 1000) || new Date(),
+                    publisher: publisher[id].indexOf("NPY") == -1 && publisher[id] || "NoteHub",
+                    password: password[id] && password[id].length == 32 && password[id],
+                    edited: !isNaN(edited[id]) && edited[id] && new Date(edited[id] * 1000) || null,
+                    views: views[id],
+                  }).then(note => {
+                  
+                  links.forEach(shortcutId => {
+                    client.hget("short-url", shortcutId, function (err, result){
+                      
+                      Shortcut.create({
+                        id: shortcutId,
+                        params: result
+                      }).then(shortcut => {
+                        
+                        debugger
+                        shortcut.setNote(note);
+                        
+                      })
+                      
+                    });
+                  });
+                    
+                  });
+
+                  
+
+
+
+
+                })
               });
             });
           });
