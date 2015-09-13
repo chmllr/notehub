@@ -131,6 +131,14 @@
         (redis :sadd (str noteID :urls) url)
         url))))
 
+(defn decomp []
+    (let [ids (map first (partition 2 (redis :hgetall :note)))]
+        (doseq [id ids]
+            (do
+            (println id)
+            (redis :hset :note id (get-note id))
+            ))))
+
 (defn gc [password dry]
   (println (get-setting :admin-pw))
   (when (= password (get-setting :admin-pw))
