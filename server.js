@@ -1,5 +1,5 @@
 var express = require('express');
-var page = require('./bin/page');
+var page = require('./src/page');
 var app = express();
 
 app.use(express.static(__dirname + '/resources/public'));

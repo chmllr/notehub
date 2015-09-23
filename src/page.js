@@ -9,7 +9,7 @@ var buildHTML = (title, content) => template
 	.replace("%CONTENT%", content);
 var apiPage = buildHTML("API", marked(fs.readFileSync("API.md", "utf-8")));
 
-export var build = id => {
+module.exports.build = id => {
 	if (CACHE.has(id)) return CACHE.get(id);
 	var content = id == "api" ? apiPage : "This is page " + id;
 	CACHE.set(id, content);
