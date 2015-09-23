@@ -44,17 +44,16 @@ fieldset {
 
 .landing-button {
 	padding: 10px;
-	border-radius: 10px;
-	background: #0a2;
+	border-radius: 3px;
+	background: #0a6;
 	font-size: 1.5em;
 	text-decoration: none;
-	box-shadow: 0 2px 5px #aaa;
 	font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'Lucida Grande', 'sans-serif';
 	font-weight: 300;
 }
 
 .landing-button:hover {
-	background: #0b2;
+	background: #0b7;
 }
 
 .helvetica {
