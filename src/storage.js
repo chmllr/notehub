@@ -10,25 +10,23 @@ var sequelize = new Sequelize('database', null, null, {
 });
 
 var Note = sequelize.define('Note', {
-  id: { type: Sequelize.INTEGER, autoIncrement: true, unique: true, primaryKey: true },
+  id: { type: Sequelize.STRING(6), unique: true, primaryKey: true },
+  deprecatedId: Sequelize.TEXT,
   text: Sequelize.TEXT,
   published: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
   edited: { type: Sequelize.DATE, allowNull: true, defaultValue: null },
-  publisher: Sequelize.STRING(32),
   password: Sequelize.STRING(16),
   views: Sequelize.INTEGER,
 });
 
-var Link = sequelize.define('Link', {
-  id: { type: Sequelize.STRING, unique: true, primaryKey: true },
-  lastUsage: { type: Sequelize.DATE, allowNull: true, defaultValue: null },
-  params: Sequelize.STRING
-});
+module.exports.getNote = id => {
+  console.log("resolving note", id);
+  return Note.findById(id);
+}
 
-Note.hasMany(Link);
-Link.belongsTo(Note);
-
-module.exports.getNote = linkId => {
-  console.log("resolving note", linkId);
-  return Link.findById(linkId).then(link => Note.findById(link.NoteId));
+module.exports.getNoteId = deprecatedId => {
+  console.log("resolving deprecated Id", deprecatedId);
+  return Note.findOne({
+    where: { deprecatedId: deprecatedId }
+  }).then(note => note.id);
 }

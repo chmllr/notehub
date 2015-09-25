@@ -14,7 +14,8 @@ app.get('/new', function (req, res) {
 
 app.get("/:year/:month/:day/:title", function (req, res) {
   var P = req.params;
-  res.send("opening note " + P.title);
+  storage.getNoteId(P.year + "/" + P.month + "/" + P.day + "/" + P.title)
+    .then(id => res.redirect("/" + id));
 });
 
 app.get(/\/([a-zA-Z0-9]*)/, function (req, res) {
