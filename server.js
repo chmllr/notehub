@@ -12,8 +12,13 @@ app.get('/new', function (req, res) {
     res.send("opening new note mask")
 });
 
-app.get(/(.*)\??.*/, function (req, res) {
-  var link = req.params["0"].slice(1);
+app.get("/:year/:month/:day/:title", function (req, res) {
+  var P = req.params;
+  res.send("opening note " + P.title);
+});
+
+app.get(/\/([a-zA-Z0-9]*)/, function (req, res) {
+  var link = req.params["0"].toLowerCase();
   if (CACHE.has(link)) res.send(CACHE.get(link));
   else storage.getNote(link).then(note => {
     var content = page.build(note);
