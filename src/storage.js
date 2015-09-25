@@ -28,6 +28,7 @@ var Link = sequelize.define('Link', {
 Note.hasMany(Link);
 Link.belongsTo(Note);
 
-module.exports.getNote = linkId => Link.findById(linkId).then(link => {
-  return Note.findById(link.NoteId);
-});
+module.exports.getNote = linkId => {
+  console.log("resolving note", linkId);
+  return Link.findById(linkId).then(link => Note.findById(link.NoteId));
+}
