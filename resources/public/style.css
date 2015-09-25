@@ -82,12 +82,12 @@ footer {
 }
 
 @media screen and (max-width: 767px) {
-	#footer {
+	footer {
 		font-size: 0.4em;
 	}
 }
 
-#footer a {
+footer a {
 	border: none;
 }
 
@@ -148,7 +148,7 @@ article {
 	-webkit-flex: 1;
 	flex: 1;
 	text-align: justify;
-	margin-top: 5em;
+	margin-top: 3em;
 	font-family: Georgia, 'Georgia';
 	margin-right: auto;
 	margin-left: auto;
@@ -214,7 +214,7 @@ pre {
 }
 
 pre {
-	border: 1px dotted#888;
+	border: 1px solid #aaa;
 	padding: 0.5em;
 	border-radius: 3px;
 }
@@ -262,7 +262,7 @@ th {
 td {
 	line-height: 2.5em;
 	padding: 0.3em;
-	border-top: 1px dotted#888;
+	border-top: 1px solid #aaa;
 }
 
 .middot {
