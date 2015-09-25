@@ -13,7 +13,7 @@ var sequelize = new Sequelize('database', null, null, {
 });
 
 var Note = sequelize.define('Note', {
-  id: { type: Sequelize.STRING, unique: true, primaryKey: true },
+  id: { type: Sequelize.INTEGER, autoIncrement: true, unique: true, primaryKey: true },
   text: Sequelize.TEXT,
   published: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
   edited: { type: Sequelize.DATE, allowNull: true, defaultValue: null },
@@ -22,14 +22,14 @@ var Note = sequelize.define('Note', {
   views: Sequelize.INTEGER,
 });
 
-var Shortcut = sequelize.define('Shortcut', {
+var Link = sequelize.define('Link', {
   id: { type: Sequelize.STRING, unique: true, primaryKey: true },
-  lastResolution: { type: Sequelize.DATE, allowNull: true, defaultValue: null },
+  lastUsage: { type: Sequelize.DATE, allowNull: true, defaultValue: null },
   params: Sequelize.STRING
 });
 
-Note.hasMany(Shortcut);
-Shortcut.belongsTo(Note);
+Note.hasMany(Link);
+Link.belongsTo(Note);
 
 sequelize.sync().then(function () {
   client.hgetall("note", function (err, notes) {
@@ -48,7 +48,6 @@ sequelize.sync().then(function () {
                 client.smembers(id + ":urls", function (err, links) {
 
                   Note.create({
-                    id: id,
                     text: notes[id],
                     published: published[id] && new Date(published[id] * 1000) || new Date(),
                     publisher: publisher[id].indexOf("NPY") == -1 && publisher[id] || "NoteHub",
@@ -57,8 +56,8 @@ sequelize.sync().then(function () {
                     views: views[id],
                   }).then(note => {
 
-                    links.forEach(shortcutId => {
-                      client.hget("short-url", shortcutId, function (err, result) {
+                    links.forEach(LinkId => {
+                      client.hget("short-url", LinkId, function (err, result) {
 
                         result = result.replace(/:([\w_-]+)\s/g, '"$1":');
 
@@ -69,22 +68,27 @@ sequelize.sync().then(function () {
                           delete obj.day;
                           delete obj.year;
                           delete obj.month;
-
                         } catch (e) {
                           return console.log("PARSE ERROR FOR", result)
                         }
 
-                        Shortcut.create({
-                          id: shortcutId,
+                        Link.create({
+                          id: LinkId,
                           params: Object.keys(obj).length == 0 ? null : JSON.stringify(obj)
-                        }).then(shortcut => {
+                        }).then(link => {
 
-                          shortcut.setNote(note);
-                          note.addShortcut(shortcut);
+                          link.setNote(note);
+                          note.addLink(link);
 
-                        })
+                        });
                       });
                     });
+
+                    Link.create({ id: id }).then(link => {
+                      link.setNote(note);
+                      note.addLink(link);
+                    });
+
                   });
                 })
               });
