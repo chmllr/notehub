@@ -4,8 +4,6 @@
 	<title>NoteHub &mdash; Free Pastebin for One-Off Markdown Publishing</title>
 	<meta charset="UTF-8">
 	<meta content="width=device-width, initial-scale=1.0" name="viewport">
-	<link href="https://fonts.googleapis.com/css?family=PT+Serif:700|Noticia+Text:700&amp;subset=latin,cyrillic"
-		rel="stylesheet" type="text/css" />
 	<link href="style.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -13,27 +11,16 @@
 		<h1>NoteHub</h1>
 		<h2>Free and Hassle-free Pastebin for Markdown Notes.</h2>
 		<br>
+		<a class="landing-button demo" href="2014/3/31/demo-note" style="color: white">See Demo Note</a>
 		<a class="landing-button" href="/new" style="color: white">New Page</a>
 	</div>
 	<div id="dashed-line"></div>
 	<article class="helvetica bottom-space" style="font-size: 1em">
-		<h2>Features</h2>
-		<ul>
-			<li><strong>Themes</strong>: specify the color scheme in the URL: <a href="/2014/3/31/demo-note">default</a>, <a href="/2014/3/31/demo-note?theme=dark">dark</a>,
-				<a href="/2014/3/31/demo-note?theme=solarized-light">solarized light</a>, <a href="/2014/3/31/demo-note?theme=solarized-dark">solarized dark</a>.</li>
-			<li><strong>Fonts</strong>: specify a font (e.g., <a href="http://www.google.com/webfonts/">Google Web Fonts</a>) for headers
-				and body text in the URL like <a href="/8m4l9">this</a> or <a href="/2014/3/31/demo-note?text-font=monospace&header-font=Courier&text-size=0.7&header-size=1.1">this</a>.</li>
-			<li><strong>Short URLs</strong>: every page (including theme &amp; font options) has its own short url.</li>
-			<li><strong>Editing</strong>: if you set a password during publishing, you can edit your note any time later.</li>
-			<li><strong>Statistics</strong>: page view counter, publishing and editing date.</li>
-			<li><strong>Expiration</strong>: all notes with less than 30 views after the first 30 days will expire.</li>
-			<li><strong>Export</strong>: the original markdown content can be displayed in plain text format.</li>
-		</ul>
 		<h2>Changelog</h2>
 		<ul>
-			<li><strong>2015-09</strong>: NoteHub rewritten in Node.js.
-			<li><strong>2015-09</strong>: NoteHub API deprecated due to low adoption by the user base.
-			<li><strong>2014-09</strong>: text size setting added (<a href="/2014/3/31/demo-note?text-font=monospace&header-font=Courier&text-size=0.7&header-size=1.1">example</a>)</li>
+			<li><strong>2015-11</strong>: NoteHub rewritten in Node.js.</li>
+			<li><strong>2015-11</strong>: NoteHub API and note styling discontinued due to low adoption by the user base.</li>
+			<li><strong>2014-09</strong>: text size setting added</li>
 			<li><strong>2014-07</strong>: deprecated all API versions less than 1.4 &amp; performance improvements.</li>
 			<li><strong>2014-03</strong>: note expiration implemented.</li>
 			<li><strong>2014-02</strong>: a simple JS-client for API testing added.</li>
@@ -45,10 +32,7 @@
 	</article>
 	<div id="footer">
 		<p>
-			Source code on <a href="https://github.com/chmllr/NoteHub">GitHub</a> &middot; Hosted on
-			<a href="http://heroku.com">Heroku</a> &middot; DB on <a href="http://redislabs.com">RedisLabs</a> &middot; SSL by
-			<a href="http://cloudflare.com">CloudFlare</a>
-				<br> Created by <a href="https://github.com/chmllr">@chmllr</a>
+			Source code @ <a href="https://github.com/chmllr/NoteHub">GitHub</a>
 		</p>
 	</div>
 </body>

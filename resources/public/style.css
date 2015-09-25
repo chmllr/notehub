@@ -52,8 +52,19 @@ fieldset {
 	font-weight: 300;
 }
 
+.landing-button.demo {
+	opacity: 0.9;
+	background: #ddd;
+	color: black !important;
+	margin-right: 1.5em;
+}
+
 .landing-button:hover {
 	background: #0b7;
+}
+
+.landing-button.demo:hover {
+	background: #eee;
 }
 
 .helvetica {
@@ -95,7 +106,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-family: Noticia Text, 'Noticia Text', 'PT Serif', 'Georgia';
+	font-family: 'PT Serif', 'Georgia';
 	font-weight: bold;
 }
 
