@@ -140,7 +140,7 @@ h6 {
 
 #hero h2 {
 	margin: 2em;
-	font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'Lucida Grande', 'sans-serif';
+	font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'Lucida Grande', sans-serif;
 	font-weight: 300;
 }
 
@@ -149,7 +149,7 @@ article {
 	flex: 1;
 	text-align: justify;
 	margin-top: 3em;
-	font-family: Georgia, 'Georgia';
+	font-family: Georgia, 'Georgia', serif;
 	margin-right: auto;
 	margin-left: auto;
 }
