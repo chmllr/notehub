@@ -106,8 +106,8 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-family: 'PT Serif', 'Georgia';
-	font-weight: bold;
+	font-family: "PT Serif", Georgia, serif;
+	font-weight: bolder;
 }
 
 h1 {
@@ -149,7 +149,7 @@ article {
 	flex: 1;
 	text-align: justify;
 	margin-top: 3em;
-	font-family: Georgia, 'Georgia', serif;
+	font-family: sans-serif;
 	margin-right: auto;
 	margin-left: auto;
 }
@@ -189,7 +189,13 @@ article img {
 
 article p {
 	line-height: 140%;
-	font-size: 1.2em;
+	font-size: 1.05em;
+}
+
+blockquote {
+	font-family: "PT Serif", Georgia, serif;
+	padding-left: 1em;
+	border-left: 4px solid #097;
 }
 
 article > h1:first-child {
@@ -249,8 +255,6 @@ textarea {
 table {
 	border-collapse: collapse;
 	width: 100%;
-	font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'Lucida Grande', 'sans-serif';
-	font-weight: 300;
 }
 
 th {
