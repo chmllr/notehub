@@ -24,10 +24,10 @@ app.get('/new', function (req, res) {
 });
 
 app.post('/note', function (req, res) {
-  var body = req.body, session = body.session, note = body.note; 
+  var body = req.body, session = body.session, note = body.note;
   if (session.indexOf(getTimeStamp()) != 0)
     return sendResponse(res, 400, "Session expired");
-  var expectedSignature = md5(session + note.replace(/[\n\r]/g, "")); 
+  var expectedSignature = md5(session + note.replace(/[\n\r]/g, ""));
   if (expectedSignature != body.signature)
     return sendResponse(res, 400, "Signature mismatch");
   storage.addNote(note, body.password).then(note => res.redirect("/" + note.id));
@@ -39,8 +39,14 @@ app.get("/:year/:month/:day/:title", function (req, res) {
     .then(id => res.redirect("/" + id));
 });
 
-app.get(/\/([a-zA-Z0-9]*)/, function (req, res) {
-  var link = req.params["0"].toLowerCase();
+app.get(/\/([a-z0-9]+\/export)/, function (req, res) {
+  var link = req.params["0"].replace("/export", "");
+  res.set({ 'Content-Type': 'text/plain', 'Charset': 'utf-8' });
+  storage.getNote(link).then(note => res.send(note.text));
+});
+
+app.get(/\/([a-z0-9]+)/, function (req, res) {
+  var link = req.params["0"];
   if (CACHE.has(link)) res.send(CACHE.get(link));
   else storage.getNote(link).then(note => {
     var content = page.buildNote(note);
