@@ -38,7 +38,8 @@ function onLoad() {
   $("publish-button").onclick = function(e) {
     if ($plain_password.value != "") $("password").value = md5($plain_password.value);
     $plain_password.value = null;
-    $("signature").value = md5($("session").value + $note.value);
+    $("signature").value = md5($("session").value + 
+      $note.value.replace(/[\n\r]/g, ""));
   }
   if (iosDetected) $note.className += " ui-border";
   else $note.focus();
