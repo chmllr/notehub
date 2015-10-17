@@ -39,6 +39,12 @@ app.get("/:year/:month/:day/:title", function (req, res) {
     .then(id => res.redirect("/" + id));
 });
 
+app.get(/\/([a-z0-9]+\/edit)/, function (req, res) {
+  var link = req.params["0"].replace("/edit", "");
+  storage.getNote(link).then(note => 
+    res.send(page.editNotePage(getTimeStamp() + md5(Math.random()), note)));
+});
+
 app.get(/\/([a-z0-9]+\/export)/, function (req, res) {
   var link = req.params["0"].replace("/export", "");
   res.set({ 'Content-Type': 'text/plain', 'Charset': 'utf-8' });

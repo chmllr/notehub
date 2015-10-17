@@ -16,7 +16,7 @@ function md2html(input) {
 
 function onLoad() {
   $note = $("note");
-  $action = document.getElementsByTagName("form")[0].method;
+  $action = $("action").value;
   $preview = $("preview");
   $plain_password = $("plain-password");
   $proposed_title = $("proposed-title");
@@ -32,7 +32,7 @@ function onLoad() {
       $preview.innerHTML = md2html(content);
     }, delay);
   };
-  if ($action.value == "update") updatePreview();
+  if ($action == "UPDATE") updatePreview();
   else $note.value = "";
   $note.onkeyup = updatePreview;
   $("publish-button").onclick = function(e) {

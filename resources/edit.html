@@ -15,11 +15,12 @@
   <article id="preview" style="flex: none; -webkit-flex: none"></article>
   <div class="hidden" id="dashed-line"></div>
   <div class="central-element helvetica" style="margin-bottom: 3em">
-    <form action="/note" autocomplete="off" method="%METHOD%">
+    <form action="/note" autocomplete="off" method="POST">
+      <input id="action" value="%METHOD%" type="hidden">
       <input id="password" name="password" type="hidden">
       <input id="session" name="session" type="hidden" value="%SESSION%" />
       <input id="signature" name="signature" type="hidden" />
-      <textarea id="note" name="note">Loading...</textarea>
+      <textarea id="note" name="note">%CONTENT%</textarea>
       <fieldset class="hidden" id="input-elems">
         <input class="ui-elem" id="plain-password" name="plain-password" placeholder="Password for editing" type="text">&nbsp;
         <input class="button ui-elem" id="publish-button" type="submit" value="Publish">
