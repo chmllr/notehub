@@ -16,7 +16,7 @@ var Note = sequelize.define('Note', {
   published: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
   edited: { type: Sequelize.DATE, allowNull: true, defaultValue: null },
   password: Sequelize.STRING(16),
-  views: Sequelize.INTEGER,
+  views: { type: Sequelize.INTEGER, defaultValue: 0 }
 });
 
 module.exports.getNote = id => {
@@ -30,3 +30,21 @@ module.exports.getNoteId = deprecatedId => {
     where: { deprecatedId: deprecatedId }
   }).then(note => note.id);
 }
+
+var generateId = () => [1, 1, 1, 1, 1]
+  .map(() => {
+    var code = Math.floor(Math.random() * 36);
+    return String.fromCharCode(code + (code < 10 ? 48 : 87));
+  })
+  .join("");
+
+var getFreeId = () => {
+  var id = generateId();
+  return Note.findById(id).then(result => result ? getFreeId() : id);
+};
+
+module.exports.addNote = (note, password) => getFreeId().then(id => Note.create({
+  id: id,
+  text: note,
+  password: password
+}));

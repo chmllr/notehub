@@ -30,7 +30,7 @@ app.post('/note', function (req, res) {
   var expectedSignature = md5(session + note.replace(/[\n\r]/g, "")); 
   if (expectedSignature != body.signature)
     return sendResponse(res, 400, "Signature mismatch");
-  sendResponse(res, 200, JSON.stringify(body));
+  storage.addNote(note, body.password).then(note => res.redirect("/" + note.id));
 });
 
 app.get("/:year/:month/:day/:title", function (req, res) {
