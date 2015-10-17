@@ -26,10 +26,10 @@ app.get('/new', function (req, res) {
 app.post('/note', function (req, res) {
   var body = req.body, session = body.session, note = body.note;
   if (session.indexOf(getTimeStamp()) != 0)
-    return sendResponse(res, 400, "Session expired");
+    return res.status(400).send("Session expired");
   var expectedSignature = md5(session + note.replace(/[\n\r]/g, ""));
   if (expectedSignature != body.signature)
-    return sendResponse(res, 400, "Signature mismatch");
+    return res.status(400).send("Signature mismatch");
   storage.addNote(note, body.password).then(note => res.redirect("/" + note.id));
 });
 
@@ -54,11 +54,6 @@ app.get(/\/([a-z0-9]+)/, function (req, res) {
     res.send(content);
   });
 });
-
-var sendResponse = (res, code, message) => {
-  res.status(code);
-  res.send(message);
-};
 
 var server = app.listen(3000, function () {
   console.log('NoteHub server listening on port %s', server.address().port);
