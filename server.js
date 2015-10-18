@@ -86,10 +86,15 @@ app.get(/\/([a-z0-9]+\/stats)/, function (req, res) {
 app.get(/\/([a-z0-9]+)/, function (req, res) {
   var link = req.params["0"];
   if (CACHE.has(link)) {
-    (link in MODELS) && MODELS[link].views++;
+    var model = MODELS[link];
+    if (!model) return notFound(res);
+    model.views++;
     res.send(CACHE.get(link));
   } else storage.getNote(link).then(note => {
-    if (!note) return notFound(res);
+    if (!note) {
+      CACHE.set(link, null);
+      return notFound(res);
+    }
     var content = view.renderNote(note);
     CACHE.set(link, content);
     MODELS[link] = note;
