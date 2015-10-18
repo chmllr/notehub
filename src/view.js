@@ -9,14 +9,14 @@ var deriveTitle = text => text
   .split(/[\n\r]/)[0].slice(0,25)
   .replace(/[^a-zA-Z0-9\s]/g, "");
 
-var buildPage = (title, content, footer) => pageTemplate
+var renderPage = (title, content, footer) => pageTemplate
   .replace("%TITLE%", title)
   .replace("%CONTENT%", content)
   .replace("%FOOTER%", footer);
   
-module.exports.buildPage = buildPage;
+module.exports.renderPage = renderPage;
 
-module.exports.buildStats = note => buildPage(deriveTitle(note.text), 
+module.exports.renderStats = note => renderPage(deriveTitle(note.text), 
   `<h2>Statistics</h2>
   <table>
     <tr><td>Published</td><td>${note.published}</td></tr>
@@ -25,7 +25,7 @@ module.exports.buildStats = note => buildPage(deriveTitle(note.text),
   </table>`,
   "");
 
-module.exports.buildNote = note => buildPage(deriveTitle(note.text), 
+module.exports.renderNote = note => renderPage(deriveTitle(note.text), 
   marked(note.text),
   footerTemplate.replace(/%LINK%/g, note.id));
 
