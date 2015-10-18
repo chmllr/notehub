@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>NoteHub &mdash; New Page</title>
+  <meta charset="UTF-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <link href="/style.css" rel="stylesheet" type="text/css" />
+  <script src="//cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.min.js" type="text/javascript"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/blueimp-md5/1.0.1/js/md5.min.js" type="text/javascript"></script>
+  <script src="/js/publishing.js" type="text/javascript"></script>
+</head>
+
+<body onload="onLoad()">
+  <article id="preview" style="flex: none; -webkit-flex: none"></article>
+  <div class="hidden" id="dashed-line"></div>
+  <div class="central-element helvetica" style="margin-bottom: 3em">
+    <form action="/note" autocomplete="off" method="POST">
+      <input id="action" name="action" value="%ACTION%" type="hidden" />
+      <input id="id" name="id" value="%ID%" type="hidden" />
+      <input id="password" name="password" type="hidden" />
+      <input id="session" name="session" type="hidden" value="%SESSION%" />
+      <input id="signature" name="signature" type="hidden" />
+      <textarea id="note" name="note">%CONTENT%</textarea>
+      <fieldset class="hidden" id="input-elems">
+        <input class="ui-elem" id="plain-password" name="plain-password" placeholder="Password for editing" type="text">&nbsp;
+        <input class="button ui-elem" id="publish-button" type="submit" value="Publish">
+        <br>
+        <br>
+      </fieldset>
+    </form>
+  </div>
+</body>
+
+</html>

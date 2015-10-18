@@ -2,14 +2,8 @@
 
 [NoteHub](https://www.notehub.org) is a free and hassle-free pastebin for one-off markdown publishing.
 
-NoteHub _was_ an one-app-one-language [experiment](https://www.notehub.org/2012/6/16/how-notehub-is-built) and was initially implemented entirely in [Clojure](http://clojure.org) (ClojureScript).
-NoteHub's persistence layer is based on the key-value store [redis](http://redis.io).
-Currently, NoteHub is hosted for free on [Heroku](http://heroku.com).
-
-NoteHub supports an [API](https://github.com/chmllr/NoteHub/blob/master/API.md) and can be integrated as a publishing platform.
-
 ## How to Use?
-First, create [a new page](https://www.notehub.org/new) using the [Markdown syntax](http://daringfireball.net/projects/markdown/).
+First, create [a new page](https://notehub.org/new) using the [Markdown syntax](http://daringfireball.net/projects/markdown/).
 When the note is published, you'll see a subtle panel at the bottom of the screen.
 From this panel you can go to a rudimentary statistics of the article, or you can export the original markdown, or copy the short url of the note.
 Besides this, you also can invert the color scheme by appending to the note url:
