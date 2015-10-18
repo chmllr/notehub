@@ -34,7 +34,7 @@ app.post('/note', function (req, res) {
   var body = req.body,
     session = body.session,
     note = body.note,
-    password = md5(body.password);
+    password = body.password;
   var goToNote = note => res.redirect("/" + note.id);
   if (session.indexOf(getTimeStamp()) != 0)
     return sendResponse(res, 400, "Session expired");
