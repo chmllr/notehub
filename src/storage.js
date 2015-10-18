@@ -28,7 +28,7 @@ module.exports.getNoteId = deprecatedId => {
   console.log("resolving deprecated Id", deprecatedId);
   return Note.findOne({
     where: { deprecatedId: deprecatedId }
-  }).then(note => note.id);
+  });
 }
 
 var generateId = () => [1, 1, 1, 1, 1]
