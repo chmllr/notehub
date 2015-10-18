@@ -36,10 +36,9 @@ a:visited {
 	border: 1px solid #333;
 }
 
-.landing-button,
-textarea,
-fieldset {
+.landing-button, textarea, fieldset {
 	border: none;
+	margin: 1em;
 }
 
 .landing-button {
