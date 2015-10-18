@@ -11,11 +11,12 @@ var buildPage = (id, title, content) => pageTemplate
 module.exports.buildNote = note => buildPage(note.id, note.title, marked(note.text));
 
 module.exports.newNotePage = session => editTemplate
-  .replace("%METHOD%", "POST")
+  .replace("%ACTION%", "POST")
   .replace("%SESSION%", session)
   .replace("%CONTENT%", "Loading...");
 
 module.exports.editNotePage = (session, note) => editTemplate
-  .replace("%METHOD%", "UPDATE")
+  .replace("%ACTION%", "UPDATE")
   .replace("%SESSION%", session)
+  .replace("%ID%", note.id)
   .replace("%CONTENT%", note.text);

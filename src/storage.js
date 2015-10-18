@@ -48,3 +48,11 @@ module.exports.addNote = (note, password) => getFreeId().then(id => Note.create(
   text: note,
   password: password
 }));
+
+module.exports.updateNote = (id, password, text) => Note.findById(id).then(note => {
+  if (!note || note.password !== password) return new Promise((resolve, reject) => {
+    reject({ message: "Password is wrong" });
+  });
+  note.text = text;
+  return note.save();
+});
