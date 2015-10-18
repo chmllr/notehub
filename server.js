@@ -1,5 +1,5 @@
 var express = require('express');
-var page = require('./src/page');
+var view = require('./src/view');
 var storage = require('./src/storage');
 var md5 = require('md5');
 var LRU = require("lru-cache")
@@ -20,7 +20,7 @@ var getTimeStamp = () => {
 app.use(express.static(__dirname + '/resources/public'));
 
 app.get('/new', function (req, res) {
-  res.send(page.newNotePage(getTimeStamp() + md5(Math.random())));
+  res.send(view.newNotePage(getTimeStamp() + md5(Math.random())));
 });
 
 app.post('/note', function (req, res) {
@@ -53,28 +53,41 @@ app.get("/:year/:month/:day/:title", function (req, res) {
 
 app.get(/\/([a-z0-9]+\/edit)/, function (req, res) {
   var link = req.params["0"].replace("/edit", "");
-  storage.getNote(link).then(note => 
-    res.send(page.editNotePage(getTimeStamp() + md5(Math.random()), note)));
+  storage.getNote(link).then(note => res.send(note 
+  ? view.editNotePage(getTimeStamp() + md5(Math.random()), note)
+  : notFound(res)));
 });
 
 app.get(/\/([a-z0-9]+\/export)/, function (req, res) {
   var link = req.params["0"].replace("/export", "");
   res.set({ 'Content-Type': 'text/plain', 'Charset': 'utf-8' });
-  storage.getNote(link).then(note => res.send(note.text));
+  storage.getNote(link).then(note => note 
+  ? res.send(note.text)
+  : notFound(res));
+});
+
+app.get(/\/([a-z0-9]+\/stats)/, function (req, res) {
+  var link = req.params["0"].replace("/stats", "");
+  storage.getNote(link).then(note => note 
+  ? res.send(view.buildStats(note))
+  : notFound(res));
 });
 
 app.get(/\/([a-z0-9]+)/, function (req, res) {
   var link = req.params["0"];
   if (CACHE.has(link)) res.send(CACHE.get(link));
   else storage.getNote(link).then(note => {
-    var content = page.buildNote(note);
+    if (!note) return notFound(res);
+    var content = view.buildNote(note);
     CACHE.set(link, content);
     res.send(content);
   });
 });
 
 var sendResponse = (res, code, message) =>
-  res.status(code).send(page.buildPage(message, "<h1>" + message + "</h1>", "")); 
+  res.status(code).send(view.buildPage(message, "<h1>" + message + "</h1>", "")); 
+
+var notFound = res => sendResponse(res, 404, "Not found");
 
 var server = app.listen(3000, function () {
   console.log('NoteHub server listening on port %s', server.address().port);
