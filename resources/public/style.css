@@ -36,14 +36,19 @@ a:visited {
 	border: 1px solid #333;
 }
 
-.landing-button, textarea, fieldset {
+textarea, fieldset {
 	border: none;
 	margin: 1em;
 }
 
 .landing-button {
-	padding: 10px;
+	line-height: 200%;
+	display: inline-block;
+	width: 10em;
+	white-space: nowrap;
 	border-radius: 3px;
+	border: none;
+	margin: 0.5em;
 	background: #0a6;
 	font-size: 1.5em;
 	text-decoration: none;
@@ -55,7 +60,6 @@ a:visited {
 	opacity: 0.9;
 	background: #ddd;
 	color: black !important;
-	margin-right: 1.5em;
 }
 
 .landing-button:hover {
@@ -80,12 +84,6 @@ footer {
 	font-weight: 300;
 }
 
-@media screen and (max-width: 767px) {
-	footer {
-		font-size: 0.4em;
-	}
-}
-
 footer a {
 	border: none;
 }
@@ -105,7 +103,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-family: "PT Serif", Georgia, serif;
+	font-family: "ArialRoundedMTBold", sans-serif;
 	font-weight: bolder;
 }
 
@@ -193,7 +191,7 @@ article p {
 }
 
 blockquote {
-	font-family: "PT Serif", Georgia, serif;
+	font-family: Georgia, serif;
 	padding-left: 1em;
 	border-left: 4px solid #097;
 }
