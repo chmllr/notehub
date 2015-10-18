@@ -54,7 +54,7 @@ app.post('/note', function (req, res) {
 
 app.get("/:year/:month/:day/:title", function (req, res) {
   var P = req.params, url = P.year + "/" + P.month + "/" + P.day + "/" + P.title;
-  storage.getNoteId(url).then(note => note ? res.redirect("/" + id) : notFound(res));
+  storage.getNoteId(url).then(note => note ? res.redirect("/" + note.id) : notFound(res));
 });
 
 app.get(/\/([a-z0-9]+\/edit)/, function (req, res) {
