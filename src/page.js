@@ -2,13 +2,18 @@ var marked = require("marked");
 var fs = require("fs");
 
 var pageTemplate = fs.readFileSync("resources/template.html", "utf-8");
+var footerTemplate = fs.readFileSync("resources/footer.html", "utf-8");
 var editTemplate = fs.readFileSync("resources/edit.html", "utf-8");
-var buildPage = (id, title, content) => pageTemplate
+var buildPage = (title, content, footer) => pageTemplate
   .replace("%TITLE%", title)
-  .replace(/%LINK%/g, id)
-  .replace("%CONTENT%", content);
+  .replace("%CONTENT%", content)
+  .replace("%FOOTER%", footer);
+  
+module.exports.buildPage = buildPage;
 
-module.exports.buildNote = note => buildPage(note.id, note.title, marked(note.text));
+module.exports.buildNote = note => buildPage(note.title, 
+  marked(note.text),
+  footerTemplate.replace(/%LINK%/g, note.id));
 
 module.exports.newNotePage = session => editTemplate
   .replace("%ACTION%", "POST")
