@@ -13,7 +13,8 @@ var MODELS = {};
 var CACHE = new LRU({
   max: 50,
   dispose: key => {
-    MODELS[key].save();
+    var model = MODELS[key];
+    model && model.save();
     delete MODELS[key];
   }
 });
