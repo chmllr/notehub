@@ -54,5 +54,6 @@ module.exports.updateNote = (id, password, text) => Note.findById(id).then(note 
     reject({ message: "Password is wrong" });
   });
   note.text = text;
+  note.edited = new Date();
   return note.save();
 });
