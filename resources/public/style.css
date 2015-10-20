@@ -152,33 +152,9 @@ article {
 	margin-left: auto;
 }
 
-@media screen and (min-width: 1024px) {
-	article {
-		width: 800px;
-	}
-}
-
-@media screen and (max-width: 1023px) {
-	article {
-		width: 90%;
-	}
-}
-
 .central-element {
 	margin-right: auto;
 	margin-left: auto;
-}
-
-@media screen and (min-width: 1024px) {
-	.central-element {
-		width: 800px;
-	}
-}
-
-@media screen and (max-width: 1023px) {
-	.central-element {
-		width: 90%;
-	}
 }
 
 article img {
@@ -225,12 +201,6 @@ pre {
 
 *:focus {
 	outline: 0px none transparent;
-}
-
-@media screen and (min-width: 1024px) {
-	textarea {
-		width: 800px;
-	}
 }
 
 textarea {
@@ -280,4 +250,19 @@ body {
 	flex-direction: column;
 	display: flex;
 	min-height: 100vh;
+}
+
+
+/* MEDIA QUERIES */
+
+@media screen and (min-width: 1024px) {
+	textarea, article, .central-element {
+		width: 800px;
+	}
+}
+
+@media screen and (max-width: 1023px) {
+	textarea, article, .central-element {
+		width: 90%;
+	}
 }
