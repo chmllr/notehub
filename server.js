@@ -59,12 +59,11 @@ app.post('/note', function (req, res) {
     return sendResponse(res, 400, "Signature mismatch");
   if (action == "POST")
     storage.addNote(note, password).then(goToNote);
-  else
-    storage.updateNote(id, password, note).then(note => {
-      CACHE.del(note.id);
-      goToNote(note);
-    },
-      error => sendResponse(res, 403, error.message))
+  else {
+    CACHE.del(id);
+    storage.updateNote(id, password, note).then(goToNote, 
+      error => sendResponse(res, 403, error.message));
+  }
 });
 
 app.get("/:year/:month/:day/:title", function (req, res) {
