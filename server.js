@@ -70,7 +70,21 @@ app.post('/note', function (req, res) {
 app.get("/:year/:month/:day/:title", function (req, res) {
   var P = req.params, url = P.year + "/" + P.month + "/" + P.day + "/" + P.title;
   log(req.ip, "resolves deprecated id", url);
-  storage.getNoteId(url).then(note => note ? res.redirect("/" + note.id) : notFound(res));
+  if (CACHE.has(url)) {
+    log(url, "is cached!");
+    var id = CACHE.get(url);
+    if (id) res.redirect("/" + id);
+    else notFound(res);
+  } else storage.getNoteId(url).then(note => {
+    log(url, "is not cached, resolving...");
+    if (note) {
+      CACHE.set(url, note.id);
+      res.redirect("/" + note.id)
+    } else {
+      CACHE.set(url, null);
+      notFound(res);
+    }
+  });
 });
 
 app.get(/\/([a-z0-9]+\/edit)/, function (req, res) {
