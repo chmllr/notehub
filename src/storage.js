@@ -19,17 +19,11 @@ var Note = sequelize.define('Note', {
   views: { type: Sequelize.INTEGER, defaultValue: 0 }
 });
 
-module.exports.getNote = id => {
-  console.log("resolving note", id);
-  return Note.findById(id);
-}
+module.exports.getNote = id => Note.findById(id);
 
-module.exports.getNoteId = deprecatedId => {
-  console.log("resolving deprecated Id", deprecatedId);
-  return Note.findOne({
+module.exports.getNoteId = deprecatedId => Note.findOne({
     where: { deprecatedId: deprecatedId }
   });
-}
 
 var generateId = () => [1, 1, 1, 1, 1]
   .map(() => {
