@@ -52,7 +52,7 @@ a:visited {
 	opacity: 0.8;
 	padding: 0.3em;
 	border-radius: 3px;
-	font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'Lucida Grande', 'sans-serif';
+	font-family: sans-serif;
 	font-weight: 300;
 	border: 1px solid #333;
 }
@@ -73,7 +73,7 @@ textarea, fieldset {
 	background: #0a6;
 	font-size: 1.5em;
 	text-decoration: none;
-	font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'Lucida Grande', 'sans-serif';
+	font-family: sans-serif;
 	font-weight: 300;
 }
 
@@ -91,17 +91,12 @@ textarea, fieldset {
 	background: #eee;
 }
 
-.helvetica {
-	font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'Lucida Grande', 'sans-serif';
-	font-weight: 300;
-}
-
 footer {
 	text-align: center;
 	padding-bottom: 1em;
 	font-size: 0.8em;
 	width: 100%;
-	font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'Lucida Grande', 'sans-serif';
+	font-family: sans-serif;
 	font-weight: 300;
 }
 
@@ -110,7 +105,7 @@ footer a {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-family: "ArialRoundedMTBold", sans-serif;
+	font-family: Palatino, "Palatino Linotype", serif;
 	font-weight: bolder;
 }
 
@@ -144,7 +139,7 @@ h6 {
 
 #hero h2 {
 	margin: 2em;
-	font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'Lucida Grande', sans-serif;
+	font-family: sans-serif;
 	font-weight: 300;
 }
 
@@ -180,7 +175,7 @@ article > h1:first-child {
 }
 
 blockquote {
-	font-family: Georgia, serif;
+	font-family: Georgia, Palatino, "Palatino Linotype", serif;
 	padding-left: 1em;
 	border-left: 4px solid #097;
 }
