@@ -30,5 +30,8 @@
     "md5": "^2.0.0",
     "sequelize": "^3.8.0",
     "sqlite3": "^3.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.7.3"
   }
 }

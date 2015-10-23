@@ -19,6 +19,8 @@ var Note = sequelize.define('Note', {
   views: { type: Sequelize.INTEGER, defaultValue: 0 }
 });
 
+sequelize.sync();
+
 module.exports.getNote = id => Note.findById(id);
 
 module.exports.getNoteId = deprecatedId => Note.findOne({
