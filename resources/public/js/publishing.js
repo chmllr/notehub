@@ -14,6 +14,10 @@ function md2html(input) {
   return marked(input);
 }
 
+function saveDraft() {
+    localStorage.setItem("draft", $note.value);
+}
+
 function onLoad() {
   $note = $("note");
   $action = $("action").value;
@@ -33,6 +37,13 @@ function onLoad() {
     }, delay);
   };
   if ($action == "UPDATE") updatePreview();
+  else {
+    var draft = localStorage.getItem("draft");
+    if (draft) {
+       $note.value = draft;
+       updatePreview();
+    }
+  }
   else $note.value = "";
   $note.onkeyup = updatePreview;
   $("publish-button").onclick = function(e) {
@@ -43,4 +54,6 @@ function onLoad() {
   }
   if (iosDetected) $note.className += " ui-border";
   else $note.focus();
+  self.onbeforeunload = saveDraft;
+  setInterval(saveDraft, 60 * 1000)
 }
