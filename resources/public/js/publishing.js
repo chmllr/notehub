@@ -15,7 +15,8 @@ function md2html(input) {
 }
 
 function saveDraft() {
-    localStorage.setItem("draft", $note.value);
+  console.log("draft autosave...");
+  localStorage.setItem("draft", $note.value);
 }
 
 function onLoad() {
@@ -38,15 +39,17 @@ function onLoad() {
   };
   if ($action == "UPDATE") updatePreview();
   else {
+    $note.value = "";
     var draft = localStorage.getItem("draft");
     if (draft) {
        $note.value = draft;
        updatePreview();
     }
   }
-  else $note.value = "";
   $note.onkeyup = updatePreview;
   $("publish-button").onclick = function(e) {
+    localStorage.removeItem("draft");
+    self.onbeforeunload = null;;
     if ($plain_password.value != "") $("password").value = md5($plain_password.value);
     $plain_password.value = null;
     $("signature").value = md5($("session").value + 
