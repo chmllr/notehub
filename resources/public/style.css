@@ -105,8 +105,8 @@ footer a {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-family: "ArialRoundedMTBold", Palatino, "Palatino Linotype", serif;
-	font-weight: bolder;
+	font-family: sans-serif;
+	font-weight: 400;
 }
 
 h1 {
