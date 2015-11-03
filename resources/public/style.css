@@ -11,7 +11,6 @@ html, body {
 	margin: 0;
 	color: #333;
 	background: #fff;
-	height: 100%;
 }
 
 #hero {
@@ -140,8 +139,6 @@ h6 {
 }
 
 #dashed-line {
-	margin-bottom: 3em;
-	margin-top: 3em;
 	border-bottom: 1px dashed#888;
 }
 
@@ -231,11 +228,22 @@ td {
 	article, .central-element {
 		width: 800px;
 	}
+	#dashed-line {
+		margin-bottom: 3em;
+		margin-top: 3em;
+	}
 }
 
 @media screen and (max-width: 1023px) {
 	article, .central-element {
 		width: 90%;
+	}
+	#dashed-line {
+		margin-bottom: 0.5em;
+		margin-top: 0.5em;
+	}
+	#previewPane {
+		display: none;
 	}
 }
 
