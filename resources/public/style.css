@@ -139,9 +139,13 @@ h6 {
 	font-weight: 300;
 }
 
+#dashed-line {
+	margin-bottom: 3em;
+	margin-top: 3em;
+	border-bottom: 1px dashed#888;
+}
+
 article {
-	-webkit-flex: 1;
-	flex: 1;
 	text-align: justify;
 	margin-top: 3em;
 	margin-bottom: 5em;
