@@ -11,6 +11,7 @@ html, body {
 	margin: 0;
 	color: #333;
 	background: #fff;
+	height: 100%;
 }
 
 #hero {
@@ -55,11 +56,6 @@ a:visited {
 	font-family: sans-serif;
 	font-weight: 300;
 	border: 1px solid #333;
-}
-
-textarea, fieldset {
-	border: none;
-	margin: 1em;
 }
 
 .landing-button {
@@ -204,23 +200,6 @@ pre {
 	outline: 0px none transparent;
 }
 
-textarea {
-	height: 500px;
-	font-size: 1em;
-	font-family: Courier;
-	border-radius: 5px;
-}
-
-.hidden {
-	display: none;
-}
-
-#dashed-line {
-	margin-bottom: 3em;
-	margin-top: 3em;
-	border-bottom: 1px dashed#888;
-}
-
 table {
 	border-collapse: collapse;
 	width: 100%;
@@ -242,16 +221,49 @@ td {
 	padding: 0.5em;
 }
 
-/* MEDIA QUERIES */
+/* MEDIA QUERIES */ 
 
 @media screen and (min-width: 1024px) {
-	textarea, article, .central-element {
+	article, .central-element {
 		width: 800px;
 	}
 }
 
 @media screen and (max-width: 1023px) {
-	textarea, article, .central-element {
+	article, .central-element {
 		width: 90%;
 	}
+}
+
+#editContainer {
+	display: flex;
+	flex-direction: row;
+	height: 100%;
+}
+
+#previewPane {
+	flex: 1 0 46%;
+	height: 100%;
+	overflow-y: auto;
+	margin: 0 !important;
+	padding: 1em;
+	border-left: 1px solid #444;
+}
+
+#editPane {
+	flex: 1 0 46%;
+	height: 100%;
+	padding: 1em;
+}
+
+textarea {
+	font-size: 1em;
+	font-family: Courier;
+	border-radius: 5px;
+	width: 100%;
+	height: 93%;
+}
+
+textarea, fieldset {
+	border: none;
 }

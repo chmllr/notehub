@@ -12,23 +12,22 @@
 </head>
 
 <body onload="onLoad()">
-  <article id="preview" style="flex: none; -webkit-flex: none"></article>
-  <div class="hidden" id="dashed-line"></div>
-  <div class="central-element" style="margin-bottom: 3em">
-    <form action="/note" autocomplete="off" method="POST">
+  <div id="editContainer">
+    <form id="editPane" action="/note" autocomplete="off" method="POST">
       <input id="action" name="action" value="%ACTION%" type="hidden" />
       <input id="id" name="id" value="%ID%" type="hidden" />
       <input id="password" name="password" type="hidden" />
       <input id="session" name="session" type="hidden" value="%SESSION%" />
       <input id="signature" name="signature" type="hidden" />
       <textarea id="note" name="note">%CONTENT%</textarea>
-      <fieldset class="hidden" id="input-elems">
+      <fieldset id="input-elems">
         <input class="ui-elem" id="plain-password" name="plain-password" placeholder="Password for editing" type="text">&nbsp;
         <input class="button ui-elem" id="publish-button" type="submit" value="Publish">
         <br>
         <br>
       </fieldset>
     </form>
+    <article id="previewPane"></article>
   </div>
 </body>
 

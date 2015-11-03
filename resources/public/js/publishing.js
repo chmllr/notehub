@@ -4,10 +4,7 @@ var $ = function(id) {
 var iosDetected = navigator.userAgent.match("(iPad|iPod|iPhone)");
 var timer = null;
 var timerDelay = iosDetected ? 800 : 400;
-var show = function(elem) {
-  elem.style.display = "block"
-}
-var $note, $action, $preview, $plain_password, $input_elems, $dashed_line, $proposed_title, updatePreview;
+var $note, $action, $preview, $plain_password, updatePreview;
 var backendTimer;
 
 function md2html(input) {
@@ -15,6 +12,7 @@ function md2html(input) {
 }
 
 function saveDraft() {
+  if ($action == "UPDATE") return;
   console.log("draft autosave...");
   localStorage.setItem("draft", $note.value);
 }
@@ -22,18 +20,13 @@ function saveDraft() {
 function onLoad() {
   $note = $("note");
   $action = $("action").value;
-  $preview = $("preview");
+  $preview = $("previewPane");
   $plain_password = $("plain-password");
-  $proposed_title = $("proposed-title");
-  $input_elems = $("input-elems");
-  $dashed_line = $("dashed-line");
   updatePreview = function() {
     clearTimeout(timer);
     var content = $note.value;
     var delay = Math.min(timerDelay, timerDelay * (content.length / 400));
     timer = setTimeout(function() {
-      show($dashed_line);
-      show($input_elems);
       $preview.innerHTML = md2html(content);
     }, delay);
   };
