@@ -247,6 +247,10 @@ td {
 	}
 }
 
+#previewPane article {
+	margin: 0;
+}
+
 #editContainer {
 	display: flex;
 	height: 100%;
