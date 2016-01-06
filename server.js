@@ -120,9 +120,9 @@ app.get(/\/([a-z0-9]+)/, function (req, res) {
   log(req.ip, "open note", link);
   if (CACHE.has(link)) {
     log(link, "is cached!");
-    var model = MODELS[link];
-    if (!model) return notFound(res);
-    model.views++;
+    var note = MODELS[link];
+    if (!note) return notFound(res);
+    note.views++;
     res.send(CACHE.get(link));
   } else storage.getNote(link).then(note => {
     log(link, "is not cached, resolving...");
@@ -133,6 +133,7 @@ app.get(/\/([a-z0-9]+)/, function (req, res) {
     var content = view.renderNote(note);
     CACHE.set(link, content);
     MODELS[link] = note;
+    note.views++;
     res.send(content);
   });
 });
