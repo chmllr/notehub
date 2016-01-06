@@ -116,8 +116,7 @@ app.get(/\/([a-z0-9]+\/stats)/, function (req, res) {
 
 app.get(/\/([a-z0-9]+)/, function (req, res) {
   var link = req.params["0"];
-  console.log("Referer", req.get("Referer"));
-  log(req.ip, "open note", link);
+  log(req.ip, "open note", link, "from", req.get("Referer"));
   if (CACHE.has(link)) {
     log(link, "is cached!");
     var note = MODELS[link];
