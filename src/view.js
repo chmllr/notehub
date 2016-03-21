@@ -4,19 +4,22 @@ var fs = require("fs");
 var pageTemplate = fs.readFileSync("resources/template.html", "utf-8");
 var footerTemplate = fs.readFileSync("resources/footer.html", "utf-8");
 var editTemplate = fs.readFileSync("resources/edit.html", "utf-8");
+var misuseScript = fs.readFileSync("resources/misuse.js", "utf-8");
+var misuses = new Set(fs.readFileSync("resources/misuses.txt", "utf-8").split(/\s+/));
 
 var deriveTitle = text => text
   .split(/[\n\r]/)[0].slice(0,25)
   .replace(/[^a-zA-Z0-9\s]/g, "");
 
-var renderPage = (title, content, footer) => pageTemplate
+var renderPage = (id, title, content, footer) => pageTemplate
+  .replace("%MISUSE%", misuses.has(id) ? misuseScript : "")
   .replace("%TITLE%", title)
   .replace("%CONTENT%", content)
   .replace("%FOOTER%", footer);
   
 module.exports.renderPage = renderPage;
 
-module.exports.renderStats = note => renderPage(deriveTitle(note.text), 
+module.exports.renderStats = note => renderPage(note.id, deriveTitle(note.text), 
   `<h2>Statistics</h2>
   <table>
     <tr><td>Published</td><td>${note.published}</td></tr>
@@ -25,7 +28,7 @@ module.exports.renderStats = note => renderPage(deriveTitle(note.text),
   </table>`,
   "");
 
-module.exports.renderNote = note => renderPage(deriveTitle(note.text), 
+module.exports.renderNote = note => renderPage(note.id, deriveTitle(note.text), 
   marked(note.text),
   footerTemplate.replace(/%LINK%/g, note.id));
 

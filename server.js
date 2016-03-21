@@ -147,7 +147,7 @@ app.get(/\/([a-z0-9]+)/, function(req, res) {
 
 var sendResponse = (res, code, message) => {
     log("sending response", code, message);
-    res.status(code).send(view.renderPage(message, "<h1>" + message + "</h1>", ""));
+    res.status(code).send(view.renderPage(null, message, "<h1>" + message + "</h1>", ""));
 }
 
 var notFound = res => sendResponse(res, 404, "Not found");
