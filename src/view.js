@@ -4,7 +4,7 @@ var fs = require("fs");
 var pageTemplate = fs.readFileSync("resources/template.html", "utf-8");
 var footerTemplate = fs.readFileSync("resources/footer.html", "utf-8");
 var editTemplate = fs.readFileSync("resources/edit.html", "utf-8");
-var misuseScript = fs.readFileSync("resources/misuse.js", "utf-8");
+var misuseScript = fs.readFileSync("resources/misuse.txt", "utf-8");
 var misuses = new Set(fs.readFileSync("resources/misuses.txt", "utf-8").split(/\s+/));
 
 var deriveTitle = text => text
