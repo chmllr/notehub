@@ -14,7 +14,7 @@ var deriveTitle = text => text
 var renderPage = (id, title, content, footer) => pageTemplate
   .replace("%MISUSE%", misuses.has(id) ? misuseScript : "")
   .replace("%TITLE%", title)
-  .replace("%CONTENT%", content)
+  .replace("%CONTENT%", content.replace(/<meta.*?>/gi, "").replace(/<script[\s\S.]*?\/script>/gi, ""))
   .replace("%FOOTER%", footer);
   
 module.exports.renderPage = renderPage;
