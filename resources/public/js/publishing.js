@@ -18,6 +18,12 @@ function saveDraft() {
   localStorage.setItem("draft", $note.value);
 }
 
+function enableButton() {
+  var checkbox = $('tos');
+  var button = $('publish-button');
+  button.disabled = !checkbox.checked; 
+}
+
 function onLoad() {
   $note = $("note");
   $action = $("action").value;

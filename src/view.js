@@ -1,6 +1,7 @@
 var marked = require("marked");
 var fs = require("fs");
 
+var TOS = fs.readFileSync("resources/TOS.md", "utf-8");
 var pageTemplate = fs.readFileSync("resources/template.html", "utf-8");
 var footerTemplate = fs.readFileSync("resources/footer.html", "utf-8");
 var editTemplate = fs.readFileSync("resources/edit.html", "utf-8");
@@ -15,7 +16,7 @@ var renderPage = (id, title, content, footer) => pageTemplate
   .replace("%MISUSE%", misuses.has(id) ? misuseScript : "")
   .replace("%TITLE%", title)
   .replace("%CONTENT%", content.replace(/<meta.*?>/gi, "").replace(/<script[\s\S.]*?\/script>/gi, ""))
-  .replace("%FOOTER%", footer);
+  .replace("%FOOTER%", footer || "");
   
 module.exports.renderPage = renderPage;
 
@@ -25,8 +26,10 @@ module.exports.renderStats = note => renderPage(note.id, deriveTitle(note.text),
     <tr><td>Published</td><td>${note.published}</td></tr>
     <tr><td>Edited</td><td>${note.edited || "N/A"}</td></tr>
     <tr><td>Views</td><td>${note.views}</td></tr>
-  </table>`,
-  "");
+  </table>`);
+
+module.exports.renderTOS = () => 
+  renderPage("tos", "Terms of Service", marked(TOS));
 
 module.exports.renderNote = note => renderPage(note.id, deriveTitle(note.text), 
   marked(note.text),

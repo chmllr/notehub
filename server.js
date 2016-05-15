@@ -38,6 +38,10 @@ var log = function() {
     console.log.apply(console, message);
 }
 
+app.get('/TOS', function(req, res) {
+    res.send(view.renderTOS());
+});
+
 app.get('/new', function(req, res) {
     log(req.ip, "opens /new");
     res.send(view.newNotePage(getTimeStamp() + md5(Math.random())));
@@ -52,6 +56,8 @@ app.post('/note', function(req, res) {
         id = body.id;
     log(req.ip, "calls /note to", action, id);
     var goToNote = note => res.redirect("/" + note.id);
+    if (!note)
+        return sendResponse(res, 400, "Bad request");
     if (session.indexOf(getTimeStamp()) != 0)
         return sendResponse(res, 400, "Session expired");
     var expectedSignature = md5(session + note.replace(/[\n\r]/g, ""));
