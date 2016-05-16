@@ -1,4 +1,4 @@
-# NoteHub Terms of Service
+# Terms of Service
 
 ### 1. Terms
 
@@ -7,8 +7,8 @@
 ### 2. Use License
   
 a. Under this license you may not:
-   - i. attempt to __modify, manipulate__ or __extend__ any software contained on NoteHub's web site;
-   - ii. create or add _any_ kind of law prohibited content;   
+   - (i) attempt to __modify, manipulate__ or __extend__ any software contained on NoteHub's web site;
+   - (ii) create notes with _any_ kind of law prohibited content;   
 
 b. This license shall automatically terminate if you violate any of these restrictions and may be terminated by NoteHub at any time. Upon terminating your viewing of these materials or upon the termination of this license, you must destroy any downloaded materials in your possession whether in electronic or printed format.
   
