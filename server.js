@@ -174,7 +174,7 @@ var updateBlackList = () => {
     var ids = fs.readFileSync(process.env.BLACK_LIST || "/dev/null", "utf-8").split(/\n+/).filter(Boolean);
     ids.forEach(id => CACHE.del(id))
     blackList = new Set(ids);
-    log("black list updated:", blackList.size, "entries:", blackList);
+    log("black list updated, entries:", blackList.size);
 };
 
 setInterval(updateBlackList, 60 * 60 * 1000)
