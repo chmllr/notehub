@@ -4,6 +4,8 @@ var storage = require('./src/storage');
 var md5 = require('md5');
 var LRU = require("lru-cache")
 var bodyParser = require('body-parser');
+var fs = require('fs');
+var blackList = new Set();
 
 var app = express();
 
@@ -143,7 +145,7 @@ app.get(/\/([a-z0-9]+)/, function(req, res) {
             CACHE.set(link, null);
             return notFound(res);
         }
-        var content = view.renderNote(note);
+        var content = view.renderNote(note, blackList);
         CACHE.set(link, content);
         MODELS[link] = note;
         note.views++;
@@ -166,4 +168,11 @@ setInterval(() => {
     var keys = Object.keys(MODELS);
     log("saving stats for", keys.length, "models...");
     keys.forEach(id => MODELS[id].save())
-}, 60 * 5 * 1000);
+}, 5 * 60 * 1000);
+
+setInterval(() => {
+    var ids = fs.readFileSync(process.env.BLACK_LIST || "/dev/null", "utf-8").split(/\n+/).filter(Boolean);
+    ids.forEach(id => CACHE.del(id))
+    blackList = new Set(ids);
+    log("black list updated:", blackList.size, "entries:", blackList);
+}, 10 * 1000)

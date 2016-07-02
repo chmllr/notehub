@@ -5,15 +5,15 @@ var TOS = fs.readFileSync("resources/TOS.md", "utf-8");
 var pageTemplate = fs.readFileSync("resources/template.html", "utf-8");
 var footerTemplate = fs.readFileSync("resources/footer.html", "utf-8");
 var editTemplate = fs.readFileSync("resources/edit.html", "utf-8");
-var misuseScript = fs.readFileSync("resources/misuse.txt", "utf-8");
-var misuses = new Set(fs.readFileSync("resources/misuses.txt", "utf-8").split(/\s+/));
+var header = fs.readFileSync(process.env.HEADER || "/dev/null", "utf-8");
+var defaultBL = new Set();
 
 var deriveTitle = text => text
   .split(/[\n\r]/)[0].slice(0,25)
   .replace(/[^a-zA-Z0-9\s]/g, "");
 
-var renderPage = (id, title, content, footer) => pageTemplate
-  .replace("%MISUSE%", misuses.has(id) ? misuseScript : "")
+var renderPage = (id, title, content, footer, blackList) => pageTemplate
+  .replace("%HEADER%", (blackList || defaultBL).has(id) ? header : "")
   .replace("%TITLE%", title)
   .replace("%CONTENT%", content.replace(/<meta.*?>/gi, "").replace(/<script[\s\S.]*?\/script>/gi, ""))
   .replace("%FOOTER%", footer || "");
@@ -31,9 +31,11 @@ module.exports.renderStats = note => renderPage(note.id, deriveTitle(note.text),
 module.exports.renderTOS = () => 
   renderPage("tos", "Terms of Service", marked(TOS));
 
-module.exports.renderNote = note => renderPage(note.id, deriveTitle(note.text), 
+module.exports.renderNote = (note, blackList) => renderPage(note.id,
+  deriveTitle(note.text), 
   marked(note.text),
-  footerTemplate.replace(/%LINK%/g, note.id));
+  footerTemplate.replace(/%LINK%/g, note.id),
+  blackList);
 
 module.exports.newNotePage = session => editTemplate
   .replace("%ACTION%", "POST")
