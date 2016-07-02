@@ -300,6 +300,12 @@ fieldset {
 }
 
 #tableau {
+	position: relative;
+	top: 0.4em;
 	font-weight: lighter;
 	float: right;
+}
+
+#plain-password {
+	width: 10em;
 }
