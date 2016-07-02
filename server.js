@@ -175,4 +175,4 @@ setInterval(() => {
     ids.forEach(id => CACHE.del(id))
     blackList = new Set(ids);
     log("black list updated:", blackList.size, "entries:", blackList);
-}, 10 * 1000)
+}, 60 * 60 * 1000)
