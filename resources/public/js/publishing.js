@@ -25,6 +25,9 @@ function enableButton() {
 }
 
 function onLoad() {
+  // Hook point
+  events.publish('document:loaded');
+
   $note = $("note");
   $action = $("action").value;
   $preview = $("draft");
@@ -37,6 +40,9 @@ function onLoad() {
     timer = setTimeout(function() {
       $preview.innerHTML = md2html(content);
       $tableau.innerHTML = content.split(/\s+/).length + " words";
+
+      // Hook point
+      events.publish('content:rendered');
     }, delay);
   };
   if ($action == "UPDATE") updatePreview();
