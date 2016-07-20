@@ -1,3 +1,5 @@
+// jscs:disable maximumLineLength
+
 /**
  * Highlight Module
  *
@@ -9,7 +11,7 @@
  *   highlight.init()
  *
  *
- *   // Function that loads additional languages support
+ *   // Re-highlights all code tags on demand
  *   // Useful when markdown has been parsed again
  *   // and new language occurred in the output for example
  *
@@ -37,11 +39,6 @@
     };
   }
 
-  // Converts arguments-like / querySelector results data to a simple array
-  function toArray(data) {
-    return [].slice.call(data);
-  }
-
   // Highlight callback
   function highlight() {
     if (!('Prism' in global)) {
@@ -54,85 +51,46 @@
   }
 
   // Debounced highlight callback
-  var debouncedHighlight = debounce(highlight, 300);
-
-  // Collect a list of unique langages to be highlighted
-  function collectLanguages() {
-    return []
-            .concat(toArray(document.querySelectorAll('code[class*="lang-"]')))
-            .concat(toArray(document.querySelectorAll('code[class*="language-"]')))
-            .map(function (element) {
-              // Collect languages from code elements, e.g. `lang-css`, `language-javascript`
-              // and then remove `lang-` and `language-` parts
-              return (element.className.match(/lang(uage)?\-\w+/g) || [])
-                      .map(function (languageClass) {
-                        return languageClass.replace(/lang(uage)?\-/g, '').trim();
-                      })
-                      .map(function (language) {
-                        // Common language abbreviations mapped to full language names
-                        var mappings = {
-                          js: 'javascript',
-                        };
-
-                        return mappings[language] || language;
-                      });
-            })
-            .reduce(function (uniqueLanguages, elementLanguages) {
-              elementLanguages.forEach(function (language) {
-                // Add language to the pool if not detected already
-                if (uniqueLanguages.indexOf(language) === -1) {
-                  uniqueLanguages.push(language);
-                }
-              });
-
-              return uniqueLanguages;
-            }, []);
-  }
-
-  // Load scripts for additional languages support
-  function loadAdditionalLanguageSupport() {
-    collectLanguages()
-    .forEach(function (language) {
-      var resource = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/components/prism-%s.min.js'
-                     .replace('%s', language);
-
-      // Escape early if language support is already loaded
-      if (document.querySelector('script[src="' + resource + '"]')) {
-        debouncedHighlight();
-        return;
-      }
-
-      // Load language support file otherwise
-      var script = document.createElement('script');
-
-      script.src = resource;
-
-      script.addEventListener('load', debouncedHighlight);
-      script.addEventListener('error', function (event) {
-        // Remove element that wasn't successful
-        document.body.removeChild(event.srcElement);
-
-        // Highlight code anyway
-        debouncedHighlight();
-      });
-
-      document.body.appendChild(script);
-    });
-  }
+  var debouncedHighlight =
+    debounce(highlight, 300);
 
   // Load minimal requirements
   function loadInitialScriptsAndStyles() {
-    var link   = document.createElement('link');
-    var script = document.createElement('script');
+    var link =
+      document.createElement('link');
 
-    link.rel      = 'stylesheet';
-    link.href     = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/themes/prism.min.css';
-    script.src    = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js';
+    var mainScript =
+      document.createElement('script');
 
-    script.addEventListener('load', global.highlight.update);
+    var autoloaderScript =
+      document.createElement('script');
+
+    link.rel =
+      'stylesheet';
+
+    link.href =
+      'https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/themes/prism-tomorrow.min.css';
+
+    mainScript.src =
+      'https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js';
+
+    autoloaderScript.src =
+      'https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/plugins/autoloader/prism-autoloader.min.js';
+
+    mainScript.addEventListener('load', function () {
+      // Load autoloader after Prism loads
+      document.body.appendChild(autoloaderScript);
+    });
+
+    autoloaderScript.addEventListener('load', function () {
+      global.Prism.plugins.autoloader.languages_path =
+        'https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/components/';
+
+      global.highlight.update();
+    });
 
     document.head.appendChild(link);
-    document.body.appendChild(script);
+    document.body.appendChild(mainScript);
   }
 
   // High Level API
@@ -143,7 +101,7 @@
     },
 
     update: function () {
-      loadAdditionalLanguageSupport();
+      debouncedHighlight();
     },
 
   };
