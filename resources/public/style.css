@@ -186,9 +186,18 @@ blockquote {
 }
 
 code, pre {
-	font-size: 1.05em;
 	background: #efefef;
 	font-family: monospace;
+}
+
+/* Code tags alone to be slightly bigger than defaults */
+code {
+	font-size: 1.05em;
+}
+
+/* Prevent over-sized code in when syntax-highlighted */
+pre code {
+	font-size: 1em;
 }
 
 pre {
