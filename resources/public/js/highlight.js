@@ -27,7 +27,7 @@
       'stylesheet';
 
     link.href =
-      'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/railscasts.min.css';
+      'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/zenburn.min.css';
 
     mainScript.src =
       'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/highlight.min.js';
