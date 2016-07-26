@@ -1,5 +1,6 @@
 var marked = require("marked");
 var fs = require("fs");
+var hljs = require("highlight.js");
 
 var TOS = fs.readFileSync("resources/TOS.md", "utf-8");
 var pageTemplate = fs.readFileSync("resources/template.html", "utf-8");
@@ -17,7 +18,14 @@ var renderPage = (id, title, content, footer, blackList) => pageTemplate
   .replace("%TITLE%", title)
   .replace("%CONTENT%", content.replace(/<meta.*?>/gi, "").replace(/<script[\s\S.]*?\/script>/gi, ""))
   .replace("%FOOTER%", footer || "");
-  
+
+marked.setOptions({
+  langPrefix: 'hljs lang-',
+  highlight: function (code) {
+    return hljs.highlightAuto(code).value;
+  },
+});
+
 module.exports.renderPage = renderPage;
 
 module.exports.renderStats = note => renderPage(note.id, deriveTitle(note.text), 
