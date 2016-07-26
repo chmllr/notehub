@@ -21,13 +21,15 @@ function saveDraft() {
 function enableButton() {
   var checkbox = $('tos');
   var button = $('publish-button');
-  button.disabled = !checkbox.checked; 
+  button.disabled = !checkbox.checked;
 }
 
-function onLoad() {
+document.addEventListener('DOMContentLoaded', function () {
   // Hook point
   events.publish('document:loaded');
+});
 
+function onLoad() {
   $note = $("note");
   $action = $("action").value;
   $preview = $("draft");

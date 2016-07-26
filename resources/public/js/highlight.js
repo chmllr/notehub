@@ -7,52 +7,15 @@
  * High Level API:
  *
  *   // Load basic dependencies and language support for present code tags
- *
- *   highlight.init()
- *
- *
- *   // Re-highlights all code tags on demand
- *   // Useful when markdown has been parsed again
- *   // and new language occurred in the output for example
- *
- *   highlight.update();
+ *   api.init()
  *
  *
- *  Hooks To:
+ * Hooks To:
  *
  *  'document:loaded'  ~> highlight.init();
- *  'content:rendered' ~> highlight.update();
  *
  */
 (function (global) {
-
-  // Simplified debounce version (no args support)
-  function debounce(callback, milliseconds) {
-    var timeout;
-
-    return function () {
-      clearTimeout(timeout);
-
-      timeout = setTimeout(function () {
-        callback();
-      }, milliseconds);
-    };
-  }
-
-  // Highlight callback
-  function highlight() {
-    if (!('Prism' in global)) {
-      throw new Error(
-        '[Highlight] Prism not detected. Please run `highlight.init` to load all dependencies'
-      );
-    }
-
-    global.Prism.highlightAll();
-  }
-
-  // Debounced highlight callback
-  var debouncedHighlight =
-    debounce(highlight, 300);
 
   // Load minimal requirements
   function loadInitialScriptsAndStyles() {
@@ -60,9 +23,6 @@
       document.createElement('link');
 
     var mainScript =
-      document.createElement('script');
-
-    var autoloaderScript =
       document.createElement('script');
 
     link.rel =
@@ -74,19 +34,42 @@
     mainScript.src =
       'https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js';
 
-    autoloaderScript.src =
-      'https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/plugins/autoloader/prism-autoloader.min.js';
-
     mainScript.addEventListener('load', function () {
-      // Load autoloader after Prism loads
-      document.body.appendChild(autoloaderScript);
-    });
+      // Escape early if back-end rendering is used
+      if (!('marked' in global)) {
+        // @TODO Autoload er
+        return Prism.highlightAll();
+      }
 
-    autoloaderScript.addEventListener('load', function () {
-      global.Prism.plugins.autoloader.languages_path =
-        'https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/components/';
+      // Set up autoloading
+      marked.setOptions({
+        highlight: function (code, language) {
+          if (!(language in Prism.languages)) {
+            var additionalLanguageScript =
+              document.createElement('script');
 
-      global.highlight.update();
+            additionalLanguageScript.src =
+              'https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/components/prism-' + language + '.min.js';
+
+            // On success, highlight code for given language
+            additionalLanguageScript.addEventListener('load', function () {
+              [].forEach.call(document.querySelectorAll('.lang-' + language), function (element) {
+                Prism.highlightElement(element);
+              });
+            });
+
+            // Remove if language not available
+            additionalLanguageScript.addEventListener('error', function () {
+              document.body.removeChild(additionalLanguageScript);
+            });
+
+            document.body.appendChild(additionalLanguageScript);
+          }
+
+          return Prism.highlight(code, Prism.languages[language] || Prism.languages.markup);
+        },
+      });
+
     });
 
     document.head.appendChild(link);
@@ -94,22 +77,15 @@
   }
 
   // High Level API
-  global.highlight = global.highlight || {
-
+  var api = {
     init: function () {
       loadInitialScriptsAndStyles();
     },
-
-    update: function () {
-      debouncedHighlight();
-    },
-
   };
 
   // Hooks
   if ('events' in global) {
-    events.subscribe('document:loaded', global.highlight.init);
-    events.subscribe('content:rendered', global.highlight.update);
+    events.subscribe('document:loaded', api.init);
   }
 
 }(window));
