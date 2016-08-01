@@ -185,24 +185,6 @@ blockquote {
 	margin-bottom: 7em;
 }
 
-/* Code tags and pre tags alone to be monospaced */
-pre, code {
-	font-family: monospace;
-	border-radius: 3px;
-	background: #fcfcfc !important; /* required to override theme defaults */
-}
-
-/* Non-syntax highlighted code tag to be slightly bigger so it outstands in text */
-code:not([class*="lang-"]) {
-	font-size: 1.05em;
-}
-
-/* Syntax highlighted code tag to get some padding and keep font-size */
-code[class*="lang-"] {
-	font-size: 1em;
-	padding: 1em;
-}
-
 *:focus {
 	outline: 0px none transparent;
 }
@@ -314,4 +296,26 @@ fieldset {
 
 #plain-password {
 	width: 10em;
+}
+
+/* SYNTAX HIGHLIGHTING */
+
+/* Theme: tomorrow, source: http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/tomorrow.min.css */
+.hljs-comment,.hljs-quote{color:#8e908c}.hljs-variable,.hljs-template-variable,.hljs-tag,.hljs-name,.hljs-selector-id,.hljs-selector-class,.hljs-regexp,.hljs-deletion{color:#c82829}.hljs-number,.hljs-built_in,.hljs-builtin-name,.hljs-literal,.hljs-type,.hljs-params,.hljs-meta,.hljs-link{color:#f5871f}.hljs-attribute{color:#eab700}.hljs-string,.hljs-symbol,.hljs-bullet,.hljs-addition{color:#718c00}.hljs-title,.hljs-section{color:#4271ae}.hljs-keyword,.hljs-selector-tag{color:#8959a8}.hljs{display:block;overflow-x:auto;background:white;color:#4d4d4c;padding:0.5em}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:bold}
+
+pre, code, code.hljs {
+	font-family: monospace;
+	border-radius: 3px;
+	background: #fcfcfc;
+}
+
+/* Non-syntax highlighted code tag to be slightly bigger so it outstands in text */
+code:not(.hljs) {
+	font-size: 1.05em;
+}
+
+/* Syntax highlighted code tag to get some padding and keep font-size */
+code.hljs {
+	font-size: 1em;
+	padding: 1em;
 }
