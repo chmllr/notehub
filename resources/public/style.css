@@ -188,11 +188,8 @@ blockquote {
 /* Code tags and pre tags alone to be monospaced */
 pre, code {
 	font-family: monospace;
-}
-
-/* Non-syntax highlighted code and pre tags to get default background */
-pre, code:not([class*="lang-"]) {
-	background: #efefef;
+	border-radius: 3px;
+	background: #fcfcfc !important; /* required to override theme defaults */
 }
 
 /* Non-syntax highlighted code tag to be slightly bigger so it outstands in text */
@@ -200,9 +197,8 @@ code:not([class*="lang-"]) {
 	font-size: 1.05em;
 }
 
-/* Syntax highlighted code tag to get some padding, nice rounded corners and keep font-size */
+/* Syntax highlighted code tag to get some padding and keep font-size */
 code[class*="lang-"] {
-	border-radius: 3px;
 	font-size: 1em;
 	padding: 1em;
 }
