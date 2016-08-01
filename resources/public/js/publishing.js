@@ -7,6 +7,15 @@ var timerDelay = iosDetected ? 800 : 400;
 var $note, $action, $preview, $plain_password, $tableau;
 var backendTimer;
 
+document.addEventListener('DOMContentLoaded', function () {
+  marked.setOptions({
+    langPrefix: 'hljs lang-',
+    highlight: function (code) {
+      return hljs.highlightAuto(code).value;
+    },
+  });
+});
+
 function md2html(input) {
   return marked(input);
 }
@@ -24,11 +33,6 @@ function enableButton() {
   button.disabled = !checkbox.checked;
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-  // Hook point
-  events.publish('document:loaded');
-});
-
 function onLoad() {
   $note = $("note");
   $action = $("action").value;
@@ -42,9 +46,6 @@ function onLoad() {
     timer = setTimeout(function() {
       $preview.innerHTML = md2html(content);
       $tableau.innerHTML = content.split(/\s+/).length + " words";
-
-      // Hook point
-      events.publish('content:rendered');
     }, delay);
   };
   if ($action == "UPDATE") updatePreview();
