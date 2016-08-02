@@ -1,2 +1,5 @@
 User-agent: *
 Disallow: /new
+Disallow: /*edit
+Disallow: /*export
+Disallow: /*stats
