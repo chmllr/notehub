@@ -20,10 +20,8 @@ var renderPage = (id, title, content, footer, blackList) => pageTemplate
   .replace("%FOOTER%", footer || "");
 
 marked.setOptions({
-  langPrefix: 'hljs lang-',
-  highlight: function (code) {
-    return hljs.highlightAuto(code).value;
-  },
+  langPrefix: "hljs lang-",
+  highlight: code => hljs.highlightAuto(code).value,
 });
 
 module.exports.renderPage = renderPage;
