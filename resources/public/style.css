@@ -372,7 +372,7 @@ fieldset {
 pre, code, code.hljs {
 	font-family: monospace;
 	border-radius: 3px;
-	background: #fcfcfc;
+	background: #f0f0f0;
 }
 
 /* Non-syntax highlighted code tag to be slightly bigger so it outstands in text */
