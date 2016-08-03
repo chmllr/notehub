@@ -382,6 +382,6 @@ pre code {
 	font-size: 1em;
 }
 
-code.hljs {
+pre, code.hljs {
 	padding: 1em;
 }
