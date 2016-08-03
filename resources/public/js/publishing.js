@@ -7,6 +7,15 @@ var timerDelay = iosDetected ? 800 : 400;
 var $note, $action, $preview, $plain_password, $tableau;
 var backendTimer;
 
+document.addEventListener('DOMContentLoaded', function () {
+  marked.setOptions({
+    langPrefix: 'hljs lang-',
+    highlight: function (code) {
+      return hljs.highlightAuto(code).value;
+    },
+  });
+});
+
 function md2html(input) {
   return marked(input);
 }
@@ -21,7 +30,7 @@ function saveDraft() {
 function enableButton() {
   var checkbox = $('tos');
   var button = $('publish-button');
-  button.disabled = !checkbox.checked; 
+  button.disabled = !checkbox.checked;
 }
 
 function onLoad() {
