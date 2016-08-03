@@ -373,15 +373,15 @@ pre, code, code.hljs {
 	font-family: monospace;
 	border-radius: 3px;
 	background: #f0f0f0;
-}
-
-/* Non-syntax highlighted code tag to be slightly bigger so it outstands in text */
-code:not(.hljs) {
 	font-size: 1.05em;
 }
 
-/* Syntax highlighted code tag to get some padding and keep font-size */
-code.hljs {
+/* Don't increase the size of code in pre tag, pre tag already did it.
+   Otherwise code size would be even bigger (1.05em * 1.05em = 1.1025em) */
+pre code {
 	font-size: 1em;
+}
+
+code.hljs {
 	padding: 1em;
 }
