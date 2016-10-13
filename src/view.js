@@ -52,4 +52,6 @@ module.exports.editNotePage = (session, note) => editTemplate
   .replace("%ACTION%", "UPDATE")
   .replace("%SESSION%", session)
   .replace("%ID%", note.id)
-  .replace("%CONTENT%", note.text);
+  .replace("%CONTENT%", escape$(note.text));
+
+var escape$ = s => s.split("").map(chr => chr == "$" ? "$$" : chr).join("");
