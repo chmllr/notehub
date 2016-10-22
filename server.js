@@ -1,6 +1,6 @@
 var express = require('express');
-var view = require('./src/view');
-var storage = require('./src/storage');
+var view = require('./view');
+var storage = require('./storage');
 var md5 = require('md5');
 var LRU = require("lru-cache")
 var bodyParser = require('body-parser');
@@ -40,16 +40,14 @@ var log = function() {
     console.log.apply(console, message);
 }
 
-app.get('/TOS', function(req, res) {
-    res.send(view.renderTOS());
-});
+app.get('/TOS', (req, res) => res.send(view.renderTOS()));
 
-app.get('/new', function(req, res) {
+app.get('/new', (req, res) => {
     log(req.ip, "opens /new");
     res.send(view.newNotePage(getTimeStamp() + md5(Math.random())));
 });
 
-app.post('/note', function(req, res) {
+app.post('/note', (req, res) => {
     var body = req.body,
         session = body.session,
         note = body.note,
@@ -62,8 +60,7 @@ app.post('/note', function(req, res) {
         return sendResponse(res, 400, "Bad request");
     if (session.indexOf(getTimeStamp()) != 0)
         return sendResponse(res, 400, "Session expired");
-    var expectedSignature = md5(session + note.replace(/[\n\r]/g, ""));
-    if (expectedSignature != body.signature)
+    if (body.signature != md5(session + note.replace(/[\n\r]/g, "")))
         return sendResponse(res, 400, "Signature mismatch");
     if (action == "POST")
         storage.addNote(note, password).then(goToNote);
@@ -82,7 +79,7 @@ app.post('/note', function(req, res) {
     }
 });
 
-app.get("/:year/:month/:day/:title", function(req, res) {
+app.get("/:year/:month/:day/:title", (req, res) => {
     var P = req.params, url = P.year + "/" + P.month + "/" + P.day + "/" + P.title;
     log(req.ip, "resolves deprecated id", url);
     if (CACHE.has(url)) {
@@ -102,52 +99,52 @@ app.get("/:year/:month/:day/:title", function(req, res) {
     });
 });
 
-app.get(/\/([a-z0-9]+\/edit)/, function(req, res) {
-    var link = req.params["0"].replace("/edit", "");
-    log(req.ip, "calls /edit on", link);
-    storage.getNote(link).then(note => res.send(note
+app.get(/\/([a-z0-9]+)\/edit/, (req, res) => {
+    var id = req.params["0"];
+    log(req.ip, "calls /edit on", id);
+    storage.getNote(id).then(note => res.send(note
         ? view.editNotePage(getTimeStamp() + md5(Math.random()), note)
         : notFound(res)));
 });
 
-app.get(/\/([a-z0-9]+\/export)/, function(req, res) {
-    var link = req.params["0"].replace("/export", "");
-    log(req.ip, "calls /export on", link);
+app.get(/\/([a-z0-9]+)\/export/, (req, res) => {
+    var id = req.params["0"];
+    log(req.ip, "calls /export on", id);
     res.set({ 'Content-Type': 'text/plain', 'Charset': 'utf-8' });
-    storage.getNote(link).then(note => note
+    storage.getNote(id).then(note => note
         ? res.send(note.text)
         : notFound(res));
 });
 
-app.get(/\/([a-z0-9]+\/stats)/, function(req, res) {
-    var link = req.params["0"].replace("/stats", "");
-    log(req.ip, "calls /stats on", link);
-    var promise = link in MODELS
-        ? new Promise(resolve => resolve(MODELS[link]))
-        : storage.getNote(link);
+app.get(/\/([a-z0-9]+)\/stats/, (req, res) => {
+    var id = req.params["0"];
+    log(req.ip, "calls /stats on", id);
+    var promise = id in MODELS
+        ? new Promise(resolve => resolve(MODELS[id]))
+        : storage.getNote(id);
     promise.then(note => note
         ? res.send(view.renderStats(note))
         : notFound(res));
 });
 
-app.get(/\/([a-z0-9]+)/, function(req, res) {
-    var link = req.params["0"];
-    log(req.ip, "open note", link, "from", req.get("Referer"));
-    if (CACHE.has(link)) {
-        log(link, "is cached!");
-        var note = MODELS[link];
+app.get(/\/([a-z0-9]+)/, (req, res) => {
+    var id = req.params["0"];
+    log(req.ip, "open note", id, "from", req.get("Referer"));
+    if (CACHE.has(id)) {
+        log(id, "is cached!");
+        var note = MODELS[id];
         if (!note) return notFound(res);
         note.views++;
-        res.send(CACHE.get(link));
-    } else storage.getNote(link).then(note => {
-        log(link, "is not cached, resolving...");
+        res.send(CACHE.get(id));
+    } else storage.getNote(id).then(note => {
+        log(id, "is not cached, resolving...");
         if (!note) {
-            CACHE.set(link, null);
+            CACHE.set(id, null);
             return notFound(res);
         }
         var content = view.renderNote(note, blackList);
-        CACHE.set(link, content);
-        MODELS[link] = note;
+        CACHE.set(id, content);
+        MODELS[id] = note;
         note.views++;
         res.send(content);
     });
@@ -160,9 +157,8 @@ var sendResponse = (res, code, message) => {
 
 var notFound = res => sendResponse(res, 404, "Not found");
 
-var server = app.listen(process.env.PORT || 3000, function() {
-    log('NoteHub server listening on port', server.address().port);
-});
+var server = app.listen(process.env.PORT || 3000, 
+    () => log('NoteHub server listening on port', server.address().port));
 
 setInterval(() => {
     var keys = Object.keys(MODELS);
