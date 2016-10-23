@@ -330,11 +330,11 @@ fieldset {
 .hljs-quote,
 .hljs-template-tag,
 .hljs-deletion {
-	color:#880000
+	color:#24A15E
 }
 .hljs-title,
 .hljs-section {
-	color:#880000;
+	color:#24A15E;
 	font-weight:bold
 }
 .hljs-regexp,
@@ -344,16 +344,16 @@ fieldset {
 .hljs-link,
 .hljs-selector-attr,
 .hljs-selector-pseudo {
-	color:#BC6060
+	color:#6AA6D2
 }
 .hljs-literal {
-	color:#78A960
+	color:#8E61DF
 }
 .hljs-built_in,
 .hljs-bullet,
 .hljs-code,
 .hljs-addition {
-	color:#397300
+	color:#8E61DF
 }
 .hljs-meta {
 	color:#1f7199
