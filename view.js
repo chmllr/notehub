@@ -10,7 +10,7 @@ var header = fs.readFileSync(process.env.HEADER || "/dev/null", "utf-8");
 
 var deriveTitle = text => text
   .split(/[\n\r]/)[0].slice(0,25)
-  .replace(/[^a-zA-Z0-9\s]/g, "");
+  .replace(/[`~!@#\$%^&\*_|\+=\?;:'",.<>\{\}\\\/]/g, "");
 
 var renderPage = (id, title, content, footer, blackList) => pageTemplate
   .replace("%HEADER%", blackList && blackList.has(id) ? header : "")
