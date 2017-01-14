@@ -10,6 +10,7 @@ var blackList;
 var app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(__dirname + '/resources/public'));
 
 var MODELS = {};
 var CACHE = new LRU({
@@ -27,8 +28,6 @@ var getTimeStamp = () => {
     timestamp = Math.floor(timestamp / 10000000);
     return (timestamp).toString(16)
 }
-
-app.use(express.static(__dirname + '/resources/public'));
 
 var log = function() {
     var date = new Date();
