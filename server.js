@@ -23,12 +23,6 @@ var CACHE = new LRU({
     }
 });
 
-var getTimeStamp = () => {
-    var timestamp = new Date().getTime();
-    timestamp = Math.floor(timestamp / 10000000);
-    return (timestamp).toString(16)
-}
-
 var log = function() {
     var date = new Date();
     var timestamp = date.getDate() + "/" + date.getMonth() + " " + date.getHours() + ":" +
@@ -43,7 +37,7 @@ app.get('/TOS', (req, res) => res.send(view.renderTOS()));
 
 app.get('/new', (req, res) => {
     log(req.ip, "opens /new");
-    res.send(view.newNotePage(getTimeStamp() + md5(Math.random())));
+    res.send(view.newNotePage(md5("new")));
 });
 
 app.post('/note', (req, res) => {
@@ -55,10 +49,8 @@ app.post('/note', (req, res) => {
         id = body.id;
     log(req.ip, "calls /note to", action, id);
     var goToNote = note => res.redirect("/" + note.id);
-    if (!note)
+    if (!note || session.indexOf(md5('edit/' + id)) != 0 && session.indexOf(md5('new')) != 0)
         return sendResponse(res, 400, "Bad request");
-    if (session.indexOf(getTimeStamp()) != 0)
-        return sendResponse(res, 400, "Session expired");
     if (body.signature != md5(session + note.replace(/[\n\r]/g, "")))
         return sendResponse(res, 400, "Signature mismatch");
     if (action == "POST")
@@ -102,7 +94,7 @@ app.get(/\/([a-z0-9]+)\/edit/, (req, res) => {
     var id = req.params["0"];
     log(req.ip, "calls /edit on", id);
     storage.getNote(id).then(note => res.send(note
-        ? view.editNotePage(getTimeStamp() + md5(Math.random()), note)
+        ? view.editNotePage(md5('edit/' + id), note)
         : notFound(res)));
 });
 
