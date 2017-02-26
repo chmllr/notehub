@@ -32,7 +32,7 @@ var generateId = () => [1, 1, 1, 1, 1]
         var code = Math.floor(Math.random() * 36);
         return String.fromCharCode(code + (code < 10 ? 48 : 87));
     })
-    .join("");
+    .join('');
 
 var getFreeId = () => {
     var id = generateId();
@@ -46,9 +46,9 @@ module.exports.addNote = (note, password) => getFreeId().then(id => Note.create(
 }));
 
 var passwordCheck = (note, password, callback) => 
-    (!note || note.password.length == 0 || note.password !== password)
-    ? new Promise((resolve, reject) => reject({ message: "Password is wrong" }))
-    : callback();
+    (!note || note.password.length === 0 || note.password !== password) ?
+        new Promise((resolve, reject) => reject({ message: 'Password is wrong' })) :
+        callback();
 
 module.exports.updateNote = (id, password, text) =>
     Note.findById(id).then(note =>

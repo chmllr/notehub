@@ -50,8 +50,8 @@ frisby.create('Invalid posting 2')
 frisby.create('Invalid posting 3')
     .post('http://localhost:3000/note', {
         action: 'POST',
-        session: md5("new"),
-        signature: "assdss",
+        session: md5('new'),
+        signature: 'assdss',
         note: testNote
     })
     .expectStatus(400)
@@ -62,8 +62,8 @@ frisby.create('Invalid posting 3')
 frisby.create('Valid posting')
     .post('http://localhost:3000/note', {
         action: 'POST',
-        session: md5("new"),
-        signature: md5(md5("new") + testNote),
+        session: md5('new'),
+        signature: md5(md5('new') + testNote),
         password: '',
         note: testNote
     })
@@ -81,39 +81,39 @@ frisby.create('Valid posting')
                     .post('http://localhost:3000/note', {
                         id: noteId,
                         action: 'UPDATE',
-                        session: md5("new"),
-                        signature: md5(md5("new") + testNote+'!!!'),
+                        session: md5('new'),
+                        signature: md5(md5('new') + testNote+'!!!'),
                         note: testNote + '!!!',
                         password: ''
                     })
                     .expectStatus(400)
                     .expectBodyContains('Password is wrong')
-                    .toss()
+                    .toss();
             })
             .after((err, res, body) => {
                 frisby.create('Illegal note editing attempt')
                     .post('http://localhost:3000/note', {
                         id: noteId,
                         action: 'UPDATE',
-                        session: md5("new"),
-                        signature: md5(md5("new") + testNote+'!!!'),
+                        session: md5('new'),
+                        signature: md5(md5('new') + testNote+'!!!'),
                         note: testNote + '!!!',
-                        password: "aaabbb"
+                        password: 'aaabbb'
                     })
                     .expectStatus(400)
                     .expectBodyContains('Password is wrong')
-                    .toss()
+                    .toss();
 
             })
-            .toss()
+            .toss();
     })
     .toss();
 
 frisby.create('Valid posting, editing and removal')
     .post('http://localhost:3000/note', {
         action: 'POST',
-        session: md5("new"),
-        signature: md5(md5("new") + testNote),
+        session: md5('new'),
+        signature: md5(md5('new') + testNote),
         password: 'aabbcc',
         note: testNote
     })
@@ -123,7 +123,7 @@ frisby.create('Valid posting, editing and removal')
     .after(function(err, res, body) {
         var noteId = body.replace('Found. Redirecting to /', '');
         frisby.create('Export posted note')
-            .get('http://localhost:3000/' + noteId + "/export")
+            .get('http://localhost:3000/' + noteId + '/export')
             .expectStatus(200)
             .expectHeaderContains('content-type', 'text/plain; charset=utf-8')
             .expectBodyContains(testNote)
@@ -138,24 +138,24 @@ frisby.create('Valid posting, editing and removal')
                     .post('http://localhost:3000/note', {
                         id: noteId,
                         action: 'UPDATE',
-                        session: md5("new"),
-                        signature: md5(md5("new") + testNote+'!!!'),
+                        session: md5('new'),
+                        signature: md5(md5('new') + testNote+'!!!'),
                         note: testNote + '!!!',
-                        password: "abbcc"
+                        password: 'abbcc'
                     })
                     .expectStatus(400)
                     .expectBodyContains('Password is wrong')
-                    .toss()
+                    .toss();
             })
             .after((err, res, body) => {
                 frisby.create('Valid note editing attempt')
                     .post('http://localhost:3000/note', {
                         id: noteId,
                         action: 'UPDATE',
-                        session: md5("new"),
-                        signature: md5(md5("new") + 'Changed!'),
+                        session: md5('new'),
+                        signature: md5(md5('new') + 'Changed!'),
                         note: 'Changed!',
-                        password: "aabbcc"
+                        password: 'aabbcc'
                     })
                     .expectStatus(302)
                     .after((err, res, body) => {
@@ -171,27 +171,27 @@ frisby.create('Valid posting, editing and removal')
                                 id: noteId,
                                 button: 'Delete',
                                 action: 'UPDATE',
-                                session: md5("new"),
-                                signature: md5(md5("new") + 'Changed!'),
+                                session: md5('new'),
+                                signature: md5(md5('new') + 'Changed!'),
                                 note: 'Changed!',
-                                password: "aabbcc"
+                                password: 'aabbcc'
                             })
                             .expectStatus(200)
                             .expectBodyContains('Note deleted') 
                             .toss();
                     })
-                    .toss()
+                    .toss();
             })
-            .toss()
+            .toss();
         frisby.create('Read stats of posted note')
             .expectStatus(200)
-            .get('http://localhost:3000/' + noteId).toss()
+            .get('http://localhost:3000/' + noteId).toss();
         frisby.create('Read stats of posted note')
             .expectStatus(200)
-            .get('http://localhost:3000/' + noteId).toss()
+            .get('http://localhost:3000/' + noteId).toss();
         frisby.create('Read stats of posted note')
             .expectStatus(200)
-            .get('http://localhost:3000/' + noteId).toss()
+            .get('http://localhost:3000/' + noteId).toss();
         frisby.create('Read stats of posted note')
             .get('http://localhost:3000/' + noteId + '/stats')
             .expectHeaderContains('content-type', 'text/html; charset=utf-8')
@@ -209,8 +209,8 @@ while (tooLongNote.length < 1024*200) tooLongNote += tooLongNote;
 frisby.create('Invalid posting of too long note')
     .post('http://localhost:3000/note', {
         action: 'POST',
-        session: md5("new"),
-        signature: md5(md5("new") + testNote),
+        session: md5('new'),
+        signature: md5(md5('new') + testNote),
         password: 'aabbcc',
         note: tooLongNote
     })
@@ -222,8 +222,8 @@ frisby.create('Invalid posting of too long note')
 frisby.create('Invalid update without id')
     .post('http://localhost:3000/note', {
         action: 'UPDATE',
-        session: md5("new"),
-        signature: md5(md5("new") + 'Any note'),
+        session: md5('new'),
+        signature: md5(md5('new') + 'Any note'),
         password: 'aabbcc',
         note: 'Any note'
     })
