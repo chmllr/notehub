@@ -9,8 +9,16 @@ var blackList;
 
 var app = express();
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '200kb' }));
 app.use(express.static(__dirname + '/resources/public'));
+app.use(function (error, req, res, next) {
+    if (error) {
+        sendResponse(res, 400, "Bad request", error.message);
+        log("REQUEST ERROR:", error);
+    } else {
+        next();
+    }
+});
 
 var MODELS = {};
 var CACHE = new LRU({
@@ -50,7 +58,7 @@ app.post('/note', (req, res) => {
     log(req.ip, "calls /note to", action, id);
     var goToNote = note => res.redirect("/" + note.id);
     if (!note || session.indexOf(md5('edit/' + id)) != 0 && session.indexOf(md5('new')) != 0)
-        return sendResponse(res, 400, "Bad request");
+        return sendResponse(res, 400, "Invalid session");
     if (body.signature != md5(session + note.replace(/[\n\r]/g, "")))
         return sendResponse(res, 400, "Signature mismatch");
     if (action == "POST")
@@ -61,11 +69,11 @@ app.post('/note', (req, res) => {
             log("deleting note", id);
             storage.deleteNote(id, password).then(
                 () => sendResponse(res, 200, "Note deleted"),
-                error => sendResponse(res, 403, error.message));
+                error => sendResponse(res, 400, "Bad request", error.message));
         } else {
             log("updating note", id);
             storage.updateNote(id, password, note).then(goToNote,
-                error => sendResponse(res, 403, error.message));
+                error => sendResponse(res, 400, "Bad request", error.message));
         }
     }
 });
@@ -141,9 +149,11 @@ app.get(/\/([a-z0-9]+)/, (req, res) => {
     });
 });
 
-var sendResponse = (res, code, message) => {
+var sendResponse = (res, code, message, details) => {
     log("sending response", code, message);
-    res.status(code).send(view.renderPage(null, message, "<h1>" + message + "</h1>", ""));
+    res.status(code).send(view.renderPage(null, message, 
+        `<h1>${message}</h1><br/>` +
+        `<center>${details || "¯\\_(ツ)_/¯"}</center>`, ""));
 }
 
 var notFound = res => sendResponse(res, 404, "Not found");
