@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "./node_modules/nodemon/bin/nodemon.js server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine-node ."
   },
   "repository": {
     "type": "git",
@@ -33,6 +33,7 @@
     "sqlite3": "*"
   },
   "devDependencies": {
+    "frisby": "^0.8.5",
     "nodemon": "^1.9.1"
   }
 }

@@ -57,13 +57,14 @@ app.post('/note', (req, res) => {
         id = body.id;
     log(req.ip, "calls /note to", action, id);
     var goToNote = note => res.redirect("/" + note.id);
-    if (!note || session.indexOf(md5('edit/' + id)) != 0 && session.indexOf(md5('new')) != 0)
-        return sendResponse(res, 400, "Invalid session");
+    if (!note || !session || session.indexOf(md5('edit/' + id)) != 0 && session.indexOf(md5('new')) != 0)
+        return sendResponse(res, 400, 'Bad request');
     if (body.signature != md5(session + note.replace(/[\n\r]/g, "")))
         return sendResponse(res, 400, "Signature mismatch");
     if (action == "POST")
         storage.addNote(note, password).then(goToNote);
     else {
+        if (!id) return sendResponse(res, 400, "Wrong note ID");
         CACHE.del(id);
         if (body.button == "Delete") {
             log("deleting note", id);
@@ -177,3 +178,4 @@ var updateBlackList = () => {
 setInterval(updateBlackList, 60 * 60 * 1000)
 
 updateBlackList();
+
