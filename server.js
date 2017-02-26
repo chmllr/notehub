@@ -5,7 +5,7 @@ var md5 = require('md5');
 var LRU = require('lru-cache');
 var bodyParser = require('body-parser');
 var fs = require('fs');
-var blackList;
+var blackList = new Set();
 
 var app = express();
 
@@ -170,7 +170,7 @@ setInterval(() => {
 
 var updateBlackList = () => {
     var ids = fs.readFileSync(process.env.BLACK_LIST || '/dev/null', 'utf-8').split(/\n+/).filter(Boolean);
-    ids.forEach(id => CACHE.del(id));
+    ids.filter(id => !blackList.has(id)).forEach(id => CACHE.del(id));
     blackList = new Set(ids);
     log('black list updated, entries:', blackList.size);
 };
