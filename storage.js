@@ -23,6 +23,8 @@ sequelize.sync();
 
 module.exports.getNote = id => Note.findById(id);
 
+module.exports.getNoteList = () => Note.findAll();
+
 module.exports.getNoteId = deprecatedId => Note.findOne({
     where: { deprecatedId: deprecatedId }
 });

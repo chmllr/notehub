@@ -41,6 +41,9 @@ var log = function() {
     console.log.apply(console, message);
 };
 
+var ADMIN_TOKEN = md5(require('os').hostname() + process.getuid());
+log("for admin, list url path: /list/" + ADMIN_TOKEN);
+
 app.get('/TOS', (req, res) => res.send(view.renderTOS()));
 
 app.get('/new', (req, res) => {
@@ -97,6 +100,18 @@ app.get('/:year/:month/:day/:title', (req, res) => {
             notFound(res);
         }
     });
+});
+
+app.get(/\/list\/([a-z0-9]+)/, (req, res) => {
+    var reqtoken = req.params['0'];
+    log(req.ip, "call /list in", reqtoken);
+    if (reqtoken == ADMIN_TOKEN) {
+      storage.getNoteList().then(notelist =>
+        res.send(view.renderList(notelist)))
+      ;
+    } else {
+      notFound(res);
+    }
 });
 
 app.get(/\/([a-z0-9]+)\/edit/, (req, res) => {
