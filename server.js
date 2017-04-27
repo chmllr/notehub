@@ -174,7 +174,7 @@ var sendResponse = (res, code, message, details) => {
 
 var notFound = res => sendResponse(res, 404, 'Not found');
 
-var server = app.listen(process.env.PORT || 3000,
+var server = app.listen(process.env.PORT || 3001,
     () => log('NoteHub server listening on port', server.address().port));
 
 setInterval(() => {
