@@ -41,6 +41,9 @@ var log = function() {
     console.log.apply(console, message);
 };
 
+var ADMIN_TOKEN = md5(require('os').hostname() + process.getuid());
+log("for admin, list url path: /list/" + ADMIN_TOKEN);
+
 app.get('/TOS', (req, res) => res.send(view.renderTOS()));
 
 app.get('/new', (req, res) => {
@@ -99,11 +102,23 @@ app.get('/:year/:month/:day/:title', (req, res) => {
     });
 });
 
+app.get(/\/list\/([a-z0-9]+)/, (req, res) => {
+    var reqtoken = req.params['0'];
+    log(req.ip, "call /list in", reqtoken);
+    if (reqtoken == ADMIN_TOKEN) {
+      storage.getNoteList().then(notelist =>
+        res.send(view.renderList(notelist)))
+      ;
+    } else {
+      notFound(res);
+    }
+});
+
 app.get(/\/([a-z0-9]+)\/edit/, (req, res) => {
     var id = req.params['0'];
     log(req.ip, 'calls /edit on', id);
-    storage.getNote(id).then(note => res.send(note ? 
-        view.editNotePage(md5('edit/' + id), note) : 
+    storage.getNote(id).then(note => res.send(note ?
+        view.editNotePage(md5('edit/' + id), note) :
         notFound(res)));
 });
 
@@ -111,19 +126,19 @@ app.get(/\/([a-z0-9]+)\/export/, (req, res) => {
     var id = req.params['0'];
     log(req.ip, 'calls /export on', id);
     res.set({ 'Content-Type': 'text/plain', 'Charset': 'utf-8' });
-    storage.getNote(id).then(note => note ? 
-        res.send(note.text) : 
+    storage.getNote(id).then(note => note ?
+        res.send(note.text) :
         notFound(res));
 });
 
 app.get(/\/([a-z0-9]+)\/stats/, (req, res) => {
     var id = req.params['0'];
     log(req.ip, 'calls /stats on', id);
-    var promise = id in MODELS ? 
-        new Promise(resolve => resolve(MODELS[id])) : 
+    var promise = id in MODELS ?
+        new Promise(resolve => resolve(MODELS[id])) :
         storage.getNote(id);
-    promise.then(note => note ? 
-        res.send(view.renderStats(note)) : 
+    promise.then(note => note ?
+        res.send(view.renderStats(note)) :
         notFound(res));
 });
 
@@ -152,14 +167,14 @@ app.get(/\/([a-z0-9]+)/, (req, res) => {
 
 var sendResponse = (res, code, message, details) => {
     log('sending response', code, message);
-    res.status(code).send(view.renderPage(null, message, 
+    res.status(code).send(view.renderPage(null, message,
         `<h1>${message}</h1><br/>` +
         `<center>${details || '¯\\_(ツ)_/¯'}</center>`, ''));
 };
 
 var notFound = res => sendResponse(res, 404, 'Not found');
 
-var server = app.listen(process.env.PORT || 3000, 
+var server = app.listen(process.env.PORT || 3001,
     () => log('NoteHub server listening on port', server.address().port));
 
 setInterval(() => {
@@ -178,4 +193,3 @@ var updateBlackList = () => {
 setInterval(updateBlackList, 60 * 60 * 1000);
 
 updateBlackList();
-

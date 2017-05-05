@@ -23,6 +23,8 @@ sequelize.sync();
 
 module.exports.getNote = id => Note.findById(id);
 
+module.exports.getNoteList = () => Note.findAll();
+
 module.exports.getNoteId = deprecatedId => Note.findOne({
     where: { deprecatedId: deprecatedId }
 });
@@ -45,7 +47,7 @@ module.exports.addNote = (note, password) => getFreeId().then(id => Note.create(
     password: password
 }));
 
-var passwordCheck = (note, password, callback) => 
+var passwordCheck = (note, password, callback) =>
     (!note || note.password.length === 0 || note.password !== password) ?
         new Promise((resolve, reject) => reject({ message: 'Password is wrong' })) :
         callback();
@@ -61,4 +63,3 @@ module.exports.updateNote = (id, password, text) =>
 module.exports.deleteNote = (id, password) =>
     Note.findById(id).then(note =>
         passwordCheck(note, password, () => note.destroy()));
-

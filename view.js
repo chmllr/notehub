@@ -18,6 +18,7 @@ var renderPage = (id, title, content, footer, blackList) => pageTemplate
     .replace('%CONTENT%', content.replace(/<meta.*?>/gi, '').replace(/<script[\s\S.]*?\/script>/gi, ''))
     .replace('%FOOTER%', footer || '');
 
+
 marked.setOptions({
     langPrefix: 'hljs lang-',
     highlight: code => hljs.highlightAuto(code).value,
@@ -25,7 +26,7 @@ marked.setOptions({
 
 module.exports.renderPage = renderPage;
 
-module.exports.renderStats = note => renderPage(note.id, deriveTitle(note.text), 
+module.exports.renderStats = note => renderPage(note.id, deriveTitle(note.text),
     `<h2>Statistics</h2>
   <table>
     <tr><td>Published</td><td>${note.published}</td></tr>
@@ -35,8 +36,16 @@ module.exports.renderStats = note => renderPage(note.id, deriveTitle(note.text),
 
 module.exports.renderTOS = () =>  renderPage('tos', 'Terms of Service', marked(TOS));
 
+module.exports.renderList = (notelist) => renderPage(null, "notelist",
+      "<ul>" + notelist.map(note => `
+        <a href=/${note.id}>
+          <li>${deriveTitle(note.text)}</li>
+        </a>
+        `).join("\n") +
+      "</ul>");
+
 module.exports.renderNote = (note, blackList) => renderPage(note.id,
-    deriveTitle(note.text), 
+    deriveTitle(note.text),
     marked(note.text),
     footerTemplate.replace(/%LINK%/g, note.id),
     blackList);
