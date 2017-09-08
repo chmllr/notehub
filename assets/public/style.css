@@ -1,16 +1,15 @@
 body {
-	display: -webkit-flex;
-	-webkit-flex-direction: column;
-	flex-direction: column;
 	display: flex;
+	flex-direction: column;
 	min-height: 100vh;
 }
 
 html, body {
 	padding: 0;
 	margin: 0;
-	color: #333;
-	background: #fff;
+	color: #b0b0b0;
+	background: #353a3a;
+    font-family: monospace;
 }
 
 #hero {
@@ -38,10 +37,6 @@ a:visited {
 	color: #054;
 }
 
-#draft {
-	margin-bottom: 3em;
-}
-
 .button {
 	cursor: pointer;
 }
@@ -52,7 +47,6 @@ a:visited {
 	opacity: 0.8;
 	padding: 0.3em;
 	border-radius: 3px;
-	font-family: sans-serif;
 	font-weight: 300;
 	border: 1px solid #333;
 }
@@ -68,7 +62,6 @@ a:visited {
 	background: #0a6;
 	font-size: 1.5em;
 	text-decoration: none;
-	font-family: sans-serif;
 	font-weight: 300;
 }
 
@@ -91,7 +84,6 @@ footer {
 	padding-bottom: 1em;
 	font-size: 0.8em;
 	width: 100%;
-	font-family: sans-serif;
 	font-weight: 300;
 }
 
@@ -100,7 +92,6 @@ footer a {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-family: sans-serif;
 	font-weight: 400;
 }
 
@@ -134,7 +125,6 @@ h6 {
 
 #hero h2 {
 	margin: 2em;
-	font-family: sans-serif;
 	font-weight: 300;
 }
 
@@ -146,7 +136,6 @@ article {
 	text-align: justify;
 	margin-top: 3em;
 	margin-bottom: 5em;
-	font-family: sans-serif;
 	margin-right: auto;
 	margin-left: auto;
 }
@@ -235,43 +224,8 @@ td {
 	}
 }
 
-#previewPane article {
-	margin: 0;
-}
-
-#editContainer {
-	display: flex;
-	height: 100%;
-}
-
-#previewPane {
-	flex: 1 0 50%;
-	display: flex;
-	height: 100%;
-	overflow-y: auto;
-	margin: 0 !important;
-	border-left: 1px solid #444;
-}
-
-#previewPane article {
-	flex: 1 0;
-	padding: 2em;
-}
-
-#previewPane article h1 {
-	margin: 0;
-}
-
-#editPane {
-	display: flex;
-	flex-direction: column;
-	flex: 1 0 50%;
-	height: 100%;
-}
-
 textarea {
 	font-size: 1em;
-	font-family: Courier;
 	border-radius: 5px;
 	flex: 1 0;
 	margin: 1em;
@@ -284,104 +238,5 @@ textarea, fieldset {
 fieldset {
 	padding-left: 1em;
 	padding-right: 1em;
-	font-family: sans-serif;
 }
 
-#tableau {
-	position: relative;
-	top: 0.4em;
-	font-weight: lighter;
-	float: right;
-}
-
-#plain-password {
-	width: 10em;
-}
-
-/* SYNTAX HIGHLIGHTING */
-
-/* Theme: default, source: http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css */
-.hljs {
-	display:block;
-	overflow-x:auto;
-	padding:0.5em;
-	background:#F0F0F0
-}
-.hljs,
-.hljs-subst {
-	color:#444
-}
-.hljs-comment {
-	color:#888888
-}
-.hljs-keyword,
-.hljs-attribute,
-.hljs-selector-tag,
-.hljs-meta-keyword,
-.hljs-doctag,
-.hljs-name {
-	font-weight:bold
-}
-.hljs-type,
-.hljs-string,
-.hljs-number,
-.hljs-selector-id,
-.hljs-selector-class,
-.hljs-quote,
-.hljs-template-tag,
-.hljs-deletion {
-	color:#24A15E
-}
-.hljs-title,
-.hljs-section {
-	color:#24A15E;
-	font-weight:bold
-}
-.hljs-regexp,
-.hljs-symbol,
-.hljs-variable,
-.hljs-template-variable,
-.hljs-link,
-.hljs-selector-attr,
-.hljs-selector-pseudo {
-	color:#6AA6D2
-}
-.hljs-literal {
-	color:#8E61DF
-}
-.hljs-built_in,
-.hljs-bullet,
-.hljs-code,
-.hljs-addition {
-	color:#8E61DF
-}
-.hljs-meta {
-	color:#1f7199
-}
-.hljs-meta-string {
-	color:#4d99bf
-}
-.hljs-emphasis {
-	font-style:italic
-}
-.hljs-strong {
-	font-weight:bold
-}
-
-
-pre, code, code.hljs {
-	font-family: monospace;
-	border-radius: 3px;
-	background: #f0f0f0;
-	font-size: 1.05em;
-}
-
-/* Don't increase the size of code in pre tag, pre tag already did it.
-   Otherwise code size would be even bigger (1.05em * 1.05em = 1.1025em) */
-pre code {
-	font-size: 1em;
-}
-
-pre, code.hljs {
-	padding: 1em;
-}
