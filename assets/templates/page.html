@@ -1,0 +1,19 @@
+{{define "Page"}}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>NoteHub &mdash; {{.Title}}</title>
+        <meta charset="UTF-8" />
+        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+        <link href="/style.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <article>
+            {{.Content}}
+        </article>
+        <footer>
+            <a href="/">&#8962; notehub</a>
+        </footer>
+    </body>
+</html>
+{{end}}

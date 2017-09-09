@@ -10,6 +10,7 @@ html, body {
 	color: #b0b0b0;
 	background: #353a3a;
     font-family: monospace;
+    font-size: 1.1em;
 }
 
 #hero {
@@ -36,7 +37,6 @@ html, body {
 }
 
 a {
-	text-decoration: none;
 	color: #097;
 }
 
@@ -45,7 +45,7 @@ a:hover {
 }
 
 a:visited {
-	color: #075;
+	color: #086;
 }
 
 .button {
@@ -103,7 +103,8 @@ footer a {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-weight: 400;
+	font-weight: bold;
+    font-family: "Arial";
 }
 
 h1 {
