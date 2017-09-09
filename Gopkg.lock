@@ -26,6 +26,18 @@
   version = "v0.0.2"
 
 [[projects]]
+  name = "github.com/russross/blackfriday"
+  packages = ["."]
+  revision = "cadec560ec52d93835bf2f15bd794700d3a2473b"
+  version = "v2.0.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/shurcooL/sanitized_anchor_name"
+  packages = ["."]
+  revision = "541ff5ee47f1dddf6a5281af78307d921524bcb5"
+
+[[projects]]
   branch = "master"
   name = "github.com/valyala/bytebufferpool"
   packages = ["."]
@@ -52,6 +64,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e1534696ddba3fee15190f7971602342df68b7eba8217a1438fd7dd150d82ba1"
+  inputs-digest = "a39fe24a6fa292ee2a7c5dabd94c32271f0c0cc16d928c8f1113600c76fb6d1f"
   solver-name = "gps-cdcl"
   solver-version = 1
