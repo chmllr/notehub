@@ -18,13 +18,24 @@ html, body {
 	padding-top: 5em;
 }
 
+#hero h1 {
+    font-family: Impact;
+	font-size: 2.5em;
+}
+
+#hero h2 {
+	margin: 2em;
+    font-family: sans-serif;
+	font-weight: 300;
+}
+
+
 .ui-border {
 	border-radius: 3px;
 	border: 1px solid #333;
 }
 
 a {
-	border-bottom: 1px dotted;
 	text-decoration: none;
 	color: #097;
 }
@@ -34,7 +45,7 @@ a:hover {
 }
 
 a:visited {
-	color: #054;
+	color: #075;
 }
 
 .button {
@@ -117,15 +128,6 @@ h5 {
 
 h6 {
 	font-size: 1.0em;
-}
-
-#hero h1 {
-	font-size: 2.5em;
-}
-
-#hero h2 {
-	margin: 2em;
-	font-weight: 300;
 }
 
 #dashed-line {
