@@ -5,3 +5,4 @@ npm-debug.log
 database.sqlite
 database.sqlite-journal
 .DS_Store
+vendor
