@@ -2,7 +2,6 @@ dump.rdb
 bin/
 node_modules/
 npm-debug.log
-database.sqlite
 database.sqlite-journal
 .DS_Store
 vendor

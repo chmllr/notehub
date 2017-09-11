@@ -26,6 +26,12 @@
   version = "v0.0.2"
 
 [[projects]]
+  name = "github.com/mattn/go-sqlite3"
+  packages = ["."]
+  revision = "ca5e3819723d8eeaf170ad510e7da1d6d2e94a08"
+  version = "v1.2.0"
+
+[[projects]]
   name = "github.com/russross/blackfriday"
   packages = ["."]
   revision = "cadec560ec52d93835bf2f15bd794700d3a2473b"
@@ -57,6 +63,12 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/net"
+  packages = ["context"]
+  revision = "66aacef3dd8a676686c7ae3716979581e8b03c47"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
   revision = "a5054c7c1385fd50d9394475365355a87a7873ec"
@@ -64,6 +76,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a39fe24a6fa292ee2a7c5dabd94c32271f0c0cc16d928c8f1113600c76fb6d1f"
+  inputs-digest = "6cae41086ddec63b527c56e9e182bb69c9e1b50afa8d32f031516cd7b0d2e0e6"
   solver-name = "gps-cdcl"
   solver-version = 1
