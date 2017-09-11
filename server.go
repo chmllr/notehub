@@ -25,10 +25,6 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
-func (t *Template) Lookup(name string) *template.Template {
-	return t.templates.Lookup(name)
-}
-
 func main() {
 	e := echo.New()
 	db, err := sql.Open("sqlite3", "./database.sqlite")
@@ -37,8 +33,7 @@ func main() {
 	}
 	defer db.Close()
 
-	renderer := &Template{templates: template.Must(template.ParseGlob("assets/templates/*.html"))}
-	e.Renderer = renderer
+	e.Renderer = &Template{templates: template.Must(template.ParseGlob("assets/templates/*.html"))}
 
 	e.File("/favicon.ico", "assets/public/favicon.ico")
 	e.File("/robots.txt", "assets/public/robots.txt")
@@ -62,7 +57,7 @@ func main() {
 	e.GET("/:id/stats", func(c echo.Context) error {
 		n, code := note(c, db)
 		buf := bytes.NewBuffer([]byte{})
-		renderer.Lookup("Stats").Execute(buf, n)
+		e.Renderer.Render(buf, "Stats", n, c)
 		n.Content = template.HTML(buf.String())
 		return c.Render(code, "Note", n)
 	})
