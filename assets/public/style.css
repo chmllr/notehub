@@ -9,8 +9,7 @@ html, body {
 	margin: 0;
 	color: #b0b0b0;
 	background: #353a3a;
-    font-family: monospace;
-    font-size: 1.1em;
+    font-family: Menlo, Consolas, monospace;
 }
 
 #hero {
@@ -38,6 +37,7 @@ html, body {
 
 a {
 	color: #097;
+    text-decoration: none;
 }
 
 a:hover {
@@ -181,13 +181,24 @@ blockquote {
 	outline: 0px none transparent;
 }
 
+pre, code {
+	font-family: monospace;
+	border-radius: 3px;
+	background-color: #303535;
+	font-size: 1.2em;
+}
+
+pre {
+	padding: 1em;
+}
+
 table {
 	border-collapse: collapse;
 	width: 100%;
 }
 
 th {
-	background-color: #efefef;
+	background-color: #303535;
 	line-height: 2.5em;
 	padding: 0.3em;
 }
@@ -195,7 +206,7 @@ th {
 td {
 	line-height: 2.5em;
 	padding: 0.3em;
-	border-top: 1px solid #aaa;
+	border-top: 1px solid #404545;
 }
 
 .middot {
@@ -221,9 +232,6 @@ td {
 	#dashed-line {
 		margin-bottom: 0.5em;
 		margin-top: 0.5em;
-	}
-	#previewPane {
-		display: none !important;
 	}
 }
 
