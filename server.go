@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 	"time"
 
 	"database/sql"
@@ -56,6 +57,21 @@ type Note struct {
 	Content           template.HTML
 }
 
+func (n Note) withTitle() Note {
+	fstLine := rexpNewLine.Split(n.Text, -1)[0]
+	maxLength := 25
+	if len(fstLine) < 25 {
+		maxLength = len(fstLine)
+	}
+	n.Title = rexpNonAlphaNum.ReplaceAllString(fstLine[:maxLength], "")
+	return n
+}
+
+var (
+	rexpNewLine     = regexp.MustCompile("[\n\r]")
+	rexpNonAlphaNum = regexp.MustCompile("[`~!@#$%^&*_|+=?;:'\",.<>{}\\/]")
+)
+
 func note(c echo.Context, db *sql.DB) (Note, int) {
 	stmt, err := db.Prepare("select id, text, strftime('%s', published) as published," +
 		" strftime('%s',edited) as edited, password, views from notes where id = ?")
@@ -71,12 +87,11 @@ func note(c echo.Context, db *sql.DB) (Note, int) {
 		c.Logger().Error(err)
 		return note404, http.StatusNotFound
 	}
-	// cand := regexp.MustCompile("[\n\r]").Split(text, 1)
-	// fmt.Println("CANDIDATE", cand[0])
 	return Note{
 		ID:      id,
+		Text:    text,
 		Content: mdTmplHTML([]byte(text)),
-	}, http.StatusOK
+	}.withTitle(), http.StatusOK
 }
 
 func md2html(c echo.Context, name string) (Note, int) {
