@@ -46,6 +46,10 @@ func main() {
 		n, code := note(c, db)
 		return c.Render(code, "Note", n)
 	})
+	e.GET("/:id/export", func(c echo.Context) error {
+		n, code := note(c, db)
+		return c.String(code, n.Text)
+	})
 
 	e.Logger.Fatal(e.Start(":3000"))
 }
