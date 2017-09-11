@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"html/template"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"strings"
 	"time"
 
 	"database/sql"
@@ -22,6 +24,10 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
+func (t *Template) Lookup(name string) *template.Template {
+	return t.templates.Lookup(name)
+}
+
 func main() {
 	e := echo.New()
 	db, err := sql.Open("sqlite3", "./database.sqlite")
@@ -30,7 +36,8 @@ func main() {
 	}
 	defer db.Close()
 
-	e.Renderer = &Template{templates: template.Must(template.ParseGlob("assets/templates/*.html"))}
+	renderer := &Template{templates: template.Must(template.ParseGlob("assets/templates/*.html"))}
+	e.Renderer = renderer
 
 	e.File("/favicon.ico", "assets/public/favicon.ico")
 	e.File("/robots.txt", "assets/public/robots.txt")
@@ -50,6 +57,13 @@ func main() {
 		n, code := note(c, db)
 		return c.String(code, n.Text)
 	})
+	e.GET("/:id/stats", func(c echo.Context) error {
+		n, code := note(c, db)
+		buf := bytes.NewBuffer([]byte{})
+		renderer.Lookup("Stats").Execute(buf, n)
+		n.Content = template.HTML(buf.String())
+		return c.Render(code, "Note", n)
+	})
 
 	e.Logger.Fatal(e.Start(":3000"))
 }
@@ -67,7 +81,7 @@ func (n Note) withTitle() Note {
 	if len(fstLine) < 25 {
 		maxLength = len(fstLine)
 	}
-	n.Title = rexpNonAlphaNum.ReplaceAllString(fstLine[:maxLength], "")
+	n.Title = strings.TrimSpace(rexpNonAlphaNum.ReplaceAllString(fstLine[:maxLength], ""))
 	return n
 }
 
@@ -85,16 +99,20 @@ func note(c echo.Context, db *sql.DB) (Note, int) {
 	}
 	defer stmt.Close()
 	row := stmt.QueryRow(c.Param("id"))
-	var id, text, password, published, edited string
+	var id, text, password string
+	var published, edited int64
 	var views int
 	if err := row.Scan(&id, &text, &published, &edited, &password, &views); err != nil {
 		c.Logger().Error(err)
 		return note404, http.StatusNotFound
 	}
 	return Note{
-		ID:      id,
-		Text:    text,
-		Content: mdTmplHTML([]byte(text)),
+		ID:        id,
+		Text:      text,
+		Views:     views,
+		Published: time.Unix(published, 0),
+		Edited:    time.Unix(edited, 0),
+		Content:   mdTmplHTML([]byte(text)),
 	}.withTitle(), http.StatusOK
 }
 
