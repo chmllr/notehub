@@ -236,10 +236,13 @@ td {
 }
 
 textarea {
-	font-size: 1em;
+	background-color: #303535;
+	font-size: 1.2em;
+    color: #b0b0b0;
 	border-radius: 5px;
 	flex: 1 0;
-	margin: 1em;
+	margin: 3em;
+	padding: 2em;
 }
 
 textarea, fieldset {
@@ -247,7 +250,13 @@ textarea, fieldset {
 }
 
 fieldset {
-	padding-left: 1em;
-	padding-right: 1em;
+	margin-left: 3em;
+	margin-right: 3em;
+	margin-bottom: 3em;
 }
 
+form {
+    display: flex;
+	flex: 1 0;
+    flex-direction: column;
+}

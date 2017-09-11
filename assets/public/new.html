@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>NoteHub &mdash; Add note</title>
+        <meta charset="UTF-8">
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <link href="/style.css" rel="stylesheet" type="text/css" />
+        <base target="_blank">
+    </head>
+    <body>
+        <form action="/note" autocomplete="off" method="POST" target="_self">
+            <textarea autofocus name="text"></textarea>
+            <fieldset>
+                <input class="ui-elem" 
+                       name="plain-password" 
+                       placeholder="Password for editing" 
+                       type="text" 
+                       autocomplete="off">
+                <label style="margin-right: 1em">
+                    <input id="tos" name="tos" type="checkbox" onClick="toggleButton()">
+                    Accept <a href="/TOS.md">Terms of Service</a>
+                </label>
+                <input class="button ui-elem" disabled id="publish-button" name="button" type="submit" value="Publish">
+            </fieldset>
+        </form>
+        <footer>
+            <a href="https://github.com/chmllr/NoteHub">source code</a> &middot;
+            <a href="/TOS.md">terms of service</a>
+        </footer>
+        <script>
+            function $(id) { return document.getElementById(id) }
+            function toggleButton() { $('publish-button').disabled = !$('tos').checked }
+        </script>
+    </body>
+</html>

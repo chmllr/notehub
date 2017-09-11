@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -43,6 +44,7 @@ func main() {
 	e.File("/robots.txt", "assets/public/robots.txt")
 	e.File("/style.css", "assets/public/style.css")
 	e.File("/index.html", "assets/public/index.html")
+	e.File("/new", "assets/public/new.html")
 	e.File("/", "assets/public/index.html")
 
 	e.GET("/TOS.md", func(c echo.Context) error {
@@ -63,6 +65,15 @@ func main() {
 		renderer.Lookup("Stats").Execute(buf, n)
 		n.Content = template.HTML(buf.String())
 		return c.Render(code, "Note", n)
+	})
+
+	e.POST("/note", func(c echo.Context) error {
+		vals, err := c.FormParams()
+		if err != nil {
+			return err
+		}
+		fmt.Printf("DEBUG %+v", vals)
+		return nil
 	})
 
 	e.Logger.Fatal(e.Start(":3000"))
