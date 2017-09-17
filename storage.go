@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang-commonmark/markdown"
 	"github.com/labstack/echo"
-	"github.com/russross/blackfriday"
 )
 
 func init() {
@@ -123,6 +123,8 @@ func load(c echo.Context, db *sql.DB) (Note, int) {
 	return *n, http.StatusOK
 }
 
+var mdRenderer = markdown.New(markdown.HTML(true))
+
 func mdTmplHTML(content []byte) template.HTML {
-	return template.HTML(string(blackfriday.Run(content)))
+	return template.HTML(mdRenderer.RenderToString(content))
 }

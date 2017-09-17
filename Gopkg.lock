@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/golang-commonmark/markdown"
+  packages = [".","byteutil","html","linkify"]
+  revision = "11a7a839e723aa293cccdc353b394dbfce7c131e"
+
+[[projects]]
   name = "github.com/labstack/echo"
   packages = ["."]
   revision = "cec7629194fe4bf83b0c72d9a02d340c7a1468ac"
@@ -32,16 +38,10 @@
   version = "v1.2.0"
 
 [[projects]]
-  name = "github.com/russross/blackfriday"
-  packages = ["."]
-  revision = "cadec560ec52d93835bf2f15bd794700d3a2473b"
-  version = "v2.0.0"
-
-[[projects]]
   branch = "master"
-  name = "github.com/shurcooL/sanitized_anchor_name"
+  name = "github.com/opennota/urlesc"
   packages = ["."]
-  revision = "541ff5ee47f1dddf6a5281af78307d921524bcb5"
+  revision = "de5bf2ad457846296e2031421a34e2568e304e35"
 
 [[projects]]
   branch = "master"
@@ -76,6 +76,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6cae41086ddec63b527c56e9e182bb69c9e1b50afa8d32f031516cd7b0d2e0e6"
+  inputs-digest = "82edf4a4585c9ad3318ead49e58d8bca7efed18e2f727be8e8fc6498972fc039"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -3,9 +3,5 @@
   version = "3.1.0"
 
 [[constraint]]
-  name = "github.com/russross/blackfriday"
-  version = "2.0.0"
-
-[[constraint]]
   name = "github.com/mattn/go-sqlite3"
   version = "1.2.0"
