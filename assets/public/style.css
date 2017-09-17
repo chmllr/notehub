@@ -5,11 +5,11 @@ body {
 }
 
 html, body {
+	font-family: sans-serif;
 	padding: 0;
 	margin: 0;
 	color: #b0b0b0;
 	background: #353a3a;
-    font-family: Menlo, Consolas, monospace;
 }
 
 #hero {
@@ -18,26 +18,15 @@ html, body {
 	padding-top: 5em;
 }
 
-#hero h1 {
-    font-family: Impact;
-	font-size: 2.5em;
-}
-
-#hero h2 {
-	margin: 2em;
-    font-family: sans-serif;
-	font-weight: 300;
-}
-
-
 .ui-border {
 	border-radius: 3px;
 	border: 1px solid #333;
 }
 
 a {
+	border-bottom: 1px dotted;
+	text-decoration: none;
 	color: #097;
-    text-decoration: none;
 }
 
 a:hover {
@@ -103,8 +92,7 @@ footer a {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-weight: bold;
-    font-family: "Arial";
+	font-weight: 400;
 }
 
 h1 {
@@ -131,12 +119,22 @@ h6 {
 	font-size: 1.0em;
 }
 
+#hero h1 {
+	font-size: 2.5em;
+}
+
+#hero h2 {
+	margin: 2em;
+	font-weight: 300;
+}
+
 #dashed-line {
 	border-bottom: 1px dashed#888;
 }
 
 article {
 	text-align: justify;
+    font-weight: 300;
 	margin-top: 3em;
 	margin-bottom: 5em;
 	margin-right: auto;
@@ -163,8 +161,15 @@ article > h1:first-child {
 	margin-left: auto;
 }
 
-blockquote {
+strong {
+    font-weight: 600;
+}
+
+em, blockquote {
 	font-family: Georgia, Palatino, "Palatino Linotype", serif;
+}
+
+blockquote {
 	padding-left: 1em;
 	border-left: 4px solid #097;
 }
@@ -185,7 +190,6 @@ pre, code {
 	font-family: monospace;
 	border-radius: 3px;
 	background-color: #303535;
-	font-size: 1.2em;
 }
 
 pre {
