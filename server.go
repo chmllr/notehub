@@ -2,21 +2,17 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"html/template"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"regexp"
-	"strings"
-	"time"
+	"net/url"
 
 	"database/sql"
 
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/labstack/echo"
-	"github.com/russross/blackfriday"
 )
 
 type Template struct{ templates *template.Template }
@@ -47,15 +43,15 @@ func main() {
 		return c.Render(code, "Page", n)
 	})
 	e.GET("/:id", func(c echo.Context) error {
-		n, code := note(c, db)
+		n, code := load(c, db)
 		return c.Render(code, "Note", n)
 	})
 	e.GET("/:id/export", func(c echo.Context) error {
-		n, code := note(c, db)
+		n, code := load(c, db)
 		return c.String(code, n.Text)
 	})
 	e.GET("/:id/stats", func(c echo.Context) error {
-		n, code := note(c, db)
+		n, code := load(c, db)
 		buf := bytes.NewBuffer([]byte{})
 		e.Renderer.Render(buf, "Stats", n, c)
 		n.Content = template.HTML(buf.String())
@@ -67,59 +63,40 @@ func main() {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("DEBUG %+v", vals)
-		return nil
+		if get(vals, "tos") != "on" {
+			code := http.StatusPreconditionFailed
+			return c.Render(code, "Note", errPage(code))
+		}
+		text := get(vals, "text")
+		if 10 > len(text) || len(text) > 50000 {
+			code := http.StatusBadRequest
+			return c.Render(code, "Note",
+				errPage(code, "note length not accepted"))
+		}
+		n := Note{
+			Text:     text,
+			Password: get(vals, "password"),
+		}
+		id, err := save(c, db, &n)
+		if err != nil {
+			c.Logger().Error(err)
+			code := http.StatusServiceUnavailable
+			return c.Render(code, "Note", errPage(code))
+		}
+		c.Logger().Infof("new note %q created", n.ID)
+		return c.Redirect(http.StatusMovedPermanently, "/"+id)
 	})
 
 	e.Logger.Fatal(e.Start(":3000"))
 }
 
-type Note struct {
-	ID, Title, Text   string
-	Published, Edited time.Time
-	Views             int
-	Content           template.HTML
-}
-
-func (n Note) withTitle() Note {
-	fstLine := rexpNewLine.Split(n.Text, -1)[0]
-	maxLength := 25
-	if len(fstLine) < 25 {
-		maxLength = len(fstLine)
+func get(vals url.Values, key string) string {
+	if list, found := vals[key]; found {
+		if len(list) == 1 {
+			return list[0]
+		}
 	}
-	n.Title = strings.TrimSpace(rexpNonAlphaNum.ReplaceAllString(fstLine[:maxLength], ""))
-	return n
-}
-
-var (
-	rexpNewLine     = regexp.MustCompile("[\n\r]")
-	rexpNonAlphaNum = regexp.MustCompile("[`~!@#$%^&*_|+=?;:'\",.<>{}\\/]")
-)
-
-func note(c echo.Context, db *sql.DB) (Note, int) {
-	stmt, err := db.Prepare("select id, text, strftime('%s', published) as published," +
-		" strftime('%s',edited) as edited, password, views from notes where id = ?")
-	if err != nil {
-		c.Logger().Error(err)
-		return note503, http.StatusServiceUnavailable
-	}
-	defer stmt.Close()
-	row := stmt.QueryRow(c.Param("id"))
-	var id, text, password string
-	var published, edited int64
-	var views int
-	if err := row.Scan(&id, &text, &published, &edited, &password, &views); err != nil {
-		c.Logger().Error(err)
-		return note404, http.StatusNotFound
-	}
-	return Note{
-		ID:        id,
-		Text:      text,
-		Views:     views,
-		Published: time.Unix(published, 0),
-		Edited:    time.Unix(edited, 0),
-		Content:   mdTmplHTML([]byte(text)),
-	}.withTitle(), http.StatusOK
+	return ""
 }
 
 func md2html(c echo.Context, name string) (Note, int) {
@@ -127,13 +104,8 @@ func md2html(c echo.Context, name string) (Note, int) {
 	mdContent, err := ioutil.ReadFile(path)
 	if err != nil {
 		c.Logger().Errorf("couldn't open markdown page %q: %v", path, err)
-		return note503, http.StatusServiceUnavailable
+		code := http.StatusServiceUnavailable
+		return errPage(code), code
 	}
 	return Note{Title: name, Content: mdTmplHTML(mdContent)}, http.StatusOK
 }
-
-func mdTmplHTML(content []byte) template.HTML { return template.HTML(string(blackfriday.Run(content))) }
-
-// error notes
-var note404 = Note{Title: "Not found", Content: mdTmplHTML([]byte("# 404 NOT FOUND"))}
-var note503 = Note{Title: "Service unavailable", Content: mdTmplHTML([]byte("# 503 SERVICE UNAVAILABLE"))}
