@@ -1,7 +1,8 @@
+{{define "Form"}}
 <!DOCTYPE html>
 <html>
     <head>
-        <title>NoteHub &mdash; Add note</title>
+        <title>NoteHub &mdash; {{if .ID}}Edit{{else}}Add{{end}} note</title>
         <meta charset="UTF-8">
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <link href="/style.css" rel="stylesheet" type="text/css" />
@@ -9,13 +10,10 @@
     </head>
     <body>
         <form action="/note" autocomplete="off" method="POST" target="_self">
-            <textarea autofocus name="text"></textarea>
+            <textarea autofocus name="text">{{.Text}}</textarea>
             <fieldset>
-                <input class="ui-elem" 
-                       name="plain-password" 
-                       placeholder="Password for editing" 
-                       type="text" 
-                       autocomplete="off">
+                <input id="id" name="id" value="{{.ID}}" type="hidden" />
+                <input class="ui-elem" id="password" name="password" placeholder="Password for editing" type="text" autocomplete="off">
                 <label style="margin-right: 1em">
                     <input id="tos" name="tos" type="checkbox" onClick="toggleButton()">
                     Accept <a href="/TOS.md">Terms of Service</a>
@@ -33,3 +31,4 @@
         </script>
     </body>
 </html>
+{{end}}

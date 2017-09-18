@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"database/sql"
+	"errors"
 	"fmt"
 	"html/template"
 	"math/rand"
@@ -24,12 +26,17 @@ const idLength = 5
 var (
 	errorCodes = map[int]string{
 		400: "Bad request",
+		401: "Unauthorized",
 		404: "Not found",
 		412: "Precondition failed",
 		503: "Service unavailable",
 	}
-	rexpNewLine     = regexp.MustCompile("[\n\r]")
-	rexpNonAlphaNum = regexp.MustCompile("[`~!@#$%^&*_|+=?;:'\",.<>{}\\/]")
+	rexpNewLine        = regexp.MustCompile("[\n\r]")
+	rexpNonAlphaNum    = regexp.MustCompile("[`~!@#$%^&*_|+=?;:'\",.<>{}\\/]")
+	rexpNoScriptIframe = regexp.MustCompile("<.*?(iframe|script).*?>")
+
+	errorUnathorised = errors.New("id or password is wrong")
+	errorBadRequest  = errors.New("password is empty")
 )
 
 type Note struct {
@@ -50,35 +57,69 @@ func errPage(code int, details ...string) Note {
 	}
 }
 
-func (n *Note) render() {
+func (n *Note) prepare() {
 	fstLine := rexpNewLine.Split(n.Text, -1)[0]
 	maxLength := 25
 	if len(fstLine) < 25 {
 		maxLength = len(fstLine)
 	}
+	n.Text = rexpNoScriptIframe.ReplaceAllString(n.Text, "")
 	n.Title = strings.TrimSpace(rexpNonAlphaNum.ReplaceAllString(fstLine[:maxLength], ""))
-	n.Password = ""
 	n.Content = mdTmplHTML([]byte(n.Text))
 }
 
-func save(c echo.Context, db *sql.DB, n *Note) (string, error) {
+func save(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
+	if n.Password != "" {
+		n.Password = fmt.Sprintf("%x", sha256.Sum256([]byte(n.Password)))
+	}
+	if n.ID == "" {
+		return insert(c, db, n)
+	}
+	return update(c, db, n)
+}
+
+func update(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
+	if n.Password == "" {
+		return nil, errorBadRequest
+	}
 	tx, err := db.Begin()
 	if err != nil {
-		return "", err
+		return nil, err
+	}
+	stmt, _ := tx.Prepare("update notes set (text, edited) = (?, ?) where id = ? and password = ?")
+	defer stmt.Close()
+	res, err := stmt.Exec(n.Text, time.Now(), n.ID, n.Password)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	rows, err := res.RowsAffected()
+	if rows != 1 {
+		tx.Rollback()
+		return nil, errorUnathorised
+	}
+	return n, tx.Commit()
+}
+
+func insert(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
+	tx, err := db.Begin()
+	if err != nil {
+		return nil, err
 	}
 	stmt, _ := tx.Prepare("insert into notes(id, text, password) values(?, ?, ?)")
 	defer stmt.Close()
 	id := randId()
 	_, err = stmt.Exec(id, n.Text, n.Password)
 	if err != nil {
+		tx.Rollback()
 		if strings.HasPrefix(err.Error(), "UNIQUE constraint failed") {
-			tx.Rollback()
 			c.Logger().Infof("collision on id %q", id)
 			return save(c, db, n)
 		}
-		return "", err
+		return nil, err
 	}
-	return id, tx.Commit()
+	n.ID = id
+	return n, tx.Commit()
 }
 
 func randId() string {
@@ -119,7 +160,6 @@ func load(c echo.Context, db *sql.DB) (Note, int) {
 		Published: published,
 		Edited:    edited,
 	}
-	n.render()
 	return *n, http.StatusOK
 }
 

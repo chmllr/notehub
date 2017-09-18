@@ -35,27 +35,39 @@ func main() {
 	e.File("/robots.txt", "assets/public/robots.txt")
 	e.File("/style.css", "assets/public/style.css")
 	e.File("/index.html", "assets/public/index.html")
-	e.File("/new", "assets/public/new.html")
 	e.File("/", "assets/public/index.html")
 
 	e.GET("/TOS.md", func(c echo.Context) error {
 		n, code := md2html(c, "TOS")
 		return c.Render(code, "Page", n)
 	})
+
 	e.GET("/:id", func(c echo.Context) error {
 		n, code := load(c, db)
+		n.prepare()
 		return c.Render(code, "Note", n)
 	})
+
 	e.GET("/:id/export", func(c echo.Context) error {
 		n, code := load(c, db)
 		return c.String(code, n.Text)
 	})
+
 	e.GET("/:id/stats", func(c echo.Context) error {
 		n, code := load(c, db)
 		buf := bytes.NewBuffer([]byte{})
 		e.Renderer.Render(buf, "Stats", n, c)
 		n.Content = template.HTML(buf.String())
 		return c.Render(code, "Note", n)
+	})
+
+	e.GET("/:id/edit", func(c echo.Context) error {
+		n, code := load(c, db)
+		return c.Render(code, "Form", n)
+	})
+
+	e.GET("/new", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "Form", nil)
 	})
 
 	e.POST("/note", func(c echo.Context) error {
@@ -73,18 +85,25 @@ func main() {
 			return c.Render(code, "Note",
 				errPage(code, "note length not accepted"))
 		}
-		n := Note{
+		id := get(vals, "id")
+		n := &Note{
+			ID:       id,
 			Text:     text,
 			Password: get(vals, "password"),
 		}
-		id, err := save(c, db, &n)
+		n, err = save(c, db, n)
 		if err != nil {
 			c.Logger().Error(err)
 			code := http.StatusServiceUnavailable
+			if err == errorUnathorised {
+				code = http.StatusUnauthorized
+			} else if err == errorBadRequest {
+				code = http.StatusBadRequest
+			}
 			return c.Render(code, "Note", errPage(code))
 		}
-		c.Logger().Infof("new note %q created", n.ID)
-		return c.Redirect(http.StatusMovedPermanently, "/"+id)
+		c.Logger().Infof("note %q saved", n.ID)
+		return c.Redirect(http.StatusMovedPermanently, "/"+n.ID)
 	})
 
 	e.Logger.Fatal(e.Start(":3000"))
