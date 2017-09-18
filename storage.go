@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/golang-commonmark/markdown"
@@ -21,7 +22,10 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-const idLength = 5
+const (
+	idLength            = 5
+	statsSavingInterval = 1 * time.Minute
+)
 
 var (
 	errorCodes = map[int]string{
@@ -31,6 +35,7 @@ var (
 		412: "Precondition failed",
 		503: "Service unavailable",
 	}
+
 	rexpNewLine        = regexp.MustCompile("[\n\r]")
 	rexpNonAlphaNum    = regexp.MustCompile("[`~!@#$%^&*_|+=?;:'\",.<>{}\\/]")
 	rexpNoScriptIframe = regexp.MustCompile("<.*?(iframe|script).*?>")
@@ -68,6 +73,32 @@ func (n *Note) prepare() {
 	n.Content = mdTmplHTML([]byte(n.Text))
 }
 
+func persistStats(logger echo.Logger, db *sql.DB, stats *sync.Map) {
+	for {
+		time.Sleep(statsSavingInterval)
+		tx, err := db.Begin()
+		if err != nil {
+			logger.Error(err)
+			return
+		}
+		c := 0
+		stats.Range(func(id, views interface{}) bool {
+			stmt, _ := tx.Prepare("update notes set views = ? where id = ?")
+			_, err := stmt.Exec(views, id)
+			if err != nil {
+				tx.Rollback()
+				return false
+			}
+			stmt.Close()
+			defer stats.Delete(id)
+			c++
+			return true
+		})
+		tx.Commit()
+		logger.Infof("successfully persisted %d values", c)
+	}
+}
+
 func save(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
 	if n.Password != "" {
 		n.Password = fmt.Sprintf("%x", sha256.Sum256([]byte(n.Password)))
@@ -79,6 +110,7 @@ func save(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
 }
 
 func update(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
+	c.Logger().Debugf("updating note %q", n.ID)
 	if n.Password == "" {
 		return nil, errorBadRequest
 	}
@@ -98,10 +130,12 @@ func update(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
 		tx.Rollback()
 		return nil, errorUnathorised
 	}
+	c.Logger().Debugf("updating note %q; committing transaction", n.ID)
 	return n, tx.Commit()
 }
 
 func insert(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
+	c.Logger().Debug("inserting new note")
 	tx, err := db.Begin()
 	if err != nil {
 		return nil, err
@@ -119,6 +153,7 @@ func insert(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
 		return nil, err
 	}
 	n.ID = id
+	c.Logger().Debugf("inserting new note %q; commiting transaction", n.ID)
 	return n, tx.Commit()
 }
 
@@ -137,9 +172,11 @@ func randId() string {
 }
 
 func load(c echo.Context, db *sql.DB) (Note, int) {
+	q := c.Param("id")
+	c.Logger().Debugf("loading note %q", q)
 	stmt, _ := db.Prepare("select * from notes where id = ?")
 	defer stmt.Close()
-	row := stmt.QueryRow(c.Param("id"))
+	row := stmt.QueryRow(q)
 	var id, text, password string
 	var published time.Time
 	var editedVal interface{}

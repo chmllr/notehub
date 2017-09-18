@@ -7,13 +7,17 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"sync"
 
 	"database/sql"
 
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/gommon/log"
 )
+
+var stats = &sync.Map{}
 
 type Template struct{ templates *template.Template }
 
@@ -23,6 +27,8 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 
 func main() {
 	e := echo.New()
+	e.Logger.SetLevel(log.DEBUG)
+
 	db, err := sql.Open("sqlite3", "./database.sqlite")
 	if err != nil {
 		e.Logger.Error(err)
@@ -37,6 +43,8 @@ func main() {
 	e.File("/index.html", "assets/public/index.html")
 	e.File("/", "assets/public/index.html")
 
+	go persistStats(e.Logger, db, stats)
+
 	e.GET("/TOS.md", func(c echo.Context) error {
 		n, code := md2html(c, "TOS")
 		return c.Render(code, "Page", n)
@@ -45,11 +53,21 @@ func main() {
 	e.GET("/:id", func(c echo.Context) error {
 		n, code := load(c, db)
 		n.prepare()
+		views := n.Views
+		if val, ok := stats.Load(n.ID); ok {
+			intVal, ok := val.(int)
+			if ok {
+				views = intVal
+			}
+		}
+		defer stats.Store(n.ID, views+1)
+		c.Logger().Debugf("/%q requested; response code: %d", n.ID, code)
 		return c.Render(code, "Note", n)
 	})
 
 	e.GET("/:id/export", func(c echo.Context) error {
 		n, code := load(c, db)
+		c.Logger().Debugf("/%q/export requested; response code: %d", n.ID, code)
 		return c.String(code, n.Text)
 	})
 
@@ -59,30 +77,36 @@ func main() {
 		buf := bytes.NewBuffer([]byte{})
 		e.Renderer.Render(buf, "Stats", n, c)
 		n.Content = template.HTML(buf.String())
+		c.Logger().Debugf("/%q/stats requested; response code: %d", n.ID, code)
 		return c.Render(code, "Note", n)
 	})
 
 	e.GET("/:id/edit", func(c echo.Context) error {
 		n, code := load(c, db)
+		c.Logger().Debugf("/%q/edit requested; response code: %d", n.ID, code)
 		return c.Render(code, "Form", n)
 	})
 
 	e.GET("/new", func(c echo.Context) error {
+		c.Logger().Debug("/new requested")
 		return c.Render(http.StatusOK, "Form", nil)
 	})
 
 	e.POST("/note", func(c echo.Context) error {
+		c.Logger().Debug("POST /note requested")
 		vals, err := c.FormParams()
 		if err != nil {
 			return err
 		}
 		if get(vals, "tos") != "on" {
 			code := http.StatusPreconditionFailed
+			c.Logger().Errorf("POST /note error: %d", code)
 			return c.Render(code, "Note", errPage(code))
 		}
 		text := get(vals, "text")
 		if 10 > len(text) || len(text) > 50000 {
 			code := http.StatusBadRequest
+			c.Logger().Errorf("POST /note error: %d", code)
 			return c.Render(code, "Note",
 				errPage(code, "note length not accepted"))
 		}
@@ -101,9 +125,10 @@ func main() {
 			} else if err == errorBadRequest {
 				code = http.StatusBadRequest
 			}
+			c.Logger().Errorf("POST /note error: %d", code)
 			return c.Render(code, "Note", errPage(code))
 		}
-		c.Logger().Infof("note %q saved", n.ID)
+		c.Logger().Debugf("note %q saved", n.ID)
 		return c.Redirect(http.StatusMovedPermanently, "/"+n.ID)
 	})
 
@@ -127,5 +152,6 @@ func md2html(c echo.Context, name string) (Note, int) {
 		code := http.StatusServiceUnavailable
 		return errPage(code), code
 	}
+	c.Logger().Debugf("rendering markdown page %q", name)
 	return Note{Title: name, Content: mdTmplHTML(mdContent)}, http.StatusOK
 }
