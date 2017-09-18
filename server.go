@@ -55,6 +55,7 @@ func main() {
 
 	e.GET("/:id/stats", func(c echo.Context) error {
 		n, code := load(c, db)
+		n.prepare()
 		buf := bytes.NewBuffer([]byte{})
 		e.Renderer.Render(buf, "Stats", n, c)
 		n.Content = template.HTML(buf.String())

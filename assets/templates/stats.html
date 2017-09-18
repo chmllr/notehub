@@ -2,7 +2,9 @@
 <h2>Statistics</h2>
 <table>
     <tr><td>Published</td><td>{{.Published.Format "Jan 02, 2006 15:04:05 UTC"}}</td></tr>
+    {{if not .Edited.IsZero}}
     <tr><td>Edited</td><td>{{.Edited.Format "Jan 02, 2006 15:04:05 UTC"}}</td></tr>
+    {{end}}
     <tr><td>Views</td><td>{{.Views}}</td></tr>
 </table>
 {{end}}

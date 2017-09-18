@@ -149,16 +149,14 @@ func load(c echo.Context, db *sql.DB) (Note, int) {
 		code := http.StatusNotFound
 		return errPage(code), code
 	}
-	var edited time.Time
-	if editedVal != nil {
-		edited = editedVal.(time.Time)
-	}
 	n := &Note{
 		ID:        id,
 		Text:      text,
 		Views:     views,
 		Published: published,
-		Edited:    edited,
+	}
+	if editedVal != nil {
+		n.Edited = editedVal.(time.Time)
 	}
 	return *n, http.StatusOK
 }
