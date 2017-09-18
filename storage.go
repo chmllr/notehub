@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"math"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -25,6 +26,7 @@ func init() {
 const (
 	idLength            = 5
 	statsSavingInterval = 1 * time.Minute
+	fraudThreshold      = 7
 )
 
 var (
@@ -39,6 +41,7 @@ var (
 	rexpNewLine        = regexp.MustCompile("[\n\r]")
 	rexpNonAlphaNum    = regexp.MustCompile("[`~!@#$%^&*_|+=?;:'\",.<>{}\\/]")
 	rexpNoScriptIframe = regexp.MustCompile("<.*?(iframe|script).*?>")
+	rexpLink           = regexp.MustCompile("(ht|f)tp://[^\\s]+")
 
 	errorUnathorised = errors.New("id or password is wrong")
 	errorBadRequest  = errors.New("password is empty")
@@ -48,7 +51,7 @@ type Note struct {
 	ID, Title, Text, Password string
 	Published, Edited         time.Time
 	Views                     int
-	Content                   template.HTML
+	Content, Ads              template.HTML
 }
 
 func errPage(code int, details ...string) Note {
@@ -202,4 +205,11 @@ var mdRenderer = markdown.New(markdown.HTML(true))
 
 func mdTmplHTML(content []byte) template.HTML {
 	return template.HTML(mdRenderer.RenderToString(content))
+}
+
+func (n *Note) Fraud() bool {
+	stripped := rexpLink.ReplaceAllString(n.Text, "")
+	l1 := len(n.Text)
+	l2 := len(stripped)
+	return int(math.Ceil(100*float64(l1-l2)/float64(l1))) > fraudThreshold
 }

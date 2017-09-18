@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"sync"
 
 	"database/sql"
@@ -17,7 +18,10 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-var stats = &sync.Map{}
+var (
+	stats = &sync.Map{}
+	ads   []byte
+)
 
 type Template struct{ templates *template.Template }
 
@@ -34,6 +38,15 @@ func main() {
 		e.Logger.Error(err)
 	}
 	defer db.Close()
+
+	adsFName := os.Getenv("ADS")
+	if adsFName != "" {
+		var err error
+		ads, err = ioutil.ReadFile(adsFName)
+		if err != nil {
+			e.Logger.Errorf("couldn't read file %q: %v", adsFName, err)
+		}
+	}
 
 	e.Renderer = &Template{templates: template.Must(template.ParseGlob("assets/templates/*.html"))}
 
@@ -61,6 +74,9 @@ func main() {
 			}
 		}
 		defer stats.Store(n.ID, views+1)
+		if n.Fraud() {
+			n.Ads = mdTmplHTML(ads)
+		}
 		c.Logger().Debugf("/%q requested; response code: %d", n.ID, code)
 		return c.Render(code, "Note", n)
 	})
