@@ -49,6 +49,9 @@ func main() {
 		}
 	}
 
+	go persistStats(e.Logger, db, stats)
+	go cleanAccessRegistry(e.Logger)
+
 	e.Renderer = &Template{templates: template.Must(template.ParseGlob("assets/templates/*.html"))}
 
 	e.File("/favicon.ico", "assets/public/favicon.ico")
@@ -56,8 +59,6 @@ func main() {
 	e.File("/style.css", "assets/public/style.css")
 	e.File("/index.html", "assets/public/index.html")
 	e.File("/", "assets/public/index.html")
-
-	go persistStats(e.Logger, db, stats)
 
 	e.GET("/TOS.md", func(c echo.Context) error {
 		n, code := md2html(c, "TOS")
@@ -111,6 +112,11 @@ func main() {
 
 	e.POST("/note", func(c echo.Context) error {
 		c.Logger().Debug("POST /note requested")
+		if !legitAccess(c) {
+			code := http.StatusTooManyRequests
+			c.Logger().Errorf("rate limit exceeded for %s", c.Request().RemoteAddr)
+			return c.Render(code, "Note", errPage(code))
+		}
 		vals, err := c.FormParams()
 		if err != nil {
 			return err

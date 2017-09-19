@@ -30,6 +30,8 @@ func persistStats(logger echo.Logger, db *sql.DB, stats *sync.Map) {
 			return true
 		})
 		tx.Commit()
-		logger.Infof("successfully persisted %d values", c)
+		if c > 0 {
+			logger.Infof("successfully persisted %d values", c)
+		}
 	}
 }
