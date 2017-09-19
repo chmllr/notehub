@@ -1,5 +1,3 @@
-dump.rdb
-bin/
 node_modules/
 npm-debug.log
 database.sqlite-journal

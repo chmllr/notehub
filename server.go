@@ -142,7 +142,7 @@ func main() {
 				code = http.StatusBadRequest
 			}
 			c.Logger().Errorf("POST /note error: %d", code)
-			return c.Render(code, "Note", errPage(code))
+			return c.Render(code, "Note", errPage(code, err.Error()))
 		}
 		c.Logger().Debugf("note %q saved", n.ID)
 		return c.Redirect(http.StatusMovedPermanently, "/"+n.ID)
@@ -160,7 +160,7 @@ func get(vals url.Values, key string) string {
 	return ""
 }
 
-func md2html(c echo.Context, name string) (Note, int) {
+func md2html(c echo.Context, name string) (*Note, int) {
 	path := "assets/markdown/" + name + ".md"
 	mdContent, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -169,5 +169,5 @@ func md2html(c echo.Context, name string) (Note, int) {
 		return errPage(code), code
 	}
 	c.Logger().Debugf("rendering markdown page %q", name)
-	return Note{Title: name, Content: mdTmplHTML(mdContent)}, http.StatusOK
+	return &Note{Title: name, Content: mdTmplHTML(mdContent)}, http.StatusOK
 }

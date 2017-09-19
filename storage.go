@@ -54,15 +54,18 @@ type Note struct {
 	Content, Ads              template.HTML
 }
 
-func errPage(code int, details ...string) Note {
+func errPage(code int, details ...string) *Note {
 	text := errorCodes[code]
+	body := text
 	if len(details) > 0 {
-		text += ": " + strings.Join(details, ";")
+		body += ": " + strings.Join(details, ";")
 	}
-	return Note{
-		Title:   text,
-		Content: mdTmplHTML([]byte(fmt.Sprintf("# %d %s", code, text))),
+	n := &Note{
+		Title: text,
+		Text:  fmt.Sprintf("# %d %s", code, body),
 	}
+	n.prepare()
+	return n
 }
 
 func (n *Note) prepare() {
@@ -88,13 +91,11 @@ func persistStats(logger echo.Logger, db *sql.DB, stats *sync.Map) {
 		stats.Range(func(id, views interface{}) bool {
 			stmt, _ := tx.Prepare("update notes set views = ? where id = ?")
 			_, err := stmt.Exec(views, id)
-			if err != nil {
-				tx.Rollback()
-				return false
+			if err == nil {
+				c++
 			}
 			stmt.Close()
 			defer stats.Delete(id)
-			c++
 			return true
 		})
 		tx.Commit()
@@ -174,7 +175,7 @@ func randId() string {
 	return buf.String()
 }
 
-func load(c echo.Context, db *sql.DB) (Note, int) {
+func load(c echo.Context, db *sql.DB) (*Note, int) {
 	q := c.Param("id")
 	c.Logger().Debugf("loading note %q", q)
 	stmt, _ := db.Prepare("select * from notes where id = ?")
@@ -198,7 +199,7 @@ func load(c echo.Context, db *sql.DB) (Note, int) {
 	if editedVal != nil {
 		n.Edited = editedVal.(time.Time)
 	}
-	return *n, http.StatusOK
+	return n, http.StatusOK
 }
 
 var mdRenderer = markdown.New(markdown.HTML(true))

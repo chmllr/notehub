@@ -1,0 +1,11 @@
+{
+  "name": "NoteHub",
+  "version": "3.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "jasmine-node ."
+  },
+  "devDependencies": {
+    "frisby": "^0.8.5"
+  }
+}
