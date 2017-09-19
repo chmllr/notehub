@@ -4,18 +4,13 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"database/sql"
-	"errors"
 	"fmt"
 	"html/template"
-	"math"
 	"math/rand"
 	"net/http"
-	"regexp"
 	"strings"
-	"sync"
 	"time"
 
-	"github.com/golang-commonmark/markdown"
 	"github.com/labstack/echo"
 )
 
@@ -24,27 +19,8 @@ func init() {
 }
 
 const (
-	idLength            = 5
-	statsSavingInterval = 1 * time.Minute
-	fraudThreshold      = 7
-)
-
-var (
-	errorCodes = map[int]string{
-		400: "Bad request",
-		401: "Unauthorized",
-		404: "Not found",
-		412: "Precondition failed",
-		503: "Service unavailable",
-	}
-
-	rexpNewLine        = regexp.MustCompile("[\n\r]")
-	rexpNonAlphaNum    = regexp.MustCompile("[`~!@#$%^&*_|+=?;:'\",.<>{}\\/]")
-	rexpNoScriptIframe = regexp.MustCompile("<.*?(iframe|script).*?>")
-	rexpLink           = regexp.MustCompile("(ht|f)tp://[^\\s]+")
-
-	errorUnathorised = errors.New("id or password is wrong")
-	errorBadRequest  = errors.New("password is empty")
+	idLength       = 5
+	fraudThreshold = 7
 )
 
 type Note struct {
@@ -52,55 +28,6 @@ type Note struct {
 	Published, Edited         time.Time
 	Views                     int
 	Content, Ads              template.HTML
-}
-
-func errPage(code int, details ...string) *Note {
-	text := errorCodes[code]
-	body := text
-	if len(details) > 0 {
-		body += ": " + strings.Join(details, ";")
-	}
-	n := &Note{
-		Title: text,
-		Text:  fmt.Sprintf("# %d %s", code, body),
-	}
-	n.prepare()
-	return n
-}
-
-func (n *Note) prepare() {
-	fstLine := rexpNewLine.Split(n.Text, -1)[0]
-	maxLength := 25
-	if len(fstLine) < 25 {
-		maxLength = len(fstLine)
-	}
-	n.Text = rexpNoScriptIframe.ReplaceAllString(n.Text, "")
-	n.Title = strings.TrimSpace(rexpNonAlphaNum.ReplaceAllString(fstLine[:maxLength], ""))
-	n.Content = mdTmplHTML([]byte(n.Text))
-}
-
-func persistStats(logger echo.Logger, db *sql.DB, stats *sync.Map) {
-	for {
-		time.Sleep(statsSavingInterval)
-		tx, err := db.Begin()
-		if err != nil {
-			logger.Error(err)
-			return
-		}
-		c := 0
-		stats.Range(func(id, views interface{}) bool {
-			stmt, _ := tx.Prepare("update notes set views = ? where id = ?")
-			_, err := stmt.Exec(views, id)
-			if err == nil {
-				c++
-			}
-			stmt.Close()
-			defer stats.Delete(id)
-			return true
-		})
-		tx.Commit()
-		logger.Infof("successfully persisted %d values", c)
-	}
 }
 
 func save(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
@@ -200,17 +127,4 @@ func load(c echo.Context, db *sql.DB) (*Note, int) {
 		n.Edited = editedVal.(time.Time)
 	}
 	return n, http.StatusOK
-}
-
-var mdRenderer = markdown.New(markdown.HTML(true))
-
-func mdTmplHTML(content []byte) template.HTML {
-	return template.HTML(mdRenderer.RenderToString(content))
-}
-
-func (n *Note) Fraud() bool {
-	stripped := rexpLink.ReplaceAllString(n.Text, "")
-	l1 := len(n.Text)
-	l2 := len(stripped)
-	return int(math.Ceil(100*float64(l1-l2)/float64(l1))) > fraudThreshold
 }

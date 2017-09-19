@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -74,7 +75,7 @@ func main() {
 			}
 		}
 		defer stats.Store(n.ID, views+1)
-		if n.Fraud() {
+		if fraudelent(n) {
 			n.Ads = mdTmplHTML(ads)
 		}
 		c.Logger().Debugf("/%q requested; response code: %d", n.ID, code)
@@ -160,14 +161,10 @@ func get(vals url.Values, key string) string {
 	return ""
 }
 
-func md2html(c echo.Context, name string) (*Note, int) {
-	path := "assets/markdown/" + name + ".md"
-	mdContent, err := ioutil.ReadFile(path)
-	if err != nil {
-		c.Logger().Errorf("couldn't open markdown page %q: %v", path, err)
-		code := http.StatusServiceUnavailable
-		return errPage(code), code
-	}
-	c.Logger().Debugf("rendering markdown page %q", name)
-	return &Note{Title: name, Content: mdTmplHTML(mdContent)}, http.StatusOK
+func fraudelent(n *Note) bool {
+	stripped := rexpLink.ReplaceAllString(n.Text, "")
+	l1 := len(n.Text)
+	l2 := len(stripped)
+	return n.Views > 100 &&
+		int(math.Ceil(100*float64(l1-l2)/float64(l1))) > fraudThreshold
 }
