@@ -1,6 +1,6 @@
 # README
 
-> "Make every detail perfect and limit the number of details to perfect."  
+> "Make every detail perfect and limit the number of details to perfect."   
 > — _Jack Dorsey_
 
 ## About
