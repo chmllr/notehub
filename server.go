@@ -150,6 +150,16 @@ func main() {
 		return c.Redirect(http.StatusMovedPermanently, "/"+n.ID)
 	})
 
+	e.POST("/:id/report", func(c echo.Context) error {
+		if legitAccess(c) {
+			err := email(c.Param("id"), c.FormValue("report"))
+			if err != nil {
+				c.Logger().Errorf("couldn't send email: %v", err)
+			}
+		}
+		return c.NoContent(http.StatusNoContent)
+	})
+
 	e.Logger.Fatal(e.Start(":3000"))
 }
 
