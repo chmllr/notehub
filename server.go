@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"math"
 	"net/http"
-	"net/url"
 	"os"
 	"sync"
 
@@ -115,29 +114,25 @@ func main() {
 		if !legitAccess(c) {
 			code := http.StatusTooManyRequests
 			c.Logger().Errorf("rate limit exceeded for %s", c.Request().RemoteAddr)
-			return c.Render(code, "Note", errPage(code))
+			return c.Render(code, "Note", responsePage(code))
 		}
-		vals, err := c.FormParams()
-		if err != nil {
-			return err
-		}
-		if get(vals, "tos") != "on" {
+		if c.FormValue("tos") != "on" {
 			code := http.StatusPreconditionFailed
 			c.Logger().Errorf("POST /note error: %d", code)
-			return c.Render(code, "Note", errPage(code))
+			return c.Render(code, "Note", responsePage(code))
 		}
-		text := get(vals, "text")
+		text := c.FormValue("text")
 		if 10 > len(text) || len(text) > 50000 {
 			code := http.StatusBadRequest
 			c.Logger().Errorf("POST /note error: %d", code)
 			return c.Render(code, "Note",
-				errPage(code, "note length not accepted"))
+				responsePage(code, "note length not accepted"))
 		}
-		id := get(vals, "id")
+		id := c.FormValue("id")
 		n := &Note{
 			ID:       id,
 			Text:     text,
-			Password: get(vals, "password"),
+			Password: c.FormValue("password"),
 		}
 		n, err = save(c, db, n)
 		if err != nil {
@@ -149,22 +144,13 @@ func main() {
 				code = http.StatusBadRequest
 			}
 			c.Logger().Errorf("POST /note error: %d", code)
-			return c.Render(code, "Note", errPage(code, err.Error()))
+			return c.Render(code, "Note", responsePage(code, err.Error()))
 		}
 		c.Logger().Debugf("note %q saved", n.ID)
 		return c.Redirect(http.StatusMovedPermanently, "/"+n.ID)
 	})
 
 	e.Logger.Fatal(e.Start(":3000"))
-}
-
-func get(vals url.Values, key string) string {
-	if list, found := vals[key]; found {
-		if len(list) == 1 {
-			return list[0]
-		}
-	}
-	return ""
 }
 
 func fraudelent(n *Note) bool {

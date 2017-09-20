@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	errorCodes = map[int]string{
+	statuses = map[int]string{
 		400: "Bad request",
 		401: "Unauthorized",
 		404: "Not found",
@@ -32,8 +32,8 @@ var (
 	errorBadRequest  = errors.New("password is empty")
 )
 
-func errPage(code int, details ...string) *Note {
-	text := errorCodes[code]
+func responsePage(code int, details ...string) *Note {
+	text := statuses[code]
 	body := text
 	if len(details) > 0 {
 		body += ": " + strings.Join(details, ";")
@@ -69,7 +69,7 @@ func md2html(c echo.Context, name string) (*Note, int) {
 	if err != nil {
 		c.Logger().Errorf("couldn't open markdown page %q: %v", path, err)
 		code := http.StatusServiceUnavailable
-		return errPage(code), code
+		return responsePage(code), code
 	}
 	c.Logger().Debugf("rendering markdown page %q", name)
 	return &Note{Title: name, Content: mdTmplHTML(mdContent)}, http.StatusOK

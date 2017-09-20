@@ -115,7 +115,7 @@ func load(c echo.Context, db *sql.DB) (*Note, int) {
 	if err := row.Scan(&id, &text, &published, &editedVal, &password, &views); err != nil {
 		c.Logger().Error(err)
 		code := http.StatusNotFound
-		return errPage(code), code
+		return responsePage(code), code
 	}
 	n := &Note{
 		ID:        id,
