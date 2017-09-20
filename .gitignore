@@ -3,3 +3,4 @@ npm-debug.log
 database.sqlite-journal
 .DS_Store
 vendor
+database.sqlite
