@@ -151,11 +151,13 @@ func main() {
 	})
 
 	e.POST("/:id/report", func(c echo.Context) error {
-		if legitAccess(c) {
-			err := email(c.Param("id"), c.FormValue("report"))
-			if err != nil {
+		report := c.FormValue("report")
+		if legitAccess(c) && report != "" {
+			id := c.Param("id")
+			if err := email(id, report); err != nil {
 				c.Logger().Errorf("couldn't send email: %v", err)
 			}
+			c.Logger().Debugf("note %s was reported", id)
 		}
 		return c.NoContent(http.StatusNoContent)
 	})
