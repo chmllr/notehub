@@ -67,10 +67,10 @@ func md2html(c echo.Context, name string) (*Note, int) {
 	path := "assets/markdown/" + name + ".md"
 	mdContent, err := ioutil.ReadFile(path)
 	if err != nil {
-		c.Logger().Errorf("couldn't open markdown page %q: %v", path, err)
+		c.Logger().Errorf("couldn't open markdown page %s: %v", path, err)
 		code := http.StatusServiceUnavailable
 		return responsePage(code), code
 	}
-	c.Logger().Debugf("rendering markdown page %q", name)
+	c.Logger().Debugf("rendering markdown page %s", name)
 	return &Note{Title: name, Content: mdTmplHTML(mdContent)}, http.StatusOK
 }

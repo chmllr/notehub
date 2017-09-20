@@ -41,7 +41,7 @@ func save(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
 }
 
 func update(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
-	c.Logger().Debugf("updating note %q", n.ID)
+	c.Logger().Debugf("updating note %s", n.ID)
 	if n.Password == "" {
 		return nil, errorBadRequest
 	}
@@ -61,7 +61,7 @@ func update(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
 		tx.Rollback()
 		return nil, errorUnathorised
 	}
-	c.Logger().Debugf("updating note %q; committing transaction", n.ID)
+	c.Logger().Debugf("updating note %s; committing transaction", n.ID)
 	return n, tx.Commit()
 }
 
@@ -78,13 +78,13 @@ func insert(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
 	if err != nil {
 		tx.Rollback()
 		if strings.HasPrefix(err.Error(), "UNIQUE constraint failed") {
-			c.Logger().Infof("collision on id %q", id)
+			c.Logger().Infof("collision on id %s", id)
 			return save(c, db, n)
 		}
 		return nil, err
 	}
 	n.ID = id
-	c.Logger().Debugf("inserting new note %q; commiting transaction", n.ID)
+	c.Logger().Debugf("inserting new note %s; commiting transaction", n.ID)
 	return n, tx.Commit()
 }
 
@@ -104,7 +104,7 @@ func randId() string {
 
 func load(c echo.Context, db *sql.DB) (*Note, int) {
 	q := c.Param("id")
-	c.Logger().Debugf("loading note %q", q)
+	c.Logger().Debugf("loading note %s", q)
 	stmt, _ := db.Prepare("select * from notes where id = ?")
 	defer stmt.Close()
 	row := stmt.QueryRow(q)

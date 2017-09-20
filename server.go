@@ -44,7 +44,7 @@ func main() {
 		var err error
 		ads, err = ioutil.ReadFile(adsFName)
 		if err != nil {
-			e.Logger.Errorf("couldn't read file %q: %v", adsFName, err)
+			e.Logger.Errorf("couldn't read file %s: %v", adsFName, err)
 		}
 	}
 
@@ -78,13 +78,13 @@ func main() {
 		if fraudelent(n) {
 			n.Ads = mdTmplHTML(ads)
 		}
-		c.Logger().Debugf("/%q requested; response code: %d", n.ID, code)
+		c.Logger().Debugf("/%s requested; response code: %d", n.ID, code)
 		return c.Render(code, "Note", n)
 	})
 
 	e.GET("/:id/export", func(c echo.Context) error {
 		n, code := load(c, db)
-		c.Logger().Debugf("/%q/export requested; response code: %d", n.ID, code)
+		c.Logger().Debugf("/%s/export requested; response code: %d", n.ID, code)
 		return c.String(code, n.Text)
 	})
 
@@ -94,13 +94,13 @@ func main() {
 		buf := bytes.NewBuffer([]byte{})
 		e.Renderer.Render(buf, "Stats", n, c)
 		n.Content = template.HTML(buf.String())
-		c.Logger().Debugf("/%q/stats requested; response code: %d", n.ID, code)
+		c.Logger().Debugf("/%s/stats requested; response code: %d", n.ID, code)
 		return c.Render(code, "Note", n)
 	})
 
 	e.GET("/:id/edit", func(c echo.Context) error {
 		n, code := load(c, db)
-		c.Logger().Debugf("/%q/edit requested; response code: %d", n.ID, code)
+		c.Logger().Debugf("/%s/edit requested; response code: %d", n.ID, code)
 		return c.Render(code, "Form", n)
 	})
 
@@ -146,7 +146,7 @@ func main() {
 			c.Logger().Errorf("POST /note error: %d", code)
 			return c.Render(code, "Note", responsePage(code, err.Error()))
 		}
-		c.Logger().Debugf("note %q saved", n.ID)
+		c.Logger().Debugf("note %s saved", n.ID)
 		return c.Redirect(http.StatusMovedPermanently, "/"+n.ID)
 	})
 
