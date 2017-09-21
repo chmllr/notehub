@@ -10,7 +10,9 @@ import (
 
 const statsSavingInterval = 1 * time.Minute
 
-func persistStats(logger echo.Logger, db *sql.DB, stats *sync.Map) {
+var stats = &sync.Map{}
+
+func persistStats(logger echo.Logger, db *sql.DB) {
 	for {
 		time.Sleep(statsSavingInterval)
 		tx, err := db.Begin()
@@ -34,4 +36,15 @@ func persistStats(logger echo.Logger, db *sql.DB, stats *sync.Map) {
 			logger.Infof("successfully persisted %d values", c)
 		}
 	}
+}
+
+func incViews(n *Note) {
+	views := n.Views
+	if val, ok := stats.Load(n.ID); ok {
+		intVal, ok := val.(int)
+		if ok {
+			views = intVal
+		}
+	}
+	defer stats.Store(n.ID, views+1)
 }

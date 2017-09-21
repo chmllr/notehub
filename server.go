@@ -8,7 +8,6 @@ import (
 	"math"
 	"net/http"
 	"os"
-	"sync"
 	"time"
 
 	"database/sql"
@@ -19,10 +18,7 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-var (
-	stats = &sync.Map{}
-	ads   []byte
-)
+const fraudThreshold = 7
 
 type Template struct{ templates *template.Template }
 
@@ -40,6 +36,7 @@ func main() {
 	}
 	defer db.Close()
 
+	var ads []byte
 	adsFName := os.Getenv("ADS")
 	if adsFName != "" {
 		var err error
@@ -49,7 +46,7 @@ func main() {
 		}
 	}
 
-	go persistStats(e.Logger, db, stats)
+	go persistStats(e.Logger, db)
 	go cleanAccessRegistry(e.Logger)
 
 	e.Renderer = &Template{templates: template.Must(template.ParseGlob("assets/templates/*.html"))}
@@ -67,15 +64,8 @@ func main() {
 
 	e.GET("/:id", func(c echo.Context) error {
 		n, code := load(c, db)
+		defer incViews(n)
 		n.prepare()
-		views := n.Views
-		if val, ok := stats.Load(n.ID); ok {
-			intVal, ok := val.(int)
-			if ok {
-				views = intVal
-			}
-		}
-		defer stats.Store(n.ID, views+1)
 		if fraudelent(n) {
 			n.Ads = mdTmplHTML(ads)
 		}

@@ -19,10 +19,7 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-const (
-	idLength       = 5
-	fraudThreshold = 7
-)
+const idLength = 5
 
 type Note struct {
 	ID, Title, Text, Password, DeprecatedPassword string
