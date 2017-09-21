@@ -12,9 +12,9 @@ web site are protected by applicable copyright and trademark law.
 ### 2. Use License
 
 a. Under this license you may not:
-   - (a) attempt to __modify, manipulate__ or __extend__ any software contained on NoteHub's web site;
-   - (b) create _any_ kind of content unlawful to __possess__, __produce__ or __distribute__ under your local law;
-   - (c) create 'hop' notes containing a collection of links to external resources;
+   1. attempt to __modify, manipulate__ or __extend__ any software contained on NoteHub's web site;
+   2. create _any_ kind of content unlawful to __possess__, __produce__ or __distribute__ under your local law;
+   3. create 'hop' notes containing a collection of links to external resources;
 
 b. This license shall automatically terminate if you violate any of these 
 restrictions and may be terminated by NoteHub at any time. Upon terminating 
