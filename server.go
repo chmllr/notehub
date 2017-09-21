@@ -140,7 +140,7 @@ func main() {
 			c.Logger().Errorf("POST /note error: %d", code)
 			return c.Render(code, "Note", responsePage(code, err.Error()))
 		}
-		c.Logger().Debugf("note %s saved", n.ID)
+		c.Logger().Infof("note %s saved", n.ID)
 		return c.Redirect(http.StatusMovedPermanently, "/"+n.ID)
 	})
 
@@ -194,7 +194,7 @@ func checkRecaptcha(c echo.Context, captchaResp string) bool {
 		return false
 	}
 	if !respJson.Success {
-		c.Logger().Errorf("captcha response validation failed: %v", respJson.ErrorCodes)
+		c.Logger().Warnf("captcha validation failed: %v", respJson.ErrorCodes)
 	}
 	return respJson.Success
 

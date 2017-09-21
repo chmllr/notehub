@@ -124,7 +124,6 @@ func load(c echo.Context, db *sql.DB) (*Note, int) {
 	var editedVal interface{}
 	var views int
 	if err := row.Scan(&id, &text, &published, &editedVal, &password, &views); err != nil {
-		c.Logger().Error(err)
 		code := http.StatusNotFound
 		return responsePage(code), code
 	}
