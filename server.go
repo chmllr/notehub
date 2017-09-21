@@ -107,7 +107,6 @@ func main() {
 	e.POST("/note", func(c echo.Context) error {
 		c.Logger().Debug("POST /note requested")
 		if !skipCaptcha && !checkRecaptcha(c, c.FormValue("g-recaptcha-response")) {
-			c.Logger().Warnf("captcha validation failed for %s", c.Request().RemoteAddr)
 			code := http.StatusForbidden
 			return c.Render(code, "Note", responsePage(code))
 		}
