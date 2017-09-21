@@ -4,3 +4,4 @@ database.sqlite-journal
 .DS_Store
 vendor
 database.sqlite
+notehub

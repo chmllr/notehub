@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"sync"
+	"time"
 
 	"database/sql"
 
@@ -162,7 +163,12 @@ func main() {
 		return c.NoContent(http.StatusNoContent)
 	})
 
-	e.Logger.Fatal(e.Start(":3000"))
+	s := &http.Server{
+		Addr:         ":3000",
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
+	e.Logger.Fatal(e.StartServer(s))
 }
 
 func fraudelent(n *Note) bool {
