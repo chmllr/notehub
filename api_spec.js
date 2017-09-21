@@ -109,7 +109,7 @@ frisby.create('Valid posting')
     })
     .toss();
 
-frisby.create('Valid posting, editing and more')
+frisby.create('Valid posting, editing and removal')
     .post('http://localhost:3000/note', {
         password: 'aabbcc',
         tos: 'on',
@@ -157,28 +157,56 @@ frisby.create('Valid posting, editing and more')
                             .get('http://localhost:3000/' + noteId)
                             .expectStatus(200)
                             .expectBodyContains('Changed text!') 
+                            .after((err, res, body) => {
+                                frisby.create('Read export of posted note')
+                                    .expectStatus(200)
+                                    .get('http://localhost:3000/' + noteId + '/export')
+                                    .expectHeaderContains('content-type', 'text/plain; charset=utf-8')
+                                    .expectBodyContains('Changed text!')
+                                    .toss();
+                                frisby.create('Open /edit on posted note')
+                                    .expectStatus(200)
+                                    .expectBodyContains('<textarea autofocus name="text">Changed text!</textarea>')
+                                    .get('http://localhost:3000/' + noteId + '/edit')
+                                    .toss();
+                                frisby.create('Read stats of posted note')
+                                    .get('http://localhost:3000/' + noteId + '/stats')
+                                    .expectHeaderContains('content-type', 'text/html; charset=utf-8')
+                                    .expectStatus(200)
+                                    .expectBodyContains('Statistics')
+                                    .expectBodyContains('<tr><td>Views</td><td>0</td></tr>')
+                                    .toss();
+                            })
+                            .after((err, res, body) => {
+                                frisby.create('Note available')
+                                    .get('http://localhost:3000/' + noteId)
+                                    .expectStatus(200)
+                                    .toss();
+                                frisby.create('Delete note with empty password')
+                                    .post('http://localhost:3000/note', { "id": noteId, "tos": "on", "text": "" })
+                                    .expectStatus(400)
+                                    .toss();
+                                frisby.create('Delete note with wrong password')
+                                    .post('http://localhost:3000/note', { "id": noteId, "tos": "on", "text": "", "password": "xxyycc" })
+                                    .expectStatus(401)
+                                    .toss();
+                            })
+                            .after((err, res, body) => {
+                                frisby.create('Delete note')
+                                    .post('http://localhost:3000/note', { "id": noteId, "tos": "on", "text": "", "password": "aabbcc" })
+                                    .expectStatus(301)
+                                    .after(function(err, res, body) {
+                                            frisby.create('Note unavailable')
+                                                .get('http://localhost:3000/' + noteId)
+                                                .expectStatus(404)
+                                                .toss();
+                                        })
+                                    .toss();
+                            })
                             .toss();
                     })
                     .toss();
             })
-            .toss();
-        frisby.create('Read export of posted note')
-            .expectStatus(200)
-            .get('http://localhost:3000/' + noteId + '/export')
-            .expectHeaderContains('content-type', 'text/plain; charset=utf-8')
-            .expectBodyContains(testNote)
-            .toss();
-        frisby.create('Open /edit on posted note')
-            .expectStatus(200)
-            .expectBodyContains('<textarea autofocus name="text">' + testNote + '</textarea>')
-            .get('http://localhost:3000/' + noteId + '/edit')
-            .toss();
-        frisby.create('Read stats of posted note')
-            .get('http://localhost:3000/' + noteId + '/stats')
-            .expectHeaderContains('content-type', 'text/html; charset=utf-8')
-            .expectStatus(200)
-            .expectBodyContains('Statistics')
-            .expectBodyContains('<tr><td>Views</td><td>0</td></tr>')
             .toss();
     })
     .toss();

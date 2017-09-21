@@ -54,9 +54,18 @@ func update(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
 	if err != nil {
 		return nil, err
 	}
-	stmt, _ := tx.Prepare("update notes set (text, edited, password) = (?, ?, ?) where id = ? and (password = ? or password = ?)")
+	s := "update notes set (text, edited, password) = (?, ?, ?) where id = ? and (password = ? or password = ?)"
+	if n.Text == "" {
+		s = "delete from notes where id = ? and (password = ? or password = ?)"
+	}
+	stmt, _ := tx.Prepare(s)
 	defer stmt.Close()
-	res, err := stmt.Exec(n.Text, time.Now(), n.Password, n.ID, n.Password, n.DeprecatedPassword)
+	var res sql.Result
+	if n.Text == "" {
+		res, err = stmt.Exec(n.ID, n.Password, n.DeprecatedPassword)
+	} else {
+		res, err = stmt.Exec(n.Text, time.Now(), n.Password, n.ID, n.Password, n.DeprecatedPassword)
+	}
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -66,7 +75,7 @@ func update(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
 		tx.Rollback()
 		return nil, errorUnathorised
 	}
-	c.Logger().Debugf("updating note %s; committing transaction", n.ID)
+	c.Logger().Debugf("updating note %s (deletion: %t); committing transaction", n.ID, n.Text == "")
 	return n, tx.Commit()
 }
 

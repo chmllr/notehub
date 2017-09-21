@@ -122,14 +122,15 @@ func main() {
 			c.Logger().Errorf("POST /note error: %d", code)
 			return c.Render(code, "Note", responsePage(code))
 		}
+		id := c.FormValue("id")
 		text := c.FormValue("text")
-		if 10 > len(text) || len(text) > 50000 {
+		l := len(text)
+		if (id == "" || id != "" && l != 0) && (10 > l || l > 50000) {
 			code := http.StatusBadRequest
 			c.Logger().Errorf("POST /note error: %d", code)
 			return c.Render(code, "Note",
 				responsePage(code, "note length not accepted"))
 		}
-		id := c.FormValue("id")
 		n := &Note{
 			ID:       id,
 			Text:     text,
