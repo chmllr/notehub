@@ -20,7 +20,6 @@ var (
 		403: "Forbidden",
 		404: "Not found",
 		412: "Precondition failed",
-		429: "Too many requests",
 		503: "Service unavailable",
 	}
 

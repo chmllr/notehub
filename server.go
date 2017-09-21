@@ -51,7 +51,6 @@ func main() {
 	}
 
 	go persistStats(e.Logger, db)
-	go cleanAccessRegistry(e.Logger)
 
 	e.Renderer = &Template{templates: template.Must(template.ParseGlob("assets/templates/*.html"))}
 
@@ -110,11 +109,6 @@ func main() {
 			code := http.StatusForbidden
 			return c.Render(code, "Note", responsePage(code))
 		}
-		if !legitAccess(c) {
-			code := http.StatusTooManyRequests
-			c.Logger().Errorf("rate limit exceeded for %s", c.Request().RemoteAddr)
-			return c.Render(code, "Note", responsePage(code))
-		}
 		if c.FormValue("tos") != "on" {
 			code := http.StatusPreconditionFailed
 			c.Logger().Errorf("POST /note error: %d", code)
@@ -152,7 +146,7 @@ func main() {
 
 	e.POST("/:id/report", func(c echo.Context) error {
 		report := c.FormValue("report")
-		if legitAccess(c) && report != "" {
+		if report != "" {
 			id := c.Param("id")
 			if err := email(id, report); err != nil {
 				c.Logger().Errorf("couldn't send email: %v", err)
