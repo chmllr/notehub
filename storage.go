@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/md5"
 	"crypto/sha256"
 	"database/sql"
 	"fmt"
@@ -24,15 +25,19 @@ const (
 )
 
 type Note struct {
-	ID, Title, Text, Password string
-	Published, Edited         time.Time
-	Views                     int
-	Content, Ads              template.HTML
+	ID, Title, Text, Password, DeprecatedPassword string
+	Published, Edited                             time.Time
+	Views                                         int
+	Content, Ads                                  template.HTML
 }
 
 func save(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
 	if n.Password != "" {
+		clean := n.Password
 		n.Password = fmt.Sprintf("%x", sha256.Sum256([]byte(n.Password)))
+		h := md5.New()
+		h.Write([]byte(clean))
+		n.DeprecatedPassword = fmt.Sprintf("%x", h.Sum(nil))
 	}
 	if n.ID == "" {
 		return insert(c, db, n)
@@ -49,9 +54,9 @@ func update(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
 	if err != nil {
 		return nil, err
 	}
-	stmt, _ := tx.Prepare("update notes set (text, edited) = (?, ?) where id = ? and password = ?")
+	stmt, _ := tx.Prepare("update notes set (text, edited, password) = (?, ?, ?) where id = ? and (password = ? or password = ?)")
 	defer stmt.Close()
-	res, err := stmt.Exec(n.Text, time.Now(), n.ID, n.Password)
+	res, err := stmt.Exec(n.Text, time.Now(), n.Password, n.ID, n.Password, n.DeprecatedPassword)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
