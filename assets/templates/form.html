@@ -3,22 +3,24 @@
 <html>
     <head>
         <title>NoteHub &mdash; {{if .ID}}Edit{{else}}Add{{end}} note</title>
-        <meta charset="UTF-8">
-        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <meta charset="UTF-8" />
+        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
         <link href="/style.css" rel="stylesheet" type="text/css" />
-        <base target="_blank">
+        <base target="_blank" />
+        <script src='https://www.google.com/recaptcha/api.js'></script>
     </head>
     <body>
         <form action="/note" autocomplete="off" method="POST" target="_self">
             <textarea autofocus name="text">{{.Text}}</textarea>
             <fieldset>
                 <input id="id" name="id" value="{{.ID}}" type="hidden" />
-                <input class="ui-elem" id="password" name="password" placeholder="Password for editing" type="text" autocomplete="off">
+                <input class="ui-elem" name="password" placeholder="Password for editing" type="text" autocomplete="off" />
                 <label style="margin-right: 1em">
-                    <input id="tos" name="tos" type="checkbox" onClick="toggleButton()">
+                    <input id="tos" name="tos" type="checkbox" onClick="toggleButton()" />
                     Accept <a href="/TOS.md">Terms of Service</a>
                 </label>
-                <input class="button ui-elem" disabled id="publish-button" name="button" type="submit" value="Publish">
+                <div id="captcha" class="g-recaptcha" data-sitekey="6LemnDEUAAAAAC6A4VNRefz0BSLiC343W4sXQd6I"></div>
+                <input class="button ui-elem" disabled id="publish-button" name="button" type="submit" value="Publish" />
             </fieldset>
         </form>
         <footer>
@@ -28,7 +30,10 @@
         </footer>
         <script>
             function $(id) { return document.getElementById(id) }
-            function toggleButton() { $('publish-button').disabled = !$('tos').checked }
+            function toggleButton() {
+                $('publish-button').disabled = !$('tos').checked;
+                $('captcha').style.display = $('tos').checked ? 'block' : 'none';
+            }
         </script>
     </body>
 </html>

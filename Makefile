@@ -1,5 +1,5 @@
 run:
-	go run *.go
+	SKIP_CAPTCHA=1 go run *.go
 
 test:
 	jasmine-node .

@@ -2,11 +2,13 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"html/template"
 	"io"
 	"io/ioutil"
 	"math"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 
@@ -35,6 +37,8 @@ func main() {
 		e.Logger.Error(err)
 	}
 	defer db.Close()
+
+	skipCaptcha := os.Getenv("SKIP_CAPTCHA") != ""
 
 	var ads []byte
 	adsFName := os.Getenv("ADS")
@@ -102,6 +106,11 @@ func main() {
 
 	e.POST("/note", func(c echo.Context) error {
 		c.Logger().Debug("POST /note requested")
+		if !skipCaptcha && !checkRecaptcha(c, c.FormValue("g-recaptcha-response")) {
+			c.Logger().Warnf("captcha validation failed for %s", c.Request().RemoteAddr)
+			code := http.StatusForbidden
+			return c.Render(code, "Note", responsePage(code))
+		}
 		if !legitAccess(c) {
 			code := http.StatusTooManyRequests
 			c.Logger().Errorf("rate limit exceeded for %s", c.Request().RemoteAddr)
@@ -168,4 +177,32 @@ func fraudelent(n *Note) bool {
 	l2 := len(stripped)
 	return n.Views > 100 &&
 		int(math.Ceil(100*float64(l1-l2)/float64(l1))) > fraudThreshold
+}
+
+func checkRecaptcha(c echo.Context, captchaResp string) bool {
+	resp, err := http.PostForm("https://www.google.com/recaptcha/api/siteverify", url.Values{
+		"secret":   []string{os.Getenv("RECAPTCHA_SECRET")},
+		"response": []string{captchaResp},
+		"remoteip": []string{c.Request().RemoteAddr},
+	})
+	if err != nil {
+		c.Logger().Errorf("captcha response verification failed: %v", err)
+		return false
+	}
+	defer resp.Body.Close()
+	respJson := &struct {
+		Success    bool     `json:"success"`
+		ErrorCodes []string `json:"error-codes"`
+	}{}
+	s, err := ioutil.ReadAll(resp.Body)
+	err = json.Unmarshal(s, respJson)
+	if err != nil {
+		c.Logger().Errorf("captcha response parse recaptcha response: %v", err)
+		return false
+	}
+	if !respJson.Success {
+		c.Logger().Errorf("captcha response validation failed: %v", respJson.ErrorCodes)
+	}
+	return respJson.Success
+
 }
