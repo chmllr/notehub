@@ -8,19 +8,23 @@
         <link href="/style.css" rel="stylesheet" type="text/css" />
         <base target="_blank" />
         <script src='https://www.google.com/recaptcha/api.js'></script>
+        <script src='/note.js'></script>
     </head>
     <body>
         <form action="/note" autocomplete="off" method="POST" target="_self">
-            <textarea autofocus name="text">{{.Text}}</textarea>
+            <textarea autofocus id="text">{{.Text}}</textarea>
             <fieldset>
-                <input id="id" name="id" value="{{.ID}}" type="hidden" />
-                <input class="ui-elem" name="password" placeholder="Password for editing" type="text" autocomplete="off" />
+                <input id="id" value="{{.ID}}" type="hidden" />
+                <input class="ui-elem" id="password" placeholder="Password for editing" type="text" autocomplete="off" />
                 <label style="margin-right: 1em">
-                    <input id="tos" name="tos" type="checkbox" onClick="toggleButton()" />
+                    <input id="tos" type="checkbox" onClick="toggleButton()" />
                     Accept <a href="/TOS.md">Terms of Service</a>
                 </label>
                 <div id="captcha" class="g-recaptcha" data-sitekey="6LemnDEUAAAAAC6A4VNRefz0BSLiC343W4sXQd6I"></div>
-                <input class="button ui-elem" disabled id="publish-button" name="button" type="submit" value="Publish Note" />
+                <button class="button ui-elem" disabled id="publish-button" type="button" onclick="submitForm()">
+                    {{if .ID}}Update{{else}}Publish{{end}} Note
+                </button>
+                <span id="feedback"></span>
             </fieldset>
         </form>
         <footer>
@@ -33,6 +37,27 @@
             function toggleButton() {
                 $('publish-button').disabled = !$('tos').checked;
                 $('captcha').style.display = $('tos').checked ? 'block' : 'none';
+            }
+            function submitForm() {
+                var id = $("id").value;
+                var text = $("text").value;
+                var deletion = id != "" && text == "";
+                if (deletion && !confirm("Do you want to delete this note?")) {
+                    return;
+                }
+                var resp = post("/", { 
+                    "id": id,
+                    "text": text,
+                    "tos": $("tos").value,
+                    "password": $("password").value
+                }, function (status, responseRaw) {
+                    var response = JSON.parse(responseRaw);
+                    if (status < 400 && response.Success) {
+                        window.location.replace(deletion ? "/" : "/" + response.Payload)
+                    } else {
+                        $('feedback').innerHTML = status + ": " + response.Payload;
+                    }
+                })
             }
         </script>
     </body>

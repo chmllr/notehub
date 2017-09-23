@@ -57,6 +57,7 @@ func main() {
 	e.File("/favicon.ico", "assets/public/favicon.ico")
 	e.File("/robots.txt", "assets/public/robots.txt")
 	e.File("/style.css", "assets/public/style.css")
+	e.File("/note.js", "assets/public/note.js")
 	e.File("/index.html", "assets/public/index.html")
 	e.File("/", "assets/public/index.html")
 
@@ -98,30 +99,46 @@ func main() {
 		return c.Render(code, "Form", n)
 	})
 
+	e.POST("/:id/report", func(c echo.Context) error {
+		report := c.FormValue("report")
+		if report != "" {
+			id := c.Param("id")
+			c.Logger().Infof("note %s was reported: %s", id, report)
+			if err := email(id, report); err != nil {
+				c.Logger().Errorf("couldn't send email: %v", err)
+			}
+		}
+		return c.NoContent(http.StatusNoContent)
+	})
+
 	e.GET("/new", func(c echo.Context) error {
 		c.Logger().Debug("/new requested")
 		return c.Render(http.StatusOK, "Form", nil)
 	})
 
-	e.POST("/note", func(c echo.Context) error {
-		c.Logger().Debug("POST /note requested")
+	type postResp struct {
+		Success bool
+		Payload string
+	}
+
+	e.POST("/", func(c echo.Context) error {
+		c.Logger().Debug("POST /")
 		if !skipCaptcha && !checkRecaptcha(c, c.FormValue("g-recaptcha-response")) {
 			code := http.StatusForbidden
-			return c.Render(code, "Note", responsePage(code))
+			return c.JSON(code, postResp{false, statuses[code]})
 		}
 		if c.FormValue("tos") != "on" {
 			code := http.StatusPreconditionFailed
-			c.Logger().Errorf("POST /note error: %d", code)
-			return c.Render(code, "Note", responsePage(code))
+			c.Logger().Errorf("POST / error: %d", code)
+			return c.JSON(code, postResp{false, statuses[code]})
 		}
 		id := c.FormValue("id")
 		text := c.FormValue("text")
 		l := len(text)
 		if (id == "" || id != "" && l != 0) && (10 > l || l > 50000) {
 			code := http.StatusBadRequest
-			c.Logger().Errorf("POST /note error: %d", code)
-			return c.Render(code, "Note",
-				responsePage(code, "note length not accepted"))
+			c.Logger().Errorf("POST / error: %d", code)
+			return c.JSON(code, postResp{false, statuses[code] + ": note length not accepted"})
 		}
 		n := &Note{
 			ID:       id,
@@ -137,23 +154,18 @@ func main() {
 			} else if err == errorBadRequest {
 				code = http.StatusBadRequest
 			}
-			c.Logger().Errorf("POST /note error: %d", code)
-			return c.Render(code, "Note", responsePage(code, err.Error()))
+			c.Logger().Errorf("POST / error: %d", code)
+			return c.JSON(code, postResp{false, statuses[code] + ": " + err.Error()})
 		}
-		c.Logger().Infof("note %s saved", n.ID)
-		return c.Redirect(http.StatusMovedPermanently, "/"+n.ID)
-	})
-
-	e.POST("/:id/report", func(c echo.Context) error {
-		report := c.FormValue("report")
-		if report != "" {
-			id := c.Param("id")
-			if err := email(id, report); err != nil {
-				c.Logger().Errorf("couldn't send email: %v", err)
-			}
-			c.Logger().Debugf("note %s was reported", id)
+		if id == "" {
+			c.Logger().Infof("note %s created", n.ID)
+			return c.JSON(http.StatusCreated, postResp{true, n.ID})
+		} else if text == "" {
+			c.Logger().Infof("note %s deleted", n.ID)
+			return c.JSON(http.StatusOK, postResp{true, n.ID})
 		}
-		return c.NoContent(http.StatusNoContent)
+		c.Logger().Infof("note %s updated", n.ID)
+		return c.JSON(http.StatusOK, postResp{true, n.ID})
 	})
 
 	s := &http.Server{

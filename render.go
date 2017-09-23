@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -28,23 +27,9 @@ var (
 	rexpNoScriptIframe = regexp.MustCompile("<.*?(iframe|script).*?>")
 	rexpLink           = regexp.MustCompile("(ht|f)tp://[^\\s]+")
 
-	errorUnathorised = errors.New("id or password is wrong")
+	errorUnathorised = errors.New("password is wrong")
 	errorBadRequest  = errors.New("password is empty")
 )
-
-func responsePage(code int, details ...string) *Note {
-	text := statuses[code]
-	body := text
-	if len(details) > 0 {
-		body += ": " + strings.Join(details, ";")
-	}
-	n := &Note{
-		Title: text,
-		Text:  fmt.Sprintf("# %d %s", code, body),
-	}
-	n.prepare()
-	return n
-}
 
 func (n *Note) prepare() {
 	fstLine := rexpNewLine.Split(n.Text, -1)[0]
@@ -69,7 +54,7 @@ func md2html(c echo.Context, name string) (*Note, int) {
 	if err != nil {
 		c.Logger().Errorf("couldn't open markdown page %s: %v", path, err)
 		code := http.StatusServiceUnavailable
-		return responsePage(code), code
+		return &Note{Title: statuses[code], Text: "# " + statuses[code]}, code
 	}
 	c.Logger().Debugf("rendering markdown page %s", name)
 	return &Note{Title: name, Content: mdTmplHTML(mdContent)}, http.StatusOK

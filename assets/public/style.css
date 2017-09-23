@@ -272,3 +272,8 @@ form {
 li {
     margin: 0.3em 0;
 }
+
+#feedback {
+    margin-left: 1em;
+    color: #f66;
+}

@@ -6,6 +6,7 @@
         <meta charset="UTF-8" />
         <meta content="width=device-width, initial-scale=1.0" name="viewport" />
         <link href="/style.css" rel="stylesheet" type="text/css" />
+        <script src='/note.js'></script>
     </head>
     <body>
         {{.Ads}}
@@ -18,21 +19,9 @@
             <a href="/{{.ID}}/stats">statistics</a> &middot;
             <a href="/{{.ID}}/edit">edit</a> &middot;
             <a href="/{{.ID}}/export">export</a> &middot;
-            <a href="javascript:void(0)" onclick="report()">report abuse</a> &middot;
+            <a href="javascript:void(0)" onclick="report({{.ID}})">report abuse</a> &middot;
             {{end}}
             <a href="/TOS.md">terms of service</a>
-            <script>
-                function report() {
-                    var resp = prompt("Please shortly explain the problem with this note.");
-                    if (resp) {
-                        var xhr = new XMLHttpRequest();
-                        xhr.open('POST', '/{{.ID}}/report');
-                        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                        xhr.send("report=" + encodeURIComponent(resp));
-                        alert("Thank you!")
-                    }
-                }
-            </script>
         </footer>
     </body>
 </html>
