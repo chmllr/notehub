@@ -123,9 +123,9 @@ func main() {
 
 	e.POST("/", func(c echo.Context) error {
 		c.Logger().Debug("POST /")
-		if !skipCaptcha && !checkRecaptcha(c, c.FormValue("g-recaptcha-response")) {
+		if !skipCaptcha && !checkRecaptcha(c, c.FormValue("token")) {
 			code := http.StatusForbidden
-			return c.JSON(code, postResp{false, statuses[code]})
+			return c.JSON(code, postResp{false, statuses[code] + ": robot check failed"})
 		}
 		if c.FormValue("tos") != "on" {
 			code := http.StatusPreconditionFailed

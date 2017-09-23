@@ -6,12 +6,11 @@
         <meta charset="UTF-8" />
         <meta content="width=device-width, initial-scale=1.0" name="viewport" />
         <link href="/style.css" rel="stylesheet" type="text/css" />
-        <base target="_blank" />
         <script src='https://www.google.com/recaptcha/api.js'></script>
         <script src='/note.js'></script>
     </head>
     <body>
-        <form action="/note" autocomplete="off" method="POST" target="_self">
+        <form autocomplete="off" onsubmit="return false">
             <textarea autofocus id="text">{{.Text}}</textarea>
             <fieldset>
                 <input id="id" value="{{.ID}}" type="hidden" />
@@ -20,8 +19,7 @@
                     <input id="tos" type="checkbox" onClick="toggleButton()" />
                     Accept <a href="/TOS.md">Terms of Service</a>
                 </label>
-                <div id="captcha" class="g-recaptcha" data-sitekey="6LemnDEUAAAAAC6A4VNRefz0BSLiC343W4sXQd6I"></div>
-                <button class="button ui-elem" disabled id="publish-button" type="button" onclick="submitForm()">
+                <button class="button ui-elem" disabled id="publish-button" type="button" onclick="grecaptcha.execute()">
                     {{if .ID}}Update{{else}}Publish{{end}} Note
                 </button>
                 <span id="feedback"></span>
@@ -34,11 +32,8 @@
         </footer>
         <script>
             function $(id) { return document.getElementById(id) }
-            function toggleButton() {
-                $('publish-button').disabled = !$('tos').checked;
-                $('captcha').style.display = $('tos').checked ? 'block' : 'none';
-            }
-            function submitForm() {
+            function toggleButton() { $('publish-button').disabled = !$('tos').checked }
+            function submitForm(token) {
                 var id = $("id").value;
                 var text = $("text").value;
                 var deletion = id != "" && text == "";
@@ -49,17 +44,24 @@
                     "id": id,
                     "text": text,
                     "tos": $("tos").value,
-                    "password": $("password").value
+                    "password": $("password").value,
+                    "token": token
                 }, function (status, responseRaw) {
                     var response = JSON.parse(responseRaw);
                     if (status < 400 && response.Success) {
                         window.location.replace(deletion ? "/" : "/" + response.Payload)
                     } else {
+                        grecaptcha.reset();
                         $('feedback').innerHTML = status + ": " + response.Payload;
                     }
                 })
             }
         </script>
+        <div class="g-recaptcha"
+          data-sitekey="6LfamjEUAAAAAANI45H3fpWG_xaSAcpYhENN4EnO"
+          data-callback="submitForm"
+          data-size="invisible">
+        </div>
     </body>
 </html>
 {{end}}
