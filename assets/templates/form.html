@@ -7,6 +7,7 @@
         <meta content="width=device-width, initial-scale=1.0" name="viewport" />
         <link href="/style.css" rel="stylesheet" type="text/css" />
         <script src='https://www.google.com/recaptcha/api.js'></script>
+        <script src='/new.js'></script>
         <script src='/note.js'></script>
     </head>
     <body>
@@ -30,33 +31,6 @@
             <a href="https://github.com/chmllr/NoteHub">source code</a> &middot;
             <a href="/TOS.md">terms of service</a>
         </footer>
-        <script>
-            function $(id) { return document.getElementById(id) }
-            function toggleButton() { $('publish-button').disabled = !$('tos').checked }
-            function submitForm(token) {
-                var id = $("id").value;
-                var text = $("text").value;
-                var deletion = id != "" && text == "";
-                if (deletion && !confirm("Do you want to delete this note?")) {
-                    return;
-                }
-                var resp = post("/", { 
-                    "id": id,
-                    "text": text,
-                    "tos": $("tos").value,
-                    "password": $("password").value,
-                    "token": token
-                }, function (status, responseRaw) {
-                    var response = JSON.parse(responseRaw);
-                    if (status < 400 && response.Success) {
-                        window.location.replace(deletion ? "/" : "/" + response.Payload)
-                    } else {
-                        grecaptcha.reset();
-                        $('feedback').innerHTML = status + ": " + response.Payload;
-                    }
-                })
-            }
-        </script>
         <div class="g-recaptcha"
           data-sitekey="6LfamjEUAAAAAANI45H3fpWG_xaSAcpYhENN4EnO"
           data-callback="submitForm"

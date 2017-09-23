@@ -57,6 +57,7 @@ func main() {
 	e.File("/favicon.ico", "assets/public/favicon.ico")
 	e.File("/robots.txt", "assets/public/robots.txt")
 	e.File("/style.css", "assets/public/style.css")
+	e.File("/new.js", "assets/public/new.js")
 	e.File("/note.js", "assets/public/note.js")
 	e.File("/index.html", "assets/public/index.html")
 	e.File("/", "assets/public/index.html")
