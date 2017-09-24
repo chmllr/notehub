@@ -78,8 +78,14 @@ func main() {
 	})
 
 	e.GET("/:id/export", func(c echo.Context) error {
+		id := c.Param("id")
 		n, code := load(c, db)
-		c.Logger().Debugf("/%s/export requested; response code: %d", n.ID, code)
+		defer incViews(n)
+		if fraudelent(n) {
+			code = http.StatusForbidden
+			n = statusNote(code)
+		}
+		c.Logger().Debugf("/%s/export requested; response code: %d", id, code)
 		if code == http.StatusOK {
 			return c.String(code, n.Text)
 		}
@@ -180,6 +186,10 @@ func main() {
 }
 
 func fraudelent(n *Note) bool {
+	res := rexpLink.FindAllString(n.Text, -1)
+	if len(res) < 3 {
+		return false
+	}
 	stripped := rexpLink.ReplaceAllString(n.Text, "")
 	l1 := len(n.Text)
 	l2 := len(stripped)

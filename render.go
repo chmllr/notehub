@@ -25,7 +25,7 @@ var (
 	rexpNewLine        = regexp.MustCompile("[\n\r]")
 	rexpNonAlphaNum    = regexp.MustCompile("[`~!@#$%^&*_|+=?;:'\",.<>{}\\/]")
 	rexpNoScriptIframe = regexp.MustCompile("<.*?(iframe|script).*?>")
-	rexpLink           = regexp.MustCompile("(ht|f)tp://[^\\s]+")
+	rexpLink           = regexp.MustCompile("(ht|f)tps?://[^\\s]+")
 
 	errorUnathorised = errors.New("password is wrong")
 	errorBadRequest  = errors.New("password is empty")
