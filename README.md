@@ -9,7 +9,18 @@ Dead simple hosting for markdown notes.
 
 ## Running
 
-Install `dep` using Homebrew and run it inside project to install the dependencies: `dep ensure`.
+1. Install `dep` using Homebrew and run it inside project to install the dependencies: `dep ensure`.
+2. Create a data base by running `make db`.
+3. Run the app with `make run`.
 
-Now you can run the app with `make run`.
+### ENV variables used:
 
+- For emailing of report abuse:
+  - `SMTP_SERVER`: 
+  - `SMTP_USER`
+  - `SMTP_PASSWORD`
+  - `NOTEHUB_ADMIN_EMAIL`
+- Recaptcha secret:
+  - `RECAPTCHA_SECRET`
+- Debugging:
+  - `SKIP_CAPTCHA` (expected to be non-empty)
