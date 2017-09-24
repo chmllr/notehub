@@ -9,6 +9,7 @@ import (
 	"html/template"
 	"math/rand"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -20,6 +21,8 @@ func init() {
 }
 
 const idLength = 5
+
+var rexpNoteID = regexp.MustCompile("[a-z0-9]+")
 
 type Note struct {
 	ID, Title, Text, Password, DeprecatedPassword string
@@ -38,6 +41,9 @@ func save(c echo.Context, db *sql.DB, n *Note) (*Note, error) {
 	}
 	if n.ID == "" {
 		return insert(c, db, n)
+	}
+	if !rexpNoteID.Match([]byte(n.ID)) {
+		return nil, errorBadRequest
 	}
 	return update(c, db, n)
 }
@@ -115,6 +121,10 @@ func randId() string {
 
 func load(c echo.Context, db *sql.DB) (*Note, int) {
 	q := c.Param("id")
+	if !rexpNoteID.Match([]byte(q)) {
+		code := http.StatusNotFound
+		return statusNote(code), code
+	}
 	c.Logger().Debugf("loading note %s", q)
 	stmt, _ := db.Prepare("select * from notes where id = ?")
 	defer stmt.Close()
@@ -125,7 +135,7 @@ func load(c echo.Context, db *sql.DB) (*Note, int) {
 	var views int
 	if err := row.Scan(&id, &text, &published, &editedVal, &password, &views); err != nil {
 		code := http.StatusNotFound
-		return &Note{Title: statuses[code], Text: "# " + statuses[code]}, code
+		return statusNote(code), code
 	}
 	n := &Note{
 		ID:        id,
@@ -136,5 +146,6 @@ func load(c echo.Context, db *sql.DB) (*Note, int) {
 	if editedVal != nil {
 		n.Edited = editedVal.(time.Time)
 	}
+	n.prepare()
 	return n, http.StatusOK
 }

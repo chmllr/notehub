@@ -70,7 +70,6 @@ func main() {
 	e.GET("/:id", func(c echo.Context) error {
 		n, code := load(c, db)
 		defer incViews(n)
-		n.prepare()
 		if fraudelent(n) {
 			n.Ads = mdTmplHTML(ads)
 		}
@@ -81,7 +80,10 @@ func main() {
 	e.GET("/:id/export", func(c echo.Context) error {
 		n, code := load(c, db)
 		c.Logger().Debugf("/%s/export requested; response code: %d", n.ID, code)
-		return c.String(code, n.Text)
+		if code == http.StatusOK {
+			return c.String(code, n.Text)
+		}
+		return c.Render(code, "Note", n)
 	})
 
 	e.GET("/:id/stats", func(c echo.Context) error {

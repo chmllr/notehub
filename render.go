@@ -31,6 +31,12 @@ var (
 	errorBadRequest  = errors.New("password is empty")
 )
 
+func statusNote(code int) *Note {
+	n := &Note{Text: "# " + statuses[code]}
+	n.prepare()
+	return n
+}
+
 func (n *Note) prepare() {
 	fstLine := rexpNewLine.Split(n.Text, -1)[0]
 	maxLength := 25
@@ -54,7 +60,7 @@ func md2html(c echo.Context, name string) (*Note, int) {
 	if err != nil {
 		c.Logger().Errorf("couldn't open markdown page %s: %v", path, err)
 		code := http.StatusServiceUnavailable
-		return &Note{Title: statuses[code], Text: "# " + statuses[code]}, code
+		return statusNote(code), code
 	}
 	c.Logger().Debugf("rendering markdown page %s", name)
 	return &Note{Title: name, Content: mdTmplHTML(mdContent)}, http.StatusOK
