@@ -75,14 +75,16 @@ func main() {
 	e.GET("/:id", func(c echo.Context) error {
 		id := c.Param("id")
 		n, code := load(c, db)
-		c.Logger().Debugf("/%s requested; response code: %d", id, code)
 		if code != http.StatusOK {
+			c.Logger().Errorf("/%s failed (code: %d)", code)
 			return c.String(code, statuses[code])
 		}
 		defer incViews(n, db)
-		if fraudelent(n) {
+		fraud := fraudelent(n)
+		if fraud {
 			n.Ads = mdTmplHTML(ads)
 		}
+		c.Logger().Debugf("/%s delivered (fraud: %t)", id, fraud)
 		return c.Render(code, "Note", n)
 	})
 
@@ -95,27 +97,38 @@ func main() {
 			if fraudelent(n) {
 				code = http.StatusForbidden
 				content = statuses[code]
+				c.Logger().Warnf("/%s/export failed (code: %d)", id, code)
 			} else {
 				content = n.Text
+				c.Logger().Debugf("/%s/export delivered", id)
 			}
 		}
-		c.Logger().Debugf("/%s/export requested; response code: %d", id, code)
 		return c.String(code, content)
 	})
 
 	e.GET("/:id/stats", func(c echo.Context) error {
+		id := c.Param("id")
 		n, code := load(c, db)
+		if code != http.StatusOK {
+			c.Logger().Errorf("/%s/stats failed (code: %d)", code)
+			return c.String(code, statuses[code])
+		}
 		n.prepare()
 		buf := bytes.NewBuffer([]byte{})
 		e.Renderer.Render(buf, "Stats", n, c)
 		n.Content = template.HTML(buf.String())
-		c.Logger().Debugf("/%s/stats requested; response code: %d", n.ID, code)
+		c.Logger().Debugf("/%s/stats delivered", id)
 		return c.Render(code, "Note", n)
 	})
 
 	e.GET("/:id/edit", func(c echo.Context) error {
+		id := c.Param("id")
 		n, code := load(c, db)
-		c.Logger().Debugf("/%s/edit requested; response code: %d", n.ID, code)
+		if code != http.StatusOK {
+			c.Logger().Errorf("/%s/edit failed (code: %d)", code)
+			return c.String(code, statuses[code])
+		}
+		c.Logger().Debugf("/%s/edit delivered", id)
 		return c.Render(code, "Form", n)
 	})
 
@@ -132,7 +145,7 @@ func main() {
 	})
 
 	e.GET("/new", func(c echo.Context) error {
-		c.Logger().Debug("/new requested")
+		c.Logger().Debug("/new opened")
 		return c.Render(http.StatusOK, "Form", nil)
 	})
 
