@@ -123,7 +123,7 @@ func load(c echo.Context, db *sql.DB) (*Note, int) {
 	q := c.Param("id")
 	if !rexpNoteID.Match([]byte(q)) {
 		code := http.StatusNotFound
-		return statusNote(code), code
+		return nil, code
 	}
 	c.Logger().Debugf("loading note %s", q)
 	stmt, _ := db.Prepare("select * from notes where id = ?")
@@ -135,7 +135,7 @@ func load(c echo.Context, db *sql.DB) (*Note, int) {
 	var views int
 	if err := row.Scan(&id, &text, &published, &editedVal, &password, &views); err != nil {
 		code := http.StatusNotFound
-		return statusNote(code), code
+		return nil, code
 	}
 	n := &Note{
 		ID:        id,

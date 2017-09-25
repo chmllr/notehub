@@ -64,32 +64,39 @@ func main() {
 
 	e.GET("/TOS.md", func(c echo.Context) error {
 		n, code := md2html(c, "TOS")
+		if code != http.StatusOK {
+			c.String(code, statuses[code])
+		}
 		return c.Render(code, "Page", n)
 	})
 
 	e.GET("/:id", func(c echo.Context) error {
+		id := c.Param("id")
 		n, code := load(c, db)
+		c.Logger().Debugf("/%s requested; response code: %d", id, code)
+		if code != http.StatusOK {
+			return c.String(code, statuses[code])
+		}
 		defer incViews(n)
 		if fraudelent(n) {
 			n.Ads = mdTmplHTML(ads)
 		}
-		c.Logger().Debugf("/%s requested; response code: %d", n.ID, code)
 		return c.Render(code, "Note", n)
 	})
 
 	e.GET("/:id/export", func(c echo.Context) error {
 		id := c.Param("id")
 		n, code := load(c, db)
-		defer incViews(n)
-		if fraudelent(n) {
-			code = http.StatusForbidden
-			n = statusNote(code)
+		content := statuses[code]
+		if code == http.StatusOK {
+			defer incViews(n)
+			if fraudelent(n) {
+				code = http.StatusForbidden
+			}
+			content = n.Text
 		}
 		c.Logger().Debugf("/%s/export requested; response code: %d", id, code)
-		if code == http.StatusOK {
-			return c.String(code, n.Text)
-		}
-		return c.Render(code, "Note", n)
+		return c.String(code, content)
 	})
 
 	e.GET("/:id/stats", func(c echo.Context) error {
@@ -171,9 +178,9 @@ func main() {
 			return c.JSON(http.StatusCreated, postResp{true, n.ID})
 		} else if text == "" {
 			c.Logger().Infof("note %s deleted", n.ID)
-			return c.JSON(http.StatusOK, postResp{true, n.ID})
+		} else {
+			c.Logger().Infof("note %s updated", n.ID)
 		}
-		c.Logger().Infof("note %s updated", n.ID)
 		return c.JSON(http.StatusOK, postResp{true, n.ID})
 	})
 
