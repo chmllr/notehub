@@ -22,5 +22,5 @@ Dead simple hosting for markdown notes.
   - `NOTEHUB_ADMIN_EMAIL`
 - Recaptcha secret:
   - `RECAPTCHA_SECRET`
-- Debugging:
-  - `SKIP_CAPTCHA` (expected to be non-empty)
+- Test mode:
+  - `TEST_MODE` (expected to be non-empty; skips captcha, no writes buffering for stats)

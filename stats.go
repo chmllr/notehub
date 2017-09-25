@@ -12,33 +12,40 @@ const statsSavingInterval = 1 * time.Minute
 
 var stats = &sync.Map{}
 
-func persistStats(logger echo.Logger, db *sql.DB) {
+func flushStatsLoop(logger echo.Logger, db *sql.DB) {
 	for {
-		time.Sleep(statsSavingInterval)
-		tx, err := db.Begin()
+		c, err := flush(db)
 		if err != nil {
-			logger.Error(err)
-			return
+			logger.Errorf("couldn't flush stats: %v", err)
 		}
-		c := 0
-		stats.Range(func(id, views interface{}) bool {
-			stmt, _ := tx.Prepare("update notes set views = ? where id = ?")
-			_, err := stmt.Exec(views, id)
-			if err == nil {
-				c++
-			}
-			stmt.Close()
-			defer stats.Delete(id)
-			return true
-		})
-		tx.Commit()
+
 		if c > 0 {
 			logger.Infof("successfully persisted %d values", c)
 		}
+		time.Sleep(statsSavingInterval)
 	}
 }
 
-func incViews(n *Note) {
+func flush(db *sql.DB) (int, error) {
+	c := 0
+	tx, err := db.Begin()
+	if err != nil {
+		return c, err
+	}
+	stats.Range(func(id, views interface{}) bool {
+		stmt, _ := tx.Prepare("update notes set views = ? where id = ?")
+		_, err := stmt.Exec(views, id)
+		if err == nil {
+			c++
+		}
+		stmt.Close()
+		defer stats.Delete(id)
+		return true
+	})
+	return c, tx.Commit()
+}
+
+func incViews(n *Note, db *sql.DB) {
 	views := n.Views
 	if val, ok := stats.Load(n.ID); ok {
 		intVal, ok := val.(int)
@@ -46,5 +53,8 @@ func incViews(n *Note) {
 			views = intVal
 		}
 	}
-	defer stats.Store(n.ID, views+1)
+	stats.Store(n.ID, views+1)
+	if TEST_MODE {
+		flush(db)
+	}
 }

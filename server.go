@@ -22,6 +22,8 @@ import (
 
 const fraudThreshold = 7
 
+var TEST_MODE = false
+
 type Template struct{ templates *template.Template }
 
 func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
@@ -38,7 +40,7 @@ func main() {
 	}
 	defer db.Close()
 
-	skipCaptcha := os.Getenv("SKIP_CAPTCHA") != ""
+	TEST_MODE = os.Getenv("TEST_MODE") != ""
 
 	var ads []byte
 	adsFName := os.Getenv("ADS")
@@ -50,7 +52,7 @@ func main() {
 		}
 	}
 
-	go persistStats(e.Logger, db)
+	go flushStatsLoop(e.Logger, db)
 
 	e.Renderer = &Template{templates: template.Must(template.ParseGlob("assets/templates/*.html"))}
 
@@ -77,7 +79,7 @@ func main() {
 		if code != http.StatusOK {
 			return c.String(code, statuses[code])
 		}
-		defer incViews(n)
+		defer incViews(n, db)
 		if fraudelent(n) {
 			n.Ads = mdTmplHTML(ads)
 		}
@@ -87,13 +89,15 @@ func main() {
 	e.GET("/:id/export", func(c echo.Context) error {
 		id := c.Param("id")
 		n, code := load(c, db)
-		content := statuses[code]
+		var content string
 		if code == http.StatusOK {
-			defer incViews(n)
+			defer incViews(n, db)
 			if fraudelent(n) {
 				code = http.StatusForbidden
+				content = statuses[code]
+			} else {
+				content = n.Text
 			}
-			content = n.Text
 		}
 		c.Logger().Debugf("/%s/export requested; response code: %d", id, code)
 		return c.String(code, content)
@@ -139,7 +143,7 @@ func main() {
 
 	e.POST("/", func(c echo.Context) error {
 		c.Logger().Debug("POST /")
-		if !skipCaptcha && !checkRecaptcha(c, c.FormValue("token")) {
+		if !TEST_MODE && !checkRecaptcha(c, c.FormValue("token")) {
 			code := http.StatusForbidden
 			return c.JSON(code, postResp{false, statuses[code] + ": robot check failed"})
 		}
