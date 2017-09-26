@@ -76,7 +76,7 @@ func main() {
 		id := c.Param("id")
 		n, code := load(c, db)
 		if code != http.StatusOK {
-			c.Logger().Errorf("/%s failed (code: %d)", code)
+			c.Logger().Errorf("/%s failed (code: %d)", id, code)
 			return c.String(code, statuses[code])
 		}
 		defer incViews(n, db)
@@ -110,7 +110,7 @@ func main() {
 		id := c.Param("id")
 		n, code := load(c, db)
 		if code != http.StatusOK {
-			c.Logger().Errorf("/%s/stats failed (code: %d)", code)
+			c.Logger().Errorf("/%s/stats failed (code: %d)", id, code)
 			return c.String(code, statuses[code])
 		}
 		n.prepare()
@@ -125,7 +125,7 @@ func main() {
 		id := c.Param("id")
 		n, code := load(c, db)
 		if code != http.StatusOK {
-			c.Logger().Errorf("/%s/edit failed (code: %d)", code)
+			c.Logger().Errorf("/%s/edit failed (code: %d)", id, code)
 			return c.String(code, statuses[code])
 		}
 		c.Logger().Debugf("/%s/edit delivered", id)
