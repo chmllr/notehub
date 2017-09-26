@@ -24,3 +24,8 @@ Dead simple hosting for markdown notes.
   - `RECAPTCHA_SECRET`
 - Test mode:
   - `TEST_MODE` (expected to be non-empty; skips captcha, no writes buffering for stats)
+
+## Testing
+
+1. Install `frisby`: `go get -u github.com/verdverm/frisby`.
+2. Run `make tests`
