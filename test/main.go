@@ -340,5 +340,38 @@ func main() {
 		ExpectStatus(200).
 		ExpectJson("Success", true)
 
+	frisby.Create("Test publishing malicious note").
+		Post(service+"/").
+		SetData("tos", "on").
+		SetData("password", "qwerty").
+		SetData("text", "Foo <script>alert(1)</script> Bar <iframe src=''></iframe>").
+		Send().
+		ExpectStatus(201).
+		ExpectJson("Success", true).
+		AfterJson(func(F *frisby.Frisby, json *simplejson.Json, err error) {
+			noteID, err := json.Get("Payload").String()
+			if err != nil {
+				F.AddError(err.Error())
+				return
+			}
+			id = noteID
+		})
+
+	frisby.Create("Test export of fraudulent note").
+		Get(service + "/" + id).
+		Send().
+		ExpectStatus(200).
+		ExpectContent("Foo  Bar")
+
+	frisby.Create("Test deletion of malicious note").
+		Post(service+"/").
+		SetData("id", id).
+		SetData("tos", "on").
+		SetData("text", "").
+		SetData("password", "qwerty").
+		Send().
+		ExpectStatus(200).
+		ExpectJson("Success", true)
+
 	frisby.Global.PrintReport()
 }
