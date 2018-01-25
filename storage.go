@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"fmt"
 	"html/template"
+	"math"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -29,6 +30,18 @@ type Note struct {
 	Published, Edited                             time.Time
 	Views                                         int
 	Content, Ads                                  template.HTML
+}
+
+func (n *Note) fraudelent() bool {
+	res := rexpLink.FindAllString(n.Text, -1)
+	if len(res) < 3 {
+		return false
+	}
+	stripped := rexpLink.ReplaceAllString(n.Text, "")
+	l1 := len(n.Text)
+	l2 := len(stripped)
+	return n.Views > 100 &&
+		int(math.Ceil(100*float64(l1-l2)/float64(l1))) > fraudThreshold
 }
 
 func save(c echo.Context, db *sql.DB, n *Note) (*Note, error) {

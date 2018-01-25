@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"io"
 	"io/ioutil"
-	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -80,7 +79,7 @@ func main() {
 			return c.String(code, statuses[code])
 		}
 		defer incViews(n, db)
-		fraud := fraudelent(n)
+		fraud := n.fraudelent()
 		if fraud {
 			n.Ads = mdTmplHTML(ads)
 		}
@@ -94,7 +93,7 @@ func main() {
 		var content string
 		if code == http.StatusOK {
 			defer incViews(n, db)
-			if fraudelent(n) {
+			if n.fraudelent() {
 				code = http.StatusForbidden
 				content = statuses[code]
 				c.Logger().Warnf("/%s/export failed (code: %d)", id, code)
@@ -207,18 +206,6 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 	e.Logger.Fatal(e.StartServer(s))
-}
-
-func fraudelent(n *Note) bool {
-	res := rexpLink.FindAllString(n.Text, -1)
-	if len(res) < 3 {
-		return false
-	}
-	stripped := rexpLink.ReplaceAllString(n.Text, "")
-	l1 := len(n.Text)
-	l2 := len(stripped)
-	return n.Views > 100 &&
-		int(math.Ceil(100*float64(l1-l2)/float64(l1))) > fraudThreshold
 }
 
 func checkRecaptcha(c echo.Context, captchaResp string) bool {

@@ -67,8 +67,6 @@ func main() {
 		ExpectJson("Payload", "Bad request: note length not accepted")
 
 	testNote := "# Hello World!\nThis is a _test_ note!"
-	testNoteHTML := "<h1>Hello World!</h1>\n<p>This is a <em>test</em> note!</p>"
-	var id string
 
 	tooLongNote := testNote
 	for len(tooLongNote) < 50000 {
@@ -84,6 +82,7 @@ func main() {
 		ExpectJson("Success", false).
 		ExpectJson("Payload", "Bad request: note length not accepted")
 
+	var id string
 	frisby.Create("Test publishing: correct inputs; no password").
 		Post(service+"/").
 		SetData("tos", "on").
@@ -100,6 +99,7 @@ func main() {
 			id = noteID
 		})
 
+	testNoteHTML := "<h1>Hello World!</h1>\n<p>This is a <em>test</em> note!</p>"
 	frisby.Create("Test retrieval of new note").
 		Get(service + "/" + id).
 		Send().
@@ -118,18 +118,18 @@ func main() {
 		ExpectHeader("Content-type", "text/plain; charset=UTF-8").
 		ExpectContent(testNote)
 
-		// TODO: fix this
-	// frisby.Create("Test opening fake service on note").
-	// 	Get(service + "/" + id + "/asd").
-	// 	Send().
-	// 	ExpectStatus(404).
-	// 	PrintBody().
-	// 	ExpectContent("Not found")
+	frisby.Create("Test opening fake service on note").
+		Get(service + "/" + id + "/asd").
+		Send().
+		ExpectStatus(404).
+		ExpectContent("Not Found")
+
+	// TODO: fix this
 	// frisby.Create("Test opening fake service on note 2").
 	// 	Get(service + "/" + id + "/exports").
 	// 	Send().
 	// 	ExpectStatus(404).
-	// 	ExpectContent("Not found")
+	// 	ExpectContent("Not Found")
 
 	frisby.Create("Test stats of new note").
 		Get(service + "/" + id + "/stats").

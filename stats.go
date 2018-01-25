@@ -47,10 +47,9 @@ func flush(db *sql.DB) (int, error) {
 
 func incViews(n *Note, db *sql.DB) {
 	views := n.Views
-	if val, ok := stats.Load(n.ID); ok {
-		intVal, ok := val.(int)
-		if ok {
-			views = intVal
+	if viewsCached, found := stats.Load(n.ID); found {
+		if val, ok := viewsCached.(int); ok {
+			views = val
 		}
 	}
 	stats.Store(n.ID, views+1)
