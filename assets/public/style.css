@@ -8,8 +8,8 @@ html, body {
     font-family: sans-serif;
     padding: 0;
     margin: 0;
-    color: #b0b0b0;
-    background: #353a3a;
+    color: #353a3a;
+    background: #c5caca;
 }
 
 #hero {
@@ -26,15 +26,16 @@ html, body {
 a {
     border-bottom: 1px dotted;
     text-decoration: none;
-    color: #097;
+    font-weight: bold;
+    color: #086;
 }
 
 a:hover {
-    color: #0a8;
+    color: #097;
 }
 
 a:visited {
-    color: #086;
+    color: #075;
 }
 
 .button {
@@ -92,7 +93,8 @@ footer a {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-weight: 400;
+    font-family: Tahoma, Verdana, Arial, sans-serif;
+    color: #353a3a;
 }
 
 h1 {
@@ -134,7 +136,6 @@ h6 {
 
 article {
     text-align: justify;
-    font-weight: 300;
     margin-top: 3em;
     margin-bottom: 5em;
     margin-right: auto;
@@ -165,7 +166,7 @@ strong {
     font-weight: 600;
 }
 
-em, blockquote {
+blockquote {
     font-family: Georgia, Palatino, "Palatino Linotype", serif;
 }
 
@@ -189,8 +190,9 @@ blockquote {
 pre, code {
     white-space: pre-wrap;
     font-family: monospace;
+    font-size: 1.1em;
     border-radius: 3px;
-    background-color: #303535;
+    background-color: #b5baba;
 }
 
 pre {
@@ -203,7 +205,7 @@ table {
 }
 
 th {
-    background-color: #303535;
+    background-color: #b5baba;
     line-height: 2.5em;
     padding: 0.3em;
 }
@@ -218,32 +220,9 @@ td {
     padding: 0.5em;
 }
 
-/* MEDIA QUERIES */
-
-@media screen and (min-width: 1024px) {
-    article, .central-element {
-        width: 800px;
-    }
-    #dashed-line {
-        margin-bottom: 3em;
-        margin-top: 3em;
-    }
-}
-
-@media screen and (max-width: 1023px) {
-    article, .central-element {
-        width: 90%;
-    }
-    #dashed-line {
-        margin-bottom: 0.5em;
-        margin-top: 0.5em;
-    }
-}
-
 textarea {
-    background-color: #303535;
+    background-color: #b5baba;
     font-size: 1.2em;
-    color: #b0b0b0;
     border-radius: 5px;
     flex: 1 0;
     margin: 3em;
@@ -276,5 +255,28 @@ li {
 
 #feedback {
     margin-left: 1em;
-    color: #f66;
+    color: #a22;
 }
+
+/* MEDIA QUERIES */
+
+@media screen and (min-width: 1024px) {
+    article, .central-element {
+        width: 800px;
+    }
+    #dashed-line {
+        margin-bottom: 3em;
+        margin-top: 3em;
+    }
+}
+
+@media screen and (max-width: 1023px) {
+    article, .central-element {
+        width: 90%;
+    }
+    #dashed-line {
+        margin-bottom: 0.5em;
+        margin-top: 0.5em;
+    }
+}
+
