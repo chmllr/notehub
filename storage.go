@@ -21,18 +21,24 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-const idLength = 5
+const (
+	idLength       = 5
+	fraudThreshold = 7
+)
 
-var rexpNoteID = regexp.MustCompile("[a-z0-9]+")
+var (
+	rexpNoteID = regexp.MustCompile("[a-z0-9]+")
+	rexpLink   = regexp.MustCompile("(ht|f)tps?://[^\\s]+")
+)
 
 type Note struct {
-	ID, Title, Text, Password, DeprecatedPassword string
-	Published, Edited                             time.Time
-	Views                                         int
-	Content, Ads                                  template.HTML
+	ID, Title, Text, Password, DeprecatedPassword, Encoded string
+	Published, Edited                                      time.Time
+	Views                                                  int
+	Content, Ads                                           template.HTML
 }
 
-func (n *Note) fraudelent() bool {
+func (n *Note) Fraud() bool {
 	res := rexpLink.FindAllString(n.Text, -1)
 	if len(res) < 3 {
 		return false
@@ -40,7 +46,7 @@ func (n *Note) fraudelent() bool {
 	stripped := rexpLink.ReplaceAllString(n.Text, "")
 	l1 := len(n.Text)
 	l2 := len(stripped)
-	return n.Views > 100 &&
+	return n.Views > 30 &&
 		int(math.Ceil(100*float64(l1-l2)/float64(l1))) > fraudThreshold
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"errors"
 	"html/template"
 	"io/ioutil"
@@ -25,7 +26,6 @@ var (
 	rexpNewLine        = regexp.MustCompile("[\n\r]")
 	rexpNonAlphaNum    = regexp.MustCompile("[`~!@#$%^&*_|+=?;:'\",.<>{}\\/]")
 	rexpNoScriptIframe = regexp.MustCompile("(<.*?script.*?>.*?<.*?/.*?script.*?>|<.*?iframe.*?>|</.*?iframe.*?>)")
-	rexpLink           = regexp.MustCompile("(ht|f)tps?://[^\\s]+")
 
 	errorUnathorised = errors.New("password is wrong")
 	errorBadRequest  = errors.New("password is empty")
@@ -40,6 +40,9 @@ func (n *Note) prepare() {
 	n.Text = rexpNoScriptIframe.ReplaceAllString(n.Text, "")
 	n.Title = strings.TrimSpace(rexpNonAlphaNum.ReplaceAllString(fstLine[:maxLength], ""))
 	n.Content = mdTmplHTML([]byte(n.Text))
+	if n.Fraud() {
+		n.Encoded = base64.StdEncoding.EncodeToString([]byte(n.Content))
+	}
 }
 
 var mdRenderer = markdown.New(markdown.HTML(true))

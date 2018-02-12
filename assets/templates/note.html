@@ -9,10 +9,19 @@
         <script src='/note.js'></script>
     </head>
     <body>
+        {{if .Fraud}}
         {{.Ads}}
+        <input type="hidden" id="encoded" value="{{.Encoded}}" />
+        <article></article>
+        <script>
+            document.getElementsByTagName("article")[0].innerHTML =
+                decodeURIComponent(escape(window.atob(document.getElementById("encoded").value)));
+        </script>
+        {{else}}
         <article>
             {{.Content}}
         </article>
+        {{end}}
         <footer>
             <a href="/">&#8962; notehub</a> &middot;
             {{if .ID}}
@@ -21,7 +30,7 @@
             <a href="/{{.ID}}/export">export</a> &middot;
             <a href="javascript:void(0)" onclick="report({{.ID}})">report abuse</a> &middot;
             {{end}}
-            <a href="/TOS.md">terms of service</a>
+            <a href="/TOS.md">tos</a>
         </footer>
     </body>
 </html>

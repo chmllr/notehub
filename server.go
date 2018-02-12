@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -18,8 +18,6 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
 )
-
-const fraudThreshold = 7
 
 var TEST_MODE = false
 
@@ -41,14 +39,14 @@ func main() {
 
 	TEST_MODE = os.Getenv("TEST_MODE") != ""
 
-	var ads []byte
 	adsFName := os.Getenv("ADS")
+	var ads template.HTML
 	if adsFName != "" {
-		var err error
-		ads, err = ioutil.ReadFile(adsFName)
+		data, err := ioutil.ReadFile(adsFName)
 		if err != nil {
 			e.Logger.Errorf("couldn't read file %s: %v", adsFName, err)
 		}
+		ads = mdTmplHTML(data)
 	}
 
 	go flushStatsLoop(e.Logger, db)
@@ -79,11 +77,8 @@ func main() {
 			return c.String(code, statuses[code])
 		}
 		defer incViews(n, db)
-		fraud := n.fraudelent()
-		if fraud {
-			n.Ads = mdTmplHTML(ads)
-		}
-		c.Logger().Debugf("/%s delivered (fraud: %t)", id, fraud)
+		n.Ads = ads
+		c.Logger().Debugf("/%s delivered (fraud: %t)", id, n.Fraud())
 		return c.Render(code, "Note", n)
 	})
 
@@ -93,7 +88,7 @@ func main() {
 		var content string
 		if code == http.StatusOK {
 			defer incViews(n, db)
-			if n.fraudelent() {
+			if n.Fraud() {
 				code = http.StatusForbidden
 				content = statuses[code]
 				c.Logger().Warnf("/%s/export failed (code: %d)", id, code)
@@ -112,12 +107,11 @@ func main() {
 			c.Logger().Errorf("/%s/stats failed (code: %d)", id, code)
 			return c.String(code, statuses[code])
 		}
-		n.prepare()
-		buf := bytes.NewBuffer([]byte{})
-		e.Renderer.Render(buf, "Stats", n, c)
-		n.Content = template.HTML(buf.String())
-		c.Logger().Debugf("/%s/stats delivered", id)
-		return c.Render(code, "Note", n)
+		stats := fmt.Sprintf("Published: %s\n    Views: %d", n.Published, n.Views)
+		if !n.Edited.IsZero() {
+			stats = fmt.Sprintf("Published: %s\n   Edited: %s\n    Views: %d", n.Published, n.Edited, n.Views)
+		}
+		return c.String(code, stats)
 	})
 
 	e.GET("/:id/edit", func(c echo.Context) error {

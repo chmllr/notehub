@@ -135,7 +135,7 @@ func main() {
 		Get(service + "/" + id + "/stats").
 		Send().
 		ExpectStatus(200).
-		ExpectContent("<tr><td>Views</td><td>4</td></tr>").
+		ExpectContent("Views: 4").
 		ExpectContent("Published")
 
 	frisby.Create("Test edit page of new note").
@@ -310,7 +310,7 @@ func main() {
 		Get(service + "/" + id + "/stats").
 		Send().
 		ExpectStatus(200).
-		ExpectContent("<tr><td>Views</td><td>102</td></tr>").
+		ExpectContent("Views: 102").
 		ExpectContent("Published")
 
 	frisby.Create("Test export of fraudulent note").
