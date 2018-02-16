@@ -46,7 +46,7 @@ func (n *Note) Fraud() bool {
 	stripped := rexpLink.ReplaceAllString(n.Text, "")
 	l1 := len(n.Text)
 	l2 := len(stripped)
-	return n.Views > 30 &&
+	return n.Views > 150 &&
 		int(math.Ceil(100*float64(l1-l2)/float64(l1))) > fraudThreshold
 }
 
